@@ -1,0 +1,12 @@
+def moveWhileFrontIsClear:
+    while front_is_clear:
+        move   
+moveWhileFrontIsClear
+turnleft
+move
+move
+turnleft
+moveWhileFrontIsClear
+turnleft
+moveWhileFrontIsClear
+turnoff

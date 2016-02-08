@@ -1,0 +1,59 @@
+        SIP    MAIN
+
+        ORG 0xA0
+A:      DB    -1, 2, -2, 4,  -4,  7, -7,  10, -10, 12, -12, 13, -13, 15, 16,-16
+B:      DB   -15, 3, -3, 9, -11, 13, 15, -17,  21, 22,  20, 19,  18, 17, 16, 16
+C:      BSS  16
+
+        ORG    0x00
+MAIN:   load   r0,16
+        load   r1,1
+        load   r2,0  ; counter
+        load   r5,A  ; address of
+        load   r6,B  ; address of
+        load   r7,C  ; address of
+
+Loop:   iload  r3,[r5]
+        iload  r4,[r6]
+
+        push   r0
+        push   r4
+        push   r3
+        
+        call   MULT
+
+        pop     r3
+        pop     r4
+        pop     r0
+        istore  ra,[r7]
+        add    r2,r2,r1
+        add    r5,r5,r1
+        add    r6,r6,r1
+        add    r7,r7,r1
+        jmple  r2<=r0,Loop
+        halt
+
+        org     0x40
+MULT:   push    RD
+        move    rd,re
+
+
+         rload   r9,3[RD]
+        rload    ra,2[RD]
+     
+ 
+TestBNeg: jmple   r9<=r0,TestANeg
+        move r0,r0
+TestANeg:  jmple   ra<=r0,BothNeg
+        
+BothNeg: 
+        load  r0,-1 
+        xor    ra,ra,r0
+         add    ra,ra,r1
+         xor    r9,r9,r0
+         add    r9,r9,r1
+        add     r9,r9,rc
+        add     ra,ra,r9
+        pop     rd
+        ret     
+mask: db  0xFF 
