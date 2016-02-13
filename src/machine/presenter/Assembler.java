@@ -1,3 +1,13 @@
+/**
+ * Program: Assembler.java
+ *
+ * Purpose:
+ *
+ * @author:
+ *
+ * date/ver: 
+ */
+
 package machine.presenter;
 
 import java.awt.Desktop;
@@ -157,17 +167,16 @@ public class Assembler {
             }
          
 
-             logfile.newLine();      
-//This loop prints the defined information
-         
-             for (int i =0; i<defList.size(); i++){
+            logfile.newLine();      
+            //This loop prints the defined information
+            for (int i =0; i<defList.size(); i++){
                 logfile.append(defList.get(i));
                 logfile.newLine();
                 
                 
             }
          logfile.newLine();
-         //This loop prints the referance information
+         //This loop prints the reference information
           for (int i =0; i<refList.size(); i++){
               logfile.append(refList.get(i));
                 logfile.newLine();
@@ -208,7 +217,7 @@ public class Assembler {
     }
     private void labelMatching(String labelAppears) {
    //Programmer: Mariela Barrera
-   //Finds where all the labels are refrenced
+   //Finds where all the labels are referenced
         for (int i =0; i<codeList.size(); i++){ 
             if (codeList.get(i).contains(labelAppears)){
             labelAppearsLine = i+1;
@@ -260,12 +269,20 @@ public class Assembler {
         int i;
         for (i = 0; i < lineCount; i++) { // Removes comments
             codeList.add(lines[i]);
-            tokens = lines[i].split(";");
+            //Comment character changes from ";" to "#" - 2/11/16
+            tokens = lines[i].split("#");
+            if (!lines[i].trim().equals("#")){
+                codes[i] = tokens[0].trim();
+            }//end if
+            else{
+                codes[i] = "";
+            }//end else
+            /*tokens = lines[i].split(";");
             if (!lines[i].trim().equals(";")) {
                 codes[i] = tokens[0].trim();
             } else {
                 codes[i] = "";
-            }
+            }*/
         }
 
 		// codes[] now has all the code and labels

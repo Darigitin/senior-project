@@ -1,3 +1,12 @@
+/**
+ * Program: Clock.java
+ * 
+ * Purpose:
+ * 
+ * @author:
+ * 
+ * date/ver:
+ */
 package machine.presenter;
 
 import java.util.Timer;
