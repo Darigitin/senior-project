@@ -161,7 +161,7 @@ public class Disassembler {
 			return "rstore " + "R" + thirdNibble + ",0x" + secondNibble + "[R"
 					+ fourthNibble + "]";
 		} else if (firstNibble.equals("F")) {
-			return "jmpLE " + "R" + secondNibble + "<=R0,0x" + secondByte;
+			return "jmpLT " + "R" + secondNibble + "<R0,0x" + secondByte;  // change "jmpLE" to "jmpLT" and "<=" to "<"
 		}
 		return "invalid";
 	}

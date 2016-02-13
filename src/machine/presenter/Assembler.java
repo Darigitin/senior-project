@@ -34,7 +34,7 @@ public class Assembler {
     private static String[] operations = {"LOAD", "STORE", "MOVE", "ADD", "CALL", "RET",
         "SCALL", "SRET", "PUSH", "POP", "OR", "AND", "XOR",
         "ROR", "JMPEQ", "JMP", "HALT", "ILOAD", "ISTORE",
-        "RLOAD", "RSTORE", "JMPLE"};
+        "RLOAD", "RSTORE", "JMPLT"}; 
     BufferedWriter logfile;
     String[] codes;
     String[] labels;
@@ -353,7 +353,7 @@ public class Assembler {
                 } else if (tokens[0].toUpperCase().equals("DB")) { 	// handle DB pseudo-op
                     System.out.println("Inside passTwo, before dbTwoLocation, currentLocation = " + currentLocation);
                     logList.add("Inside passTwo, before dbTwoLocation, currentLocation = " + currentLocation);
-                    currentLocation += dbTwoLocation(codes[i], i, currentLocation, i);
+                    currentLocation += dbTwoLocation(codes[i], i, currentLocation, i + 1);
                     System.out.println("Inside passTwo, after dbTwoLocation, currentLocation = " + currentLocation);
                     logList.add("Inside passTwo, after dbTwoLocation, currentLocation = " + currentLocation);
                 } else if (tokens[0].toUpperCase().equals("BSS")) { // handle BSS pseudo-op
@@ -377,7 +377,7 @@ public class Assembler {
                 currentLocation = labelMap.get(labels[i]);
             } else if (!codes[i].trim().isEmpty() && !isPseudoOp(tokens[0])) {
                 bytes = getByteCode(codes[i].trim(), i + 1);
-                currentLocation += bytcodeInTemp(bytes, currentLocation, i + 1);
+                currentLocation += bytcodeInTemp(bytes, currentLocation, i);
             }
         }
 
@@ -573,7 +573,11 @@ public class Assembler {
             for (int i = 0; i < result - 1; i++) {
                 tempMem[currentLocation + i] = intToHex(Integer.toString((int) temp.charAt(i + 1)));
             }
+<<<<<<< HEAD
             result -= 1;
+=======
+            //tempMem[currentLocation + result] = "00";
+>>>>>>> guojun
         } else {
             String[] args = temp.split(",");
             for (int i = 0; i < args.length; i++) {
@@ -650,8 +654,8 @@ public class Assembler {
                     return rload(args[0], args[1], line);
                 } else if (op.toUpperCase().equals("RSTORE")) {
                     return "D" + rstore(args[0], args[1], line);
-                } else if (op.toUpperCase().equals("JMPLE")) {
-                    return "F" + jmple(args[0], args[1], line);
+                } else if (op.toUpperCase().equals("JMPLT")) {    //change "JMPLE" to "JMPLT"
+                    return "F" + jmplt(args[0], args[1], line);   //change "JMPLE" to "JMPLT"
                 }
             } else if (args.length == 3) {	// 3 arguments found
                 System.out.println("Operation :" + op + " args :" + args[0]
@@ -768,12 +772,12 @@ public class Assembler {
      * @param firstArg
      * @param secondArg
      * @param line
-     * @return Last three bytes for assembly of the JMPLE instruction
+     * @return Last three bytes for assembly of the JMPLT instruction
      */
-    private String jmple(String firstArg, String secondArg, int line) {
+    private String jmplt(String firstArg, String secondArg, int line) { //change "JMPLE" to "JMPLT"
         String result = "000";
-        if (firstArg.toUpperCase().contains("<=R0")) {
-            String first[] = firstArg.split("<=");
+        if (firstArg.toUpperCase().contains("<R0")) {   //change "<=R0" to "<R0"
+            String first[] = firstArg.split("<");       //change "<=" to "<"
             firstArg = getRegister(first[0], line);
             if (labelMap.containsKey(secondArg)) { // arg is a label
                 result = firstArg + intToHex(Integer.toString(labelMap.get(secondArg)));
@@ -782,12 +786,12 @@ public class Assembler {
             } else if (isHex(secondArg)) { // arg is hex
                 result = firstArg + secondArg.substring(2, 4);
             } else {
-                errorList.add("Error: Invalid destination for JMPLE on line " + line);
-              
+                errorList.add("Error: Invalid destination for JMPLT on line " + line);
+                                                        //change "JMPLE" to "JMPLT"
             }
         } else {
-            errorList.add("Error: Missing equal sign for JMPLE on line " + line);
-        }
+            errorList.add("Error: Missing equal sign for JMPLT on line " + line);
+        }                                               //change "JMPLE" to "JMPLT"
         return result;
     }
 

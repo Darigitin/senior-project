@@ -162,7 +162,7 @@ public class Clock {
 				execute();
 				break;
 			case 'F':
-				if(jmple(secondNibble)){
+				if(jmplt(secondNibble)){         // change "jmple" to "jmplt"
 					execute(secondByte);
 				} else {
 					execute();
@@ -486,11 +486,11 @@ public class Clock {
 		controller.setMemoryValue(offsetAddress, value);
 	}
 	/**
-	 * Opcode F - JMPLE
+	 * Opcode F - JMPLT
 	 * @param register
 	 * @return
 	 */
-	private boolean jmple(int register) {
+	private boolean jmplt(int register) {        // change "jmple" to "jmplt"
 		int value = Integer.parseInt(controller.getRegisterValue(register),16);
 		int registerZero = Integer.parseInt(controller.getRegisterValue(0),16);
 //		if (registerZero > 127) {
@@ -499,7 +499,7 @@ public class Clock {
 //		if (value > 127) {
 //			value -= 256;
 //		}
-		if (value <= registerZero){
+		if (value < registerZero){        // change "<=" to "<"
 			return true;
 		} else {
 			return false;
