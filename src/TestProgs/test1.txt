@@ -30,7 +30,7 @@ Loop:   iload  r3,[r5]
         add    r5,r5,r1
         add    r6,r6,r1
         add    r7,r7,r1
-        jmple  r2<=r0,Loop
+        jmplt  r2<r0,Loop   ; change "jmple" to "jmplt" and "<=" to "<"
         halt
 
         org     0x40
@@ -42,9 +42,9 @@ MULT:   push    RD
         rload    ra,2[RD]
      
  
-TestBNeg: jmple   r9<=r0,TestANeg
+TestBNeg: jmplt   r9<r0,TestANeg             ; change "jmple" to "jmplt" and "<=" to "<"
         move r0,r0
-TestANeg:  jmple   ra<=r0,BothNeg
+TestANeg:  jmplt   ra<r0,BothNeg             ; change "jmple" to "jmplt" and "<=" to "<"
         
 BothNeg: 
         load  r0,-1 
