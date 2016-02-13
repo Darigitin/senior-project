@@ -574,7 +574,6 @@ public class Assembler {
                 tempMem[currentLocation + i] = intToHex(Integer.toString((int) temp.charAt(i + 1)));
             }
             result -= 1;
-            //tempMem[currentLocation + result] = "00";
         } else {
             String[] args = temp.split(",");
             for (int i = 0; i < args.length; i++) {
