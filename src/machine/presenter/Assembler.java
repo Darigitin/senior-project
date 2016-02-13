@@ -7,7 +7,7 @@
  
  * date/ver: 
  *
-
+*/
 package machine.presenter;
 
 import java.awt.Desktop;
@@ -590,11 +590,8 @@ public class Assembler {
             for (int i = 0; i < result - 1; i++) {
                 tempMem[currentLocation + i] = intToHex(Integer.toString((int) temp.charAt(i + 1)));
             }
-<<<<<<< HEAD
             result -= 1;
-=======
             //tempMem[currentLocation + result] = "00";
->>>>>>> guojun
         } else {
             String[] args = temp.split(",");
             for (int i = 0; i < args.length; i++) {
