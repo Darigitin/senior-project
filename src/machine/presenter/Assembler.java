@@ -1,12 +1,12 @@
-/**
+/*
  * Program: Assembler.java
- *
+ 
  * Purpose:
- *
+ 
  * @author:
- *
+ 
  * date/ver: 
- */
+ *
 
 package machine.presenter;
 
