@@ -804,7 +804,7 @@ public class Assembler {
                                                         //change "JMPLE" to "JMPLT"
             }
         } else {
-            errorList.add("Error: Missing equal sign for JMPLT on line " + line);
+            errorList.add("Error: Missing less than sign for JMPLT on line " + line);
         }                                               //change "JMPLE" to "JMPLT"
         return result;
     }
@@ -824,7 +824,7 @@ public class Assembler {
         String tokens[] = secondArg.split("\\[");
         if (tokens.length == 2 && tokens[1].endsWith("]")) {
             if (isSingleHex(tokens[0])) {
-                offset = tokens[0].toUpperCase().substring(2, 3);
+                offset = tokens[0].toUpperCase().substring(2, 4);
             } else if (tokens[0].startsWith("-") && tokens[0].length() == 2) {
                 int number = Integer.parseInt(tokens[0].toUpperCase().substring(1, 2));
                 switch (number) {
@@ -1010,7 +1010,7 @@ public class Assembler {
      */
     private String jmpeq(String firstArg, String secondArg, int line) {
         String result = "000";
-        if (firstArg.contains("=R0")) {
+        if (firstArg.toUpperCase().contains("=R0")) {
             String first[] = firstArg.split("=");
             firstArg = getRegister(first[0], line);
             if (labelMap.containsKey(secondArg)) { // arg is a label

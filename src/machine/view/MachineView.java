@@ -955,6 +955,13 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
     }
     
     public void reset() {
+        System.out.println("Resetting registers");
+        if (registerTable.isEditing()){
+            registerTable.getCellEditor().cancelCellEditing();
+        }
+        if (ramTable.isEditing()){
+            ramTable.getCellEditor().cancelCellEditing();
+        }
         for (int i = 0; i < 16; i++) {
             if (i == 13 || i == 14) {
                 registerTable.setValueAt("FF", i, 1);
