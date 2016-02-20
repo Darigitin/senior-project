@@ -150,7 +150,7 @@ public class Disassembler {
 				String sb = input[location - 1];
 				if (fb.substring(0, 1).equals("2") && fb.substring(1, 2).equals(thirdNibble)) {
 					// delete last operation then do this
-					return "rload " + "R" + thirdNibble + ",0x" + sb.substring(1, 2) + "[R" + fourthNibble + "]";
+                                    return "rload " + "R" + thirdNibble + ",0x" + sb.substring(1, 2) + "[R" + fourthNibble + "]";
 				} else {
 					return "ERROR";
 				}

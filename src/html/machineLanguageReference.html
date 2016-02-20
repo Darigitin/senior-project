@@ -552,10 +552,11 @@ and open the template in the editor.
                             <br/>
                             Ex: RLOAD R3,4[R4]
                             <br/>
-                            =&gt; machine code bytes are 23 04 D2 34
+                            =&gt; machine code bytes are 23 F4 D2 34
                             <br/>
                             (Note that this operation assembles into two op-codes, the first is an <br>
-                            immediate load to store the offset and the second is the relative load.)
+                                immediate load to store the offset (the third nibble F, being a flag for <br> 
+                                rload)and the second is the relative load.)<br/>
                         </td>
                     </tr>
 			     <tr>
