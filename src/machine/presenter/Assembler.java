@@ -889,7 +889,7 @@ public class Assembler {
         String tokens[] = secondArg.split("\\[");
         if (tokens.length == 2 && tokens[1].endsWith("]")) {
             if (isSingleHex(tokens[0])) {
-                offset = tokens[0].toUpperCase().substring(2, 3);
+                offset = tokens[0].toUpperCase().substring(3, 4);
             } else if (tokens[0].startsWith("-") && tokens[0].length() == 2) {
                 int number = Integer.parseInt(tokens[0].toUpperCase().substring(1, 2));
                 switch (number) {
@@ -1286,14 +1286,13 @@ public class Assembler {
      * @return True if it is Hex, false if not
      */
     private boolean isSingleHex(String number) {
-        if (number.length() != 3) {
+        if (number.length() != 4) {
             return false;
-        } else {
-            if (number.substring(0, 2).equalsIgnoreCase("0x")
-                && number.substring(2, 3).toUpperCase().matches("[0-9A-F]")) {
+        } else if (number.substring(0, 3).equalsIgnoreCase("0x0")
+                && number.substring(3, 4).toUpperCase().matches("[0-9A-F]")) {
                 return true;
-            }
-        }
+          }
+        
         return false;
     }
 
