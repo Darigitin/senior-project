@@ -1180,6 +1180,36 @@ public class Assembler {
      * @param secondArg
      * @return Last three bytes for assembly of the STORE instruction
      */
+    
+    //modified store  --- the store command is: STORE [XY], RN
+    //store the value in register N in the memory cell at address XY
+    private String store(String firstArg, String secondArg, int line) {
+        String result = "000";
+        secondArg = getRegister(secondArg, line);
+        if (firstArg.startsWith("[") == false || firstArg.endsWith("]") == false){
+            errorList.add("Error: STORE operations on line " + line
+                    + " has invalid arguments.");
+        }
+        else{
+            if (firstArg.startsWith("[") && firstArg.endsWith("]")) {
+                firstArg = firstArg.substring(1, firstArg.length() - 1);
+                if (labelMap.containsKey(firstArg)) {
+                    result = secondArg + intToHex(Integer.toString(labelMap.get(firstArg)));
+                } else if (isHex(firstArg)) {
+                    result = secondArg + firstArg.substring(2, 4);
+                } else if (isInt(firstArg)) {
+                    result = secondArg + intToHex(firstArg);
+                } else {
+                    errorList.add("Error: STORE operations on line " + line
+                        + " has invalid arguments.");               
+                }
+            }
+        }
+        
+        return result;
+    }
+    
+    /*
     private String store(String firstArg, String secondArg, int line) {
         String result = "000";
         firstArg = getRegister(firstArg, line);
@@ -1198,7 +1228,7 @@ public class Assembler {
             }
         }
         return result;
-    }
+    }*/
 
     /**
      * Helper method Returns a string with the corresponding register
