@@ -955,7 +955,6 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
     }
     
     public void reset() {
-        System.out.println("Resetting registers");
         if (registerTable.isEditing()){
             registerTable.getCellEditor().cancelCellEditing();
         }
