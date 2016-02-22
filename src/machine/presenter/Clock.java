@@ -94,8 +94,13 @@ public class Clock {
 				execute();
 				break;
 			case '2': 
-				immediateLoad(secondNibble,secondByte);
-				execute();
+				//immediateLoad(secondNibble,secondByte);
+                                //jl948836 - 2/20/16 - modified immediate load to take
+                                //third parameter. thirdNibble
+                                //thirdNibble will be a flag incases of the immediateLoad
+                                //being compiled by the rload instruction.
+				immediateLoad(secondNibble, secondByte, thirdNibble);
+                                execute();
 				break;
 			case '3': 
 				directStore(secondNibble, secondByte);
@@ -222,14 +227,16 @@ public class Clock {
 	}
 	
 	/**
-	 * Opcode 2 - LOAD
+         *  jl948836 - 2/20/16 - modified immediate load to take
+         *  third parameter. thirdNibble
+         * Opcode 2 - LOAD
 	 * @param register
 	 * @param memIndex
 	 */
-	private void immediateLoad(int register, int memIndex) {
-			String memory = Integer.toHexString(memIndex);
+	private void immediateLoad(int register, int memIndex, int rloadFlag) {
+		String memory = Integer.toHexString(memIndex);
 		controller.setRegisterValue(register, memory);
-		if (register == 0x0F){
+                if (register == 0x0F && rloadFlag != 15){
 			printRegisterF();
 		}
 	}
@@ -522,7 +529,7 @@ public class Clock {
 		char c = ' ';
 		int temp = Integer.parseInt(controller.getRegisterValue(15), 16);
 		if ((temp >= 32 && temp < 127) || temp == '\n') {
-			c = (char)temp;	
+			c = (char)temp;
 		}
 		controller.setConsoleText(c);
 	}

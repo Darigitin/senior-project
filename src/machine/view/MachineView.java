@@ -3,6 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+/* Change Log
+    #1 Matt Vertefeuille 02/22/16 Reset button now unfocuses all cell editoring on press
+*/
 package machine.view;
 
 import machine.model.ColumnHeaderRenderer;
@@ -955,12 +958,12 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
     }
     
     public void reset() {
-        if (registerTable.isEditing()){
+        if (registerTable.isEditing()){                         //Change Log Begin #1
             registerTable.getCellEditor().cancelCellEditing();
         }
         if (ramTable.isEditing()){
             ramTable.getCellEditor().cancelCellEditing();
-        }
+        }                                                       //Change Log End #1
         for (int i = 0; i < 16; i++) {
             if (i == 13 || i == 14) {
                 registerTable.setValueAt("FF", i, 1);

@@ -6,8 +6,14 @@
  * @author:
  
  * date/ver: 
- *
+ */
+
+/* Change Log
+    #1 Matt Vertefeuille 02/22/16 Bug Fix - jmpeq syntax now works with "R0" instead of just "r0"
+    #2 Matt Vertefeuille 02/22/16 Bug Fix - rload now requires 0x0N for using a hex offset instead of 0xN
+    #3 Matt Vertefeuille 02/22/16 Bug Fix - Removed the null character being appended to the end of String using DB
 */
+
 package machine.presenter;
 
 import java.awt.Desktop;
@@ -17,6 +23,7 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -263,35 +270,29 @@ public class Assembler {
         int lineCount = lines.length;
         codes = new String[lineCount];
         labels = new String[lineCount];
-		// tokens[0] has code
-        // tokens[1] has comments
         String[] tokens;
         int i;
+        
         for (i = 0; i < lineCount; i++) { // Removes comments
             codeList.add(lines[i]);
             //Comment character changes from ";" to "#" - 2/11/16
-            tokens = lines[i].split("#");
-            if (!lines[i].trim().equals("#")){
-                codes[i] = tokens[0].trim();
+            tokens = lines[i].split("#"); //tokens[0] = code, tokens[1] = comments
+            if (!lines[i].trim().equals("#")){ //if entire line is NOT comment
+                codes[i] = tokens[0].trim(); //put code in codes
             }//end if
-            else{
+            else{ //no code
                 codes[i] = "";
             }//end else
-            /*tokens = lines[i].split(";");
-            if (!lines[i].trim().equals(";")) {
-                codes[i] = tokens[0].trim();
-            } else {
-                codes[i] = "";
-            }*/
         }
 
-		// codes[] now has all the code and labels
+	// codes[] now has all the code and labels
         // pull out any labels and store them
         for (i = 0; i < lineCount; i++) {
-            tokens = codes[i].split(":");
+            tokens = codes[i].split(":"); //handle labels
+            //System.out.println("Before ------->" + Arrays.toString(tokens));
             if (codes[i].contains(":") && isValidLabel(tokens[0]) // check to see if label has been used
                 && tokens.length > 1) {
-                codes[i] = tokens[1].trim(); 		// can put code on same line as label
+                codes[i] = tokens[1].trim(); // can put code on same line as label
                 labels[i] = tokens[0].trim();
             } else if (codes[i].contains(":") && isValidLabel(tokens[0]) // check to see if label without
                 && tokens.length == 1) {                        // code has been used
@@ -301,14 +302,15 @@ public class Assembler {
                 errorList.add("Error: Invalid label found on line " + (i + 1) + ": " + tokens[0]);
             }
         }
-		// codes[] now has all the code without labels or comments
+	// codes[] now has all the code without labels or comments
         // labels[] now has all the labels
         // parse pseudo-ops
         int currentLocation = 0;
         for (i = 0; i < codes.length; i++) {
-            tokens = codes[i].split("\\s+");
+            tokens = codes[i].split("\\s+"); //(?=([^\"]*\"[^\"]*\")*[^\"]*$)
+            //System.out.println("After \\s+ ------->" + Arrays.toString(tokens));
             if (tokens.length > 0) { // A line with pseudo-op or operation
-                if (tokens[0].toUpperCase().equals("ORG")) { 		// handle ORG pseudo-op
+                if (tokens[0].toUpperCase().equals("ORG")) { // handle ORG pseudo-op
                     currentLocation = orgLocation(tokens, i);
                     mapLabel(i, currentLocation); // map label to org
                 }   else if ((tokens[0].toUpperCase().equals("RLOAD")) && (labels[i] == null)){ //Rload without a label
@@ -317,7 +319,7 @@ public class Assembler {
                     mapLabel(i, currentLocation); // map label before updating current location...
                     System.out.println("In passOne, before dbOneLocation, currentLocation = " + currentLocation);
                     logList.add("In passOne, before dbOneLocation, currentLocation = " + currentLocation);
-        
+                    
                     currentLocation += dbOneLocation(tokens, i);
                     System.out.println("In passOne, after dbOneLocation, currentLocation = " + currentLocation);
                     logList.add("In passOne, after dbOneLocation, currentLocation = " + currentLocation);
@@ -359,10 +361,10 @@ public class Assembler {
         String[] tokens;
         String bytes;
         for (int i = 0; i < codes.length; i++) {
-            if (i==39){
+            /*if (i==39){
                 //This is a debug method, ignore this.
                
-            }
+            }*/
             tokens = codes[i].split("\\s+");
             if (tokens.length > 0) { // A line with pseudo-op or operation
                 if (tokens[0].toUpperCase().equals("ORG")) { 		// handle ORG pseudo-op
@@ -430,10 +432,16 @@ public class Assembler {
         // concatenate the parameter to db
         for (int i = 1; i < tokens.length; i++) {
             temp += tokens[i];
+            if (i != tokens.length-1) { //re-add spaces that regex kills
+                temp += " ";
+            }
         }
         // is the argument a string?
         if (temp.matches("[\"]{1}.*[\"]{1}") || temp.matches("[\']{1}.*[\']{1}")) {
-            result = temp.length() - 1; // -1 since quotes count for 2, see passTwo...
+            System.out.println("**********************************************************");
+            System.out.println("dbString is: " + temp + " The size is: " + temp.length());
+            //-2 for both the beginning and ending " char.
+            result = temp.length() - 2; // -2 since quotes count for 2, see passTwo...
             System.out.println("In passOneDB, length of string is: " + result);
             logList.add("In passOneDB, length of string is: " + result);
         } else { // not a string, split on ,
@@ -590,8 +598,7 @@ public class Assembler {
             for (int i = 0; i < result - 1; i++) {
                 tempMem[currentLocation + i] = intToHex(Integer.toString((int) temp.charAt(i + 1)));
             }
-            result -= 1;
-            //tempMem[currentLocation + result] = "00";
+            result -= 1;    //Change Log #3
         } else {
             String[] args = temp.split(",");
             for (int i = 0; i < args.length; i++) {
@@ -619,12 +626,13 @@ public class Assembler {
      * @return A String value containing the specified operation
      */
     private String getByteCode(String operation, int line) {
-        String[] tokens = operation.split("\\s+", 2);
+        // \\s+ means any amount of whitespace
+        String[] tokens = operation.split("\\s+", 2); //split opcode from args
         String op = tokens[0];
-        int definedList = 1;
-        if (tokens.length == 2) {
+        int definedList = 1; //TODO: get rid of me.
+        if (tokens.length == 2) { //if op-code has args
             String[] args = tokens[1].split("\\s*,\\s*");
-            if (args.length == 1) { 		// 1 argument found
+            if (args.length == 1) { // 1 argument found
                 System.out.println("Operation :" + op + " args :" + args[0]);
                 defList.add("Operation :" + op + " args :" + args[0]);
                 definedList++;
@@ -665,7 +673,7 @@ public class Assembler {
                 } else if (op.toUpperCase().equals("ISTORE")) {
                     return "D" + istore(args[0], args[1], line);
                 } else if (op.toUpperCase().equals("RLOAD")) {
-                    return rload(args[0], args[1], line);
+                    return rload(args[0], args[1], line); //args[1] #[RN]
                 } else if (op.toUpperCase().equals("RSTORE")) {
                     return "D" + rstore(args[0], args[1], line);
                 } else if (op.toUpperCase().equals("JMPLT")) {    //change "JMPLE" to "JMPLT"
@@ -710,11 +718,14 @@ public class Assembler {
      * @param i
      * @return
      */
+    //TODO: Refactor name
     private int bytcodeInTemp(String bytes, int currentLocation, int i) {
         int location;
         
         if (codes[i].trim().toUpperCase().contains("RLOAD")) { // RLOAD special case
-            tempMem[currentLocation] = bytes.substring(0, 2);// Placing Bytecode in memory
+            System.out.println("BYTECODE FOR RLOAD: " + bytes);
+            
+            tempMem[currentLocation] = bytes.substring(0, 2);  // Placing Bytecode in memory
             tempMem[currentLocation + 1] = bytes.substring(2, 4);
             tempMem[currentLocation + 2] = bytes.substring(4, 6);
             tempMem[currentLocation + 3] = bytes.substring(6, 8);
@@ -804,7 +815,7 @@ public class Assembler {
                                                         //change "JMPLE" to "JMPLT"
             }
         } else {
-            errorList.add("Error: Missing less than sign for JMPLT on line " + line);
+            errorList.add("Error: Missing equal sign for JMPLT on line " + line);
         }                                               //change "JMPLE" to "JMPLT"
         return result;
     }
@@ -824,7 +835,7 @@ public class Assembler {
         String tokens[] = secondArg.split("\\[");
         if (tokens.length == 2 && tokens[1].endsWith("]")) {
             if (isSingleHex(tokens[0])) {
-                offset = tokens[0].toUpperCase().substring(2, 4);
+                offset = tokens[0].toUpperCase().substring(3, 4);   //Change Log #2
             } else if (tokens[0].startsWith("-") && tokens[0].length() == 2) {
                 int number = Integer.parseInt(tokens[0].toUpperCase().substring(1, 2));
                 switch (number) {
@@ -886,10 +897,13 @@ public class Assembler {
         String firstRegister = getRegister(firstArg, line);
         String secondRegister;
         String offset;
-        String tokens[] = secondArg.split("\\[");
+        String tokens[] = secondArg.split("\\["); //tokens[0]=offset, tokens[1]= reg]
+        System.out.println("Break Down of RLOAD: ");
+        System.out.println("firstReg: " + firstRegister);
+        System.out.println("tokens: " + tokens[0] + " " + tokens[1]);
         if (tokens.length == 2 && tokens[1].endsWith("]")) {
             if (isSingleHex(tokens[0])) {
-                offset = tokens[0].toUpperCase().substring(3, 4);
+                offset = tokens[0].toUpperCase().substring(2, 3);
             } else if (tokens[0].startsWith("-") && tokens[0].length() == 2) {
                 int number = Integer.parseInt(tokens[0].toUpperCase().substring(1, 2));
                 switch (number) {
@@ -934,8 +948,12 @@ public class Assembler {
            
             return result;
         }
-        secondRegister = getRegister(tokens[1].substring(0, tokens[1].length()), line);
-        return "2" + firstRegister + "0" + offset + "D2" + firstRegister + secondRegister;
+        //jl948836 - Added -1 to .length(), now RBP and RSP are converted by
+        //           getRegister()
+        String regName = tokens[1].substring(0, tokens[1].length()-1); //truncate "]"
+        secondRegister = getRegister(regName, line);
+        //construct op-code/machine code
+        return "2" + firstRegister + "F" + offset + "D2" + firstRegister + secondRegister;
     }
 
     /**
@@ -1010,7 +1028,7 @@ public class Assembler {
      */
     private String jmpeq(String firstArg, String secondArg, int line) {
         String result = "000";
-        if (firstArg.toUpperCase().contains("=R0")) {
+        if (firstArg.toUpperCase().contains("=R0")) {       //Change Log #1
             String first[] = firstArg.split("=");
             firstArg = getRegister(first[0], line);
             if (labelMap.containsKey(secondArg)) { // arg is a label
@@ -1285,14 +1303,18 @@ public class Assembler {
      * @param number
      * @return True if it is Hex, false if not
      */
+    //TODO: Fix, currently looks for format 0x#. Should look for 0x##, and
+    //      not allow for numbers exceeding range.
     private boolean isSingleHex(String number) {
-        if (number.length() != 4) {
+        //System.out.println(number.length());
+        if (number.length() != 4) { //Change Log Begin #2
             return false;
-        } else if (number.substring(0, 3).equalsIgnoreCase("0x0")
-                && number.substring(3, 4).toUpperCase().matches("[0-9A-F]")) {
+        } else {
+            if (number.substring(0, 3).equalsIgnoreCase("0x0")
+                && number.substring(3, 4).toUpperCase().matches("[0-9A-F]")) {  //Change Log End #2
                 return true;
-          }
-        
+            }
+        }
         return false;
     }
 
