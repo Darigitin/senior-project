@@ -8,21 +8,6 @@
  * date/ver: 
  */
 
-package machine.presenter;
-
-import java.awt.Desktop;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * This is our Assembler class. It takes the source from the editor view and
  * sends it through a two pass parser. Pass one parses the text, splitting
@@ -288,7 +273,8 @@ public class Assembler {
         labels = new String[lineCount];
         String[] tokens;
         int i;
-        
+        // tokens[0] has code
+        // tokens[1] has comments
         for (i = 0; i < lineCount; i++) { // Removes comments
             codeList.add(lines[i]);
             //Comment character changes from ";" to "#" - 2/11/16
@@ -300,36 +286,7 @@ public class Assembler {
                 codes[i] = "";
             }//end else
         }
-
-	// codes[] now has all the code and labels
-        // pull out any labels and store them
-        for (i = 0; i < lineCount; i++) {
-            tokens = codes[i].split(":"); //handle labels
-            //System.out.println("Before ------->" + Arrays.toString(tokens));
-            if (codes[i].contains(":") && isValidLabel(tokens[0]) // check to see if label has been used
-                && tokens.length > 1) {
-                codes[i] = tokens[1].trim(); // can put code on same line as label
-		// tokens[0] has code
-        // tokens[1] has comments
-        String[] tokens;
-        int i;
-        for (i = 0; i < lineCount; i++) { // Removes comments
-            codeList.add(lines[i]);
-            //Comment character changes from ";" to "#" - 2/11/16
-            tokens = lines[i].split("#");
-            if (!lines[i].trim().equals("#")){
-                codes[i] = tokens[0].trim();
-            }//end if
-            else{
-                codes[i] = "";
-            }//end else
-            /*tokens = lines[i].split(";");
-            if (!lines[i].trim().equals(";")) {
-                codes[i] = tokens[0].trim();
-            } else {
-                codes[i] = "";
-            }*/
-        }
+        
 
 		// codes[] now has all the code and labels
         // pull out any labels and store them
@@ -680,12 +637,6 @@ public class Assembler {
         if (tokens.length == 2) { //if op-code has args
             String[] args = tokens[1].split("\\s*,\\s*");
             if (args.length == 1) { // 1 argument found
-        String[] tokens = operation.split("\\s+", 2);
-        String op = tokens[0];
-        int definedList = 1;
-        if (tokens.length == 2) {
-            String[] args = tokens[1].split("\\s*,\\s*");
-            if (args.length == 1) { 		// 1 argument found
                 System.out.println("Operation :" + op + " args :" + args[0]);
                 defList.add("Operation :" + op + " args :" + args[0]);
                 definedList++;
@@ -952,7 +903,6 @@ public class Assembler {
         System.out.println("Break Down of RLOAD: ");
         System.out.println("firstReg: " + firstRegister);
         System.out.println("tokens: " + tokens[0] + " " + tokens[1]);
-        String tokens[] = secondArg.split("\\[");
         if (tokens.length == 2 && tokens[1].endsWith("]")) {
             if (isSingleHex(tokens[0])) {
                 offset = tokens[0].toUpperCase().substring(2, 3);
