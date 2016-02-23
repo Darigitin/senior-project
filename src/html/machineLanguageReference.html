@@ -2,6 +2,9 @@
 To change this template, choose Tools | Templates
 and open the template in the editor.
 -->
+<!-- Change Log
+    #1 Matt Vertefeuille 02/22/16 Updated doc syntax for rload to provide a example using hex offset
+-->
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
@@ -552,12 +555,16 @@ and open the template in the editor.
                             <br/>
                             reg[N] := memory[reg[M] (+/-) reg[N]]
                             <br/>
-                            Ex: RLOAD R3,4[R4]
+                            Ex0: RLOAD R3,4[R4]
                             <br/>
-                            =&gt; machine code bytes are 23 04 D2 34
+                            <br/>
+                            Ex1: RLOAD R3,0x04[R4]
+                            <br/>
+                            =&gt; machine code bytes are 23 F4 D2 34
                             <br/>
                             (Note that this operation assembles into two op-codes, the first is an <br>
-                            immediate load to store the offset and the second is the relative load.)
+                                immediate load to store the offset (the third nibble F, being a flag for <br> 
+                                rload)and the second is the relative load.)<br/>
                         </td>
                     </tr>
 			     <tr>

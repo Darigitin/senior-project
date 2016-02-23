@@ -9,6 +9,9 @@ import java.util.ArrayList;
  * in both the editor view (Disassemble Button) and in the Disassemble console at 
  * runtime.
  */
+/* Change Log
+    #1 Matt Vertefeuille 02/22/16 Bug Fix - rload now displays the 0x0 to reflect Change #2 in Assembler.java
+*/
 public class Disassembler {
 
 	String[] input;
@@ -151,7 +154,7 @@ public class Disassembler {
 				String sb = input[location - 1];
 				if (fb.substring(0, 1).equals("2") && fb.substring(1, 2).equals(thirdNibble)) {
 					// delete last operation then do this
-					return "rload " + "R" + thirdNibble + ",0x" + sb.substring(1, 2) + "[R" + fourthNibble + "]";
+                                    return "rload " + "R" + thirdNibble + ",0x0" + sb.substring(1, 2) + "[R" + fourthNibble + "]";  //Change #1
 				} else {
 					return "ERROR";
 				}

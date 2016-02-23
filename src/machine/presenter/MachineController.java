@@ -100,7 +100,7 @@ public class MachineController {
         
         public void setConsoleText(char c) {
             machineView.getConsoleTextArea().setText(
-                machineView.getConsoleTextArea().getText() + c);
+            machineView.getConsoleTextArea().getText() + c);
         }
         
         	/**
