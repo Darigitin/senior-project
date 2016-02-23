@@ -101,14 +101,16 @@ and open the template in the editor.
                             3N  XY  
                         </td>
                         <td>
-                            STORE RN,[XY]  
+                            <!--STORE RN,[XY]  old code-->  
+                            STORE [XY], RN    
                         </td>
                         <td>
                             Direct Store - stores the value in register N in the memory cell at address XY
                             <br/>
                             memory[XY] := reg[N]
                             <br/>
-                            Ex: STORE R1,[8]
+                            <!-- Ex: STORE R1,[8] -->
+                            Ex: STORE [8], R1
                             <br/>
                             =&gt; machine code bytes are 31 08
                         </td>

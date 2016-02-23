@@ -106,7 +106,8 @@ public class Disassembler {
 		} else if (firstNibble.equals("2")) {
 			return "load " + "R" + secondNibble + ",0x" + secondByte;
 		} else if (firstNibble.equals("3")) {
-			return "store " + "R" + secondNibble + ",[0x" + secondByte + "]";
+			//return "store " + "R" + secondNibble + ",[0x" + secondByte + "]";
+                        return "store " + "[0x" + secondByte + "]" + ",R"+ secondNibble ;
 		} else if (firstNibble.equals("4")) {
 			return "move " + "R" + fourthNibble + ",R" + thirdNibble;
 		} else if (firstNibble.equals("5")) {
