@@ -1030,7 +1030,7 @@ public class Assembler {
      */
     private String jmpeq(String firstArg, String secondArg, int line) {
         String result = "000";
-        if (firstArg.contains("=R0")) {
+        if (firstArg.toUpperCase().contains("=R0")) {
             String first[] = firstArg.split("=");
             firstArg = getRegister(first[0], line);
             if (labelMap.containsKey(secondArg)) { // arg is a label
@@ -1339,11 +1339,11 @@ public class Assembler {
     //      not allow for numbers exceeding range.
     private boolean isSingleHex(String number) {
         //System.out.println(number.length());
-        if (number.length() != 3) {
+        if (number.length() != 4) {
             return false;
         } else {
-            if (number.substring(0, 2).equalsIgnoreCase("0x")
-                && number.substring(2, 3).toUpperCase().matches("[0-9A-F]")) {
+            if (number.substring(0, 3).equalsIgnoreCase("0x0")
+                && number.substring(3, 4).toUpperCase().matches("[0-9A-F]")) {
                 return true;
             }
         }
