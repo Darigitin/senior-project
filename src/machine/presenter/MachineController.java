@@ -15,9 +15,9 @@ import machine.view.MachineView;
 public class MachineController {
         
        
-        private MachineView machineView;
-        private Clock clock = new Clock(this);
-        private ArrayList<String> lastAssembledProg = new ArrayList<String>();
+        private final MachineView machineView;
+        private final Clock clock = new Clock(this);
+        private ArrayList<String> lastAssembledProg = new ArrayList<>();
         private boolean isRunning = false;
         Assembler assembler = new Assembler(this);
 	
@@ -198,6 +198,7 @@ public class MachineController {
 	/**
 	 * Called by Clock to set Instruction Pointer
 	 * with new value
+         * @param value -
 	 */
 	public void setInstructionPointer(int value) {
 		String newValue = Integer.toHexString(value).toUpperCase();
@@ -229,10 +230,11 @@ public class MachineController {
             return text;
         }
         
-        	/**
-	 * Displays the errorList in the Editor depending on the boolean
-	 * value specified
-	 */
+        /**
+	* Displays the errorList in the Editor depending on the boolean
+	* value specified
+        * @param errorList
+	*/
 	public void setEditorErrors(ArrayList<String> errorList) {
             StringBuilder sb = new StringBuilder();
             
@@ -245,6 +247,7 @@ public class MachineController {
 	
 	/**
 	 * Displays the error that is wrong with the value
+         * @param value
 	 */
 	public void setEditorErrorVisible(boolean value) {
 		machineView.getErrorPane().setVisible(value);
@@ -297,9 +300,11 @@ public class MachineController {
 		return machineView.getRAMBytes(index);
 	}
         
-        	/**
+         /**
 	 * Creates an activation record with the Instruction pointer
 	 * and base pointer specified.
+         * @param ip
+         * @param bp
 	 */
 	public void createActivationRecord(int ip, int bp) {
 		machineView.createActivationRecord(ip, bp);

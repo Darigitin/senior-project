@@ -39,17 +39,17 @@ import java.util.regex.Pattern;
  */
 public class Assembler {
 
-    private MachineController controller;
-    private ArrayList<String> byteCode = new ArrayList<String>();
-    private ArrayList<String> errorList = new ArrayList<String>();
-     private ArrayList<String> logList = new ArrayList<String>();
-    private ArrayList<String> codeList = new ArrayList<String>();
-    private ArrayList<String> defList = new ArrayList<String>();
-    private ArrayList<String> refList = new ArrayList<String>();
-    private ArrayList<String> memMatList = new ArrayList<String>();
-    private ArrayList<String> labelList = new ArrayList<String>();
-    private static String[] pseudoOps = {"SIP", "ORG", "BSS", "DB"};
-    private static String[] operations = {"LOAD", "STORE", "MOVE", "ADD", "CALL", "RET",
+    private final MachineController controller;
+    private final ArrayList<String> byteCode = new ArrayList<>();
+    private final ArrayList<String> errorList = new ArrayList<>();
+    private final ArrayList<String> logList = new ArrayList<>();
+    private final ArrayList<String> codeList = new ArrayList<>();
+    private final ArrayList<String> defList = new ArrayList<>();
+    private final ArrayList<String> refList = new ArrayList<>();
+    private final ArrayList<String> memMatList = new ArrayList<>();
+    private final ArrayList<String> labelList = new ArrayList<>();
+    private final static String[] pseudoOps = {"SIP", "ORG", "BSS", "DB"};
+    private final static String[] operations = {"LOAD", "STORE", "MOVE", "ADD", "CALL", "RET",
         "SCALL", "SRET", "PUSH", "POP", "OR", "AND", "XOR",
         "ROR", "JMPEQ", "JMP", "HALT", "ILOAD", "ISTORE",
         "RLOAD", "RSTORE", "JMPLT"}; 
@@ -57,7 +57,7 @@ public class Assembler {
     String[] codes;
     String[] labels;
     String[] tempMem;
-    HashMap<String, Integer> labelMap = new HashMap<String, Integer>(256);
+    HashMap<String, Integer> labelMap = new HashMap<>(256);
     String labelAppears;
     String SIP = "00";
     int errorCount = 0;
@@ -84,7 +84,7 @@ public class Assembler {
     /**
      * Entry point into this class - called by controller
      *
-     * @param source code from editor view
+     * @param text  - source code from editor view
      * @return assembled byte code
      */
     public ArrayList<String> parse(String text) {
@@ -431,7 +431,7 @@ public class Assembler {
      * @return number of bytes to skip
      */
     private int passOneDB(String[] tokens) {
-        int result = 0;
+        int result;
         String temp = "";
         // concatenate the parameter to db
         for (int i = 1; i < tokens.length; i++) {
@@ -525,7 +525,7 @@ public class Assembler {
      * @return
      */
     private int operationLocation(String[] tokens) {
-        int location = 0;
+        int location;
         if (tokens[0].equals("RLOAD")) {
             location = 4;
         } else {

@@ -15,11 +15,11 @@ import java.util.TimerTask;
 
 public class Clock {
 
-	private MachineController controller;
+	private final MachineController controller;
 	Timer timer = new Timer();
         private TimerTask task;
 	private int instructionPointer;
-	private Disassembler disassembler = new Disassembler();
+	private final Disassembler disassembler = new Disassembler();
         private int speed;
 	
 	/**
@@ -428,11 +428,7 @@ public class Clock {
 	 * @return
 	 */
 	private boolean jump(int register) {
-		if (controller.getRegisterValue(register).equals(controller.getRegisterValue(0))) {
-			return true;
-		} else {
-			return false;
-		}
+                return (controller.getRegisterValue(register).equals(controller.getRegisterValue(0)));
 	}
 	
 	
@@ -515,11 +511,7 @@ public class Clock {
 //		if (value > 127) {
 //			value -= 256;
 //		}
-		if (value < registerZero){        // change "<=" to "<"
-			return true;
-		} else {
-			return false;
-		}
+		return (value < registerZero); //change "<=" to "<"
 	}
 	
 	/**
