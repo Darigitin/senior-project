@@ -6,6 +6,7 @@
  * @author:
  
  * date/ver: 
+<<<<<<< HEAD
  */
 
 package machine.presenter;
@@ -29,6 +30,7 @@ import java.util.regex.Pattern;
  * everything into labels, operations, and comments. Pass two takes this
  * information
  *
+=======
  *
 */
 package machine.presenter;
@@ -51,6 +53,7 @@ import java.util.regex.Pattern;
  * everything into labels, operations, and comments. Pass two takes this
  * information
  *
+>>>>>>> 74bfe9dfae69f146f671c93b3240877d57ac6d2f
  */
 public class Assembler {
 
@@ -286,6 +289,7 @@ public class Assembler {
         int lineCount = lines.length;
         codes = new String[lineCount];
         labels = new String[lineCount];
+<<<<<<< HEAD
         String[] tokens;
         int i;
         
@@ -309,6 +313,7 @@ public class Assembler {
             if (codes[i].contains(":") && isValidLabel(tokens[0]) // check to see if label has been used
                 && tokens.length > 1) {
                 codes[i] = tokens[1].trim(); // can put code on same line as label
+=======
 		// tokens[0] has code
         // tokens[1] has comments
         String[] tokens;
@@ -338,6 +343,7 @@ public class Assembler {
             if (codes[i].contains(":") && isValidLabel(tokens[0]) // check to see if label has been used
                 && tokens.length > 1) {
                 codes[i] = tokens[1].trim(); 		// can put code on same line as label
+>>>>>>> 74bfe9dfae69f146f671c93b3240877d57ac6d2f
                 labels[i] = tokens[0].trim();
             } else if (codes[i].contains(":") && isValidLabel(tokens[0]) // check to see if label without
                 && tokens.length == 1) {                        // code has been used
@@ -347,15 +353,25 @@ public class Assembler {
                 errorList.add("Error: Invalid label found on line " + (i + 1) + ": " + tokens[0]);
             }
         }
+<<<<<<< HEAD
 	// codes[] now has all the code without labels or comments
+=======
+		// codes[] now has all the code without labels or comments
+>>>>>>> 74bfe9dfae69f146f671c93b3240877d57ac6d2f
         // labels[] now has all the labels
         // parse pseudo-ops
         int currentLocation = 0;
         for (i = 0; i < codes.length; i++) {
+<<<<<<< HEAD
             tokens = codes[i].split("\\s+"); //(?=([^\"]*\"[^\"]*\")*[^\"]*$)
             //System.out.println("After \\s+ ------->" + Arrays.toString(tokens));
             if (tokens.length > 0) { // A line with pseudo-op or operation
                 if (tokens[0].toUpperCase().equals("ORG")) { // handle ORG pseudo-op
+=======
+            tokens = codes[i].split("\\s+");
+            if (tokens.length > 0) { // A line with pseudo-op or operation
+                if (tokens[0].toUpperCase().equals("ORG")) { 		// handle ORG pseudo-op
+>>>>>>> 74bfe9dfae69f146f671c93b3240877d57ac6d2f
                     currentLocation = orgLocation(tokens, i);
                     mapLabel(i, currentLocation); // map label to org
                 }   else if ((tokens[0].toUpperCase().equals("RLOAD")) && (labels[i] == null)){ //Rload without a label
@@ -364,8 +380,11 @@ public class Assembler {
                     mapLabel(i, currentLocation); // map label before updating current location...
                     System.out.println("In passOne, before dbOneLocation, currentLocation = " + currentLocation);
                     logList.add("In passOne, before dbOneLocation, currentLocation = " + currentLocation);
+<<<<<<< HEAD
                     
+=======
         
+>>>>>>> 74bfe9dfae69f146f671c93b3240877d57ac6d2f
                     currentLocation += dbOneLocation(tokens, i);
                     System.out.println("In passOne, after dbOneLocation, currentLocation = " + currentLocation);
                     logList.add("In passOne, after dbOneLocation, currentLocation = " + currentLocation);
@@ -407,11 +426,17 @@ public class Assembler {
         String[] tokens;
         String bytes;
         for (int i = 0; i < codes.length; i++) {
+<<<<<<< HEAD
             /*if (i==39){
                 //This is a debug method, ignore this.
                
             }*/
+=======
+            if (i==39){
+                //This is a debug method, ignore this.
                
+            }
+>>>>>>> 74bfe9dfae69f146f671c93b3240877d57ac6d2f
             tokens = codes[i].split("\\s+");
             if (tokens.length > 0) { // A line with pseudo-op or operation
                 if (tokens[0].toUpperCase().equals("ORG")) { 		// handle ORG pseudo-op
@@ -479,6 +504,7 @@ public class Assembler {
         // concatenate the parameter to db
         for (int i = 1; i < tokens.length; i++) {
             temp += tokens[i];
+<<<<<<< HEAD
             if (i != tokens.length-1) { //re-add spaces that regex kills
                 temp += " ";
             }
@@ -489,6 +515,12 @@ public class Assembler {
             System.out.println("dbString is: " + temp + " The size is: " + temp.length());
             //-2 for both the beginning and ending " char.
             result = temp.length() - 2; // -2 since quotes count for 2, see passTwo...
+=======
+        }
+        // is the argument a string?
+        if (temp.matches("[\"]{1}.*[\"]{1}") || temp.matches("[\']{1}.*[\']{1}")) {
+            result = temp.length() - 1; // -1 since quotes count for 2, see passTwo...
+>>>>>>> 74bfe9dfae69f146f671c93b3240877d57ac6d2f
             System.out.println("In passOneDB, length of string is: " + result);
             logList.add("In passOneDB, length of string is: " + result);
         } else { // not a string, split on ,
@@ -646,6 +678,10 @@ public class Assembler {
                 tempMem[currentLocation + i] = intToHex(Integer.toString((int) temp.charAt(i + 1)));
             }
             result -= 1;
+<<<<<<< HEAD
+=======
+            //tempMem[currentLocation + result] = "00";
+>>>>>>> 74bfe9dfae69f146f671c93b3240877d57ac6d2f
         } else {
             String[] args = temp.split(",");
             for (int i = 0; i < args.length; i++) {
@@ -673,6 +709,7 @@ public class Assembler {
      * @return A String value containing the specified operation
      */
     private String getByteCode(String operation, int line) {
+<<<<<<< HEAD
         // \\s+ means any amount of whitespace
         String[] tokens = operation.split("\\s+", 2); //split opcode from args
         String op = tokens[0];
@@ -680,12 +717,14 @@ public class Assembler {
         if (tokens.length == 2) { //if op-code has args
             String[] args = tokens[1].split("\\s*,\\s*");
             if (args.length == 1) { // 1 argument found
+=======
         String[] tokens = operation.split("\\s+", 2);
         String op = tokens[0];
         int definedList = 1;
         if (tokens.length == 2) {
             String[] args = tokens[1].split("\\s*,\\s*");
             if (args.length == 1) { 		// 1 argument found
+>>>>>>> 74bfe9dfae69f146f671c93b3240877d57ac6d2f
                 System.out.println("Operation :" + op + " args :" + args[0]);
                 defList.add("Operation :" + op + " args :" + args[0]);
                 definedList++;
@@ -726,7 +765,11 @@ public class Assembler {
                 } else if (op.toUpperCase().equals("ISTORE")) {
                     return "D" + istore(args[0], args[1], line);
                 } else if (op.toUpperCase().equals("RLOAD")) {
+<<<<<<< HEAD
                     return rload(args[0], args[1], line); //args[1] #[RN]
+=======
+                    return rload(args[0], args[1], line);
+>>>>>>> 74bfe9dfae69f146f671c93b3240877d57ac6d2f
                 } else if (op.toUpperCase().equals("RSTORE")) {
                     return "D" + rstore(args[0], args[1], line);
                 } else if (op.toUpperCase().equals("JMPLT")) {    //change "JMPLE" to "JMPLT"
@@ -771,12 +814,21 @@ public class Assembler {
      * @param i
      * @return
      */
+<<<<<<< HEAD
     //TODO: Refactor name
+=======
+>>>>>>> 74bfe9dfae69f146f671c93b3240877d57ac6d2f
     private int bytcodeInTemp(String bytes, int currentLocation, int i) {
         int location;
         
         if (codes[i].trim().toUpperCase().contains("RLOAD")) { // RLOAD special case
+<<<<<<< HEAD
+            System.out.println("BYTECODE FOR RLOAD: " + bytes);
+            
             tempMem[currentLocation] = bytes.substring(0, 2);  // Placing Bytecode in memory
+=======
+            tempMem[currentLocation] = bytes.substring(0, 2);// Placing Bytecode in memory
+>>>>>>> 74bfe9dfae69f146f671c93b3240877d57ac6d2f
             tempMem[currentLocation + 1] = bytes.substring(2, 4);
             tempMem[currentLocation + 2] = bytes.substring(4, 6);
             tempMem[currentLocation + 3] = bytes.substring(6, 8);
@@ -948,11 +1000,14 @@ public class Assembler {
         String firstRegister = getRegister(firstArg, line);
         String secondRegister;
         String offset;
+<<<<<<< HEAD
         String tokens[] = secondArg.split("\\["); //tokens[0]=offset, tokens[1]= reg]
         System.out.println("Break Down of RLOAD: ");
         System.out.println("firstReg: " + firstRegister);
         System.out.println("tokens: " + tokens[0] + " " + tokens[1]);
+=======
         String tokens[] = secondArg.split("\\[");
+>>>>>>> 74bfe9dfae69f146f671c93b3240877d57ac6d2f
         if (tokens.length == 2 && tokens[1].endsWith("]")) {
             if (isSingleHex(tokens[0])) {
                 offset = tokens[0].toUpperCase().substring(2, 3);
@@ -1000,12 +1055,17 @@ public class Assembler {
            
             return result;
         }
+<<<<<<< HEAD
         //jl948836 - Added -1 to .length(), now RBP and RSP are converted by
         //           getRegister()
         String regName = tokens[1].substring(0, tokens[1].length()-1); //truncate "]"
         secondRegister = getRegister(regName, line);
         //construct op-code/machine code
         return "2" + firstRegister + "F" + offset + "D2" + firstRegister + secondRegister;
+=======
+        secondRegister = getRegister(tokens[1].substring(0, tokens[1].length()), line);
+        return "2" + firstRegister + "0" + offset + "D2" + firstRegister + secondRegister;
+>>>>>>> 74bfe9dfae69f146f671c93b3240877d57ac6d2f
     }
 
     /**
@@ -1268,6 +1328,8 @@ public class Assembler {
      * @param secondArg
      * @return Last three bytes for assembly of the STORE instruction
      */
+<<<<<<< HEAD
+=======
     
     //modified store  --- the store command is: STORE [XY], RN
     //store the value in register N in the memory cell at address XY
@@ -1298,6 +1360,7 @@ public class Assembler {
     }
     
     /*
+>>>>>>> 74bfe9dfae69f146f671c93b3240877d57ac6d2f
     private String store(String firstArg, String secondArg, int line) {
         String result = "000";
         firstArg = getRegister(firstArg, line);
@@ -1316,7 +1379,11 @@ public class Assembler {
             }
         }
         return result;
+<<<<<<< HEAD
+    }
+=======
     }*/
+>>>>>>> 74bfe9dfae69f146f671c93b3240877d57ac6d2f
 
     /**
      * Helper method Returns a string with the corresponding register
@@ -1385,10 +1452,14 @@ public class Assembler {
      * @param number
      * @return True if it is Hex, false if not
      */
+<<<<<<< HEAD
     //TODO: Fix, currently looks for format 0x#. Should look for 0x##, and
     //      not allow for numbers exceeding range.
     private boolean isSingleHex(String number) {
         //System.out.println(number.length());
+=======
+    private boolean isSingleHex(String number) {
+>>>>>>> 74bfe9dfae69f146f671c93b3240877d57ac6d2f
         if (number.length() != 3) {
             return false;
         } else {

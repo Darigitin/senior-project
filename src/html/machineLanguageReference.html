@@ -2,6 +2,9 @@
 To change this template, choose Tools | Templates
 and open the template in the editor.
 -->
+<!-- Change Log
+    #1 Matt Vertefeuille 02/22/16 Updated doc syntax for rload to provide a example using hex offset
+-->
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
@@ -98,14 +101,16 @@ and open the template in the editor.
                             3N  XY  
                         </td>
                         <td>
-                            STORE RN,[XY]  
+                            <!--STORE RN,[XY]  old code-->  
+                            STORE [XY], RN    
                         </td>
                         <td>
                             Direct Store - stores the value in register N in the memory cell at address XY
                             <br/>
                             memory[XY] := reg[N]
                             <br/>
-                            Ex: STORE R1,[8]
+                            <!-- Ex: STORE R1,[8] -->
+                            Ex: STORE [8], R1
                             <br/>
                             =&gt; machine code bytes are 31 08
                         </td>
@@ -550,7 +555,10 @@ and open the template in the editor.
                             <br/>
                             reg[N] := memory[reg[M] (+/-) reg[N]]
                             <br/>
-                            Ex: RLOAD R3,4[R4]
+                            Ex0: RLOAD R3,4[R4]
+                            <br/>
+                            <br/>
+                            Ex1: RLOAD R3,0x04[R4]
                             <br/>
                             =&gt; machine code bytes are 23 F4 D2 34
                             <br/>
