@@ -25,6 +25,7 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -279,6 +280,8 @@ public class Assembler {
             codeList.add(lines[i]);
             //Comment character changes from ";" to "#" - 2/11/16
             tokens = lines[i].split("#"); //tokens[0] = code, tokens[1] = comments
+            //System.out.println("tokens" +Arrays.toString(tokens));
+            //System.out.println("lines" + Arrays.toString(lines));
             if (!lines[i].trim().equals("#")){ //if entire line is NOT comment
                 codes[i] = tokens[0].trim(); //put code in codes
             }//end if
@@ -393,14 +396,14 @@ public class Assembler {
                 //also has a code and is not a pseudoOp
                 currentLocation = labelMap.get(labels[i]);
                 bytes = getByteCode(codes[i].trim(), i + 1);
-                currentLocation += bytcodeInTemp(bytes, currentLocation, i);
+                currentLocation += byteCodeInTemp(bytes, currentLocation, i);
             } else if (labels[i] != null && (tokens[0].toUpperCase().equals("DB") || tokens[0].toUpperCase().equals("BSS"))) { // Special case for DB and BSS
                 // do nothing.
             } else if (labels[i] != null) { //There is a label with no code.
                 currentLocation = labelMap.get(labels[i]);
             } else if (!codes[i].trim().isEmpty() && !isPseudoOp(tokens[0])) {
                 bytes = getByteCode(codes[i].trim(), i + 1);
-                currentLocation += bytcodeInTemp(bytes, currentLocation, i);
+                currentLocation += byteCodeInTemp(bytes, currentLocation, i);
             }
         }
 
@@ -722,8 +725,7 @@ public class Assembler {
      * @param i
      * @return
      */
-    //TODO: Refactor name
-    private int bytcodeInTemp(String bytes, int currentLocation, int i) {
+    private int byteCodeInTemp(String bytes, int currentLocation, int i) {
         int location;
         
         if (codes[i].trim().toUpperCase().contains("RLOAD")) { // RLOAD special case

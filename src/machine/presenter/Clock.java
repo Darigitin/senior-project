@@ -60,6 +60,7 @@ public class Clock {
 	 * Gets the instruction to be executed and calls the decode method
 	 */
 	private void fetch() {
+                //System.out.println("Fetch Me");
 		int[] instructions = controller.getInstructionRegister();
 		decode(instructions);
 	}
@@ -69,7 +70,8 @@ public class Clock {
 	 * @param instructions
 	 */
 	private void decode(int[] instructions) {
-		// get the opcode
+                //System.out.println("Decode Me");
+            // get the opcode
 		String operation = 
 			Integer.toHexString(instructions[0]);
 		String operand = Integer.toHexString(instructions[1]);
@@ -88,6 +90,7 @@ public class Clock {
 		int thirdNibble = Character.digit(firstOperand,16);
 		int fourthNibble = Character.digit(secondOperand,16);
 		int secondByte = Integer.parseInt(operand, 16);
+                //System.out.println("Opcode Decoded: " + firstOpcode + secondOpcode);
 		switch(firstOpcode){
 			case '1':
 				directLoad(secondNibble,secondByte);
@@ -151,7 +154,7 @@ public class Clock {
 				ror(secondNibble,secondByte);
 				execute();
 				break;
-			case 'B': // jmpeq
+			case 'B': // jmp
 				if (jump(secondNibble)) {
 					execute(secondByte);
 				} else {
@@ -194,6 +197,8 @@ public class Clock {
 	 * Regular execute
 	 */
 	private void execute() {
+                //System.out.println("Execute Me");
+                //System.out.println("********************* END TEST **********************");
 		instructionPointer = controller.getInstructionPointer();
 		instructionPointer += 2;
 		controller.setInstructionPointer(instructionPointer);
@@ -505,6 +510,8 @@ public class Clock {
 	private boolean jmplt(int register) {        // change "jmple" to "jmplt"
 		int value = Integer.parseInt(controller.getRegisterValue(register),16);
 		int registerZero = Integer.parseInt(controller.getRegisterValue(0),16);
+                //System.out.println("Comparison Value: " + value + "Register 0: " + registerZero);
+                //System.out.println("Result: " + (value < registerZero));
 //		if (registerZero > 127) {
 //			registerZero -= 256;
 //		}
