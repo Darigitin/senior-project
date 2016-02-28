@@ -1,0 +1,100 @@
+************Logfile************
+
+01/26/2016 08:04:20 AM
+
+*******************************
+PROGRAM
+*******************************
+
+1             sip main
+2             org 0x30
+3 Message:    db  "Hello World!"
+4 Data:       db  5
+5             db  10
+6 
+7             org 0x00
+8 main:       halt
+
+In passOne, before dbOneLocation, currentLocation = 48
+
+In passOneDB, length of string is: 12
+
+In passOne, after dbOneLocation, currentLocation = 60
+
+In passOne, before dbOneLocation, currentLocation = 60
+
+In passOne, after dbOneLocation, currentLocation = 61
+
+In passOne, before dbOneLocation, currentLocation = 61
+
+In passOne, after dbOneLocation, currentLocation = 62
+
+null : 00
+
+Data : 3C
+
+Message : 30
+
+main : 00
+
+Inside passTwo, before dbTwoLocation, currentLocation = 48
+
+db  "Hello World!"
+
+Inside passTwo, after dbTwoLocation, currentLocation = 61
+
+Inside passTwo, before dbTwoLocation, currentLocation = 61
+
+db  5
+
+Inside passTwo, after dbTwoLocation, currentLocation = 62
+
+Inside passTwo, before dbTwoLocation, currentLocation = 62
+
+db  10
+
+Inside passTwo, after dbTwoLocation, currentLocation = 63
+
+*******************************
+Printing through Label Map
+*******************************
+
+*************LABELS*************
+
+Message
+appears in line 3
+Data
+appears in line 4
+main
+appears in line 1
+appears in line 8
+
+
+Code: haltCurrentlocation: 00
+
+*******************************
+MEMORY
+*******************************
+
+C0, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00
+00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00
+00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00
+48, 65, 6C, 6C, 6F, 20, 57, 6F, 72, 6C, 64, 21, 00, 05, 0A, 00
+00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00
+00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00
+00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00
+00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00
+00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00
+00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00
+00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00
+00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00
+00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00
+00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00
+00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00
+00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00
+
+*******************************
+ERROR REPORT
+*******************************
+
+Error Count: 0

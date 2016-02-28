@@ -1,0 +1,139 @@
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <link rel="stylesheet" type="text/css" href="gms.css"/>
+        <title>Machine Simulator Syntax</title>
+    </head>
+    <body>
+        <div>
+            <h1>Machine Simulator Syntax</h1>
+            <hr/>
+            
+           <p>
+                Every line in the assembly file has the following syntax:
+            </p>
+
+            <p dir="ltr">
+                [label:] [instruction] [#comment]
+            </p>
+            <ol>
+                <li>
+                    A line starts with an optional label, followed by a colon.
+                </li>
+                <li>
+                    An optional instruction.
+                </li>
+                <li>
+                    An optional comment, which starts with a pound sign (#) and ends at the end of the line.
+                </li>
+            </ol>
+            <p>
+                Labels are case sensitive. Mnemonic instructions and hexadecimal numbers are case insensitive. This means that load, Load, and LOAD are all the same
+                and so are 0xAB, 0Xab, and 0XAB.
+            </p>
+            <p>
+                Operations are: ADD, AND, CALL, JMP, JMPEQ, JMPLT, HALT, ILOAD, ISTORE, LOAD, MOVE, OR, POP, PUSH, 
+                RET, RLOAD, ROR, RSTORE, STORE, SCALL, SRET, XOR.
+            </p>
+        </div>
+        <h2 dir="ltr" id="specialRegisters" >Reserved and Special Registers</h2>
+
+        <table >
+            <tbody>
+                <tr>
+                    <td>Register</td>
+                    <td>Purpose</td>
+                </tr>
+
+                <tr>
+                    <td>R0</td>
+                    <td>Comparison register - used for all jump operations.</td>
+                </tr>
+
+                <tr>
+                    <td>RC</td>
+                    <td>Parameter register - used in SCAL and SRET to pass data.</td>
+                </tr>
+
+                <tr>
+                    <td>RD</td>
+                    <td>Base Pointer Register - aliased to RBP</td>
+                </tr>
+
+                <tr>
+                    <td>RE</td>
+                    <td>Stack Pointer Register - aliased to RSP</td>
+                </tr>
+
+                <tr>
+                    <td>RF</td>
+                    <td>Output Register - any value in RF will be converted to ASCII and printed in the console after RF is used in an operation.</td>
+                </tr>
+
+            </tbody>
+        </table>
+
+        <h2 dir="ltr" id="pseudo-ops">Pseudo-Ops</h2>
+
+        <table >
+                <colgroup>
+                    <col width="20%"/>
+                    <col width="80%"/>
+                </colgroup>
+            <tbody>
+                <tr>
+                    <td> &nbsp; &nbsp;<b>Pseudo-Op</b> &nbsp; &nbsp; &nbsp;</td>
+                    <td> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <b>Description</b></td>
+                </tr>
+
+                <tr>
+                    <td>label: bss 0xXY </td>
+                    <td>Block Storage Start - This operation is used to allocate a block of memory of size XY (similar to db, but does not need to be initialized with values). The start of this storage is referenced by a label that must precede the operation.<br />
+                        The 0x prefix is required.</td>
+                </tr>
+
+                <tr>
+                    <td>
+			<br />
+			<br />
+			label: db N <br />
+                        label: db M,N,... <br />
+                        db &quot;string&quot;<br />
+                        db 'string' </td>
+                    <td>
+                       <br />
+                        Data Byte - places the value(s) in the next memory location(s). The data bytes may be specified singly, in a comma separated list, or as a string of characters enclosed in single or double quotes.<br />
+                        
+                        <br />
+                        Examples: <br />
+                        db 1,4,9,16,25,36 <br />
+                        db &quot;Hello World!&quot; 
+                </tr>
+		<tr> <td> &nbsp; </td> <td> &nbsp; </td> </tr>
+
+                <tr>
+                    <td>org 0xXY </td>
+                    <td>Origin - places the next instruction or data byte at the memory address XY. This allows a program or data to be placed at arbitrary places in memory.<br />
+                        The 0x prefix is required.</td>
+                </tr>
+		<tr> <td> &nbsp; </td> <td> &nbsp; </td> </tr>
+                <tr>
+                    <td>sip 0xXY<br />
+                        sip label</td>
+                    <td>Start Instruction Pointer - sets the IP register to the hex value XY or the label immediately following. This allows program execution to begin at an arbitrary point in memory.</td>
+                </tr>
+
+            </tbody>
+        </table>
+
+        <br />
+
+
+    </body>
+</html>

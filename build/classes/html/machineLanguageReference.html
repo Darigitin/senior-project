@@ -1,0 +1,623 @@
+﻿<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!-- Change Log
+    #1 Matt Vertefeuille 02/22/16 Updated doc syntax for rload to provide a example using hex offset
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+       
+        <title>Machine Simulator Operations</title>
+    
+        <style>
+                table, th, td {
+                     border: 1px solid black;
+                }
+                tbody {color:blue;}
+        </style>
+    </head>
+    <body>
+        <div>
+            <h1 >
+                Machine Simulator Operations
+            </h1>
+            <hr/>
+            <p>All operations are compiled into 2 bytes of data with the 
+                exception of RLOAD which is compiled into 4 bytes.  Once compiled the operation 
+                is specified by the first 4 bits and in some cases the entire 
+                first byte.  The remainder of the bits are used to store arguments.
+                
+            </p>
+                
+            <table id="Ops" aligh=""center">
+                <col width="15%"/>
+                <col width="40%"/>
+                <col width="45%"/>
+                <thead>
+                       <tr>
+                        <th>
+                            Op-codes/
+                            <br/>
+                            Operands
+                        </th>
+                        <th>
+                            Operation
+                        </th>
+                        <th>
+                            Description
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+             
+                    <tr>
+                        <td>
+                            1N  XY  
+                        </td>
+                        <td>
+                            LOAD RN,[XY]  
+                        </td>
+                        <td>
+                            Direct Load - loads register N with the value at address XY in memory
+                            <br/>
+                            reg[N] := memory[XY]
+                            <br/>
+                            Ex: LOAD R3,[0x1A]
+                            <br/>
+                            =&gt; machine code bytes are 13 1A
+                        </td>
+                    </tr>
+			 <tr>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            2N  XY  
+                        </td>
+                        <td>
+                            LOAD RN,XY  
+                        </td>
+                        <td>
+                            Immediate Load - loads register N with the value XY
+                            <br/>
+                            reg[N] := XY
+                            <br/>
+                            Ex: LOAD RF,10 =&gt; machine code bytes are 2F 0A
+                            <br/>
+                            (This writes a newline character to the console output window.)
+                        </td>
+                    </tr>
+			 <tr>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            3N  XY  
+                        </td>
+                        <td>
+                            <!--STORE RN,[XY]  old code-->  
+                            STORE [XY], RN    
+                        </td>
+                        <td>
+                            Direct Store - stores the value in register N in the memory cell at address XY
+                            <br/>
+                            memory[XY] := reg[N]
+                            <br/>
+                            <!-- Ex: STORE R1,[8] -->
+                            Ex: STORE [8], R1
+                            <br/>
+                            =&gt; machine code bytes are 31 08
+                        </td>
+                    </tr>
+			 <tr>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            40  MN  
+                        </td>
+                        <td>
+                            MOVE RN,RM  
+                        </td>
+                        <td>
+                            Moves (copies) the value in register M to register N
+                            <br/>
+                            reg[N] := reg[M]
+                            <br/>
+                            Ex: MOVE R2,R1 =&gt; machine code bytes are 40 12
+                            <br/>
+                            (Note that the order of the operands of the assembly instruction <br>
+                                is the reverse of the machine language operands.)
+                        </td>
+                    </tr>
+			 <tr>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            5L  MN  
+                        </td>
+                        <td>
+                            ADD RL,RM,RN  
+                        </td>
+                        <td>
+                            Adds the values in registers M and N, assuming that they are two's <br>
+                                complement integers, and stores the result in reg L
+                            <br/>
+                            reg[L] := reg[M] + reg[N]
+                            <br/>
+                            Ex: ADD R0,R1,R2
+                            <br/>
+                            =&gt; machine code bytes are 50 12
+                        </td>
+                    </tr>
+			 <tr>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+                    </tr>
+                    <tr>
+                        <td>       
+                            <br/>
+                            <br/>
+                            60  XY 
+					<br/> 
+                            <br/>
+                            <br/>
+                           
+                        </td>
+                        <td>
+                            CALL XY  
+                        </td>
+                        <td>
+                            Calls procedure with entry point XY.  Pushes return address onto the <br>
+                                stack and changes the instruction pointer register to XY.
+                            <br/>
+                            PUSH reg[IP]+2
+                            <br/>
+                            reg[IP] := XY
+                            <br/>
+                            Ex: CALL 30 =&gt; machine code bytes are 60 48
+                            <br/>
+                            (The target of a call is usually indicated with a label rather than >br>
+                            a numeric value.)
+                        </td>
+                    </tr>
+			 <tr>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            61  00
+                        </td>
+                        <td>
+                            RET
+                        </td>
+                        <td>
+                            Returns from current stack frame.  By convention, register 1 contains <br>
+                                the return value.  Last byte is ignored.
+                            <br/>
+                            reg[IP] := [BP]
+                            <br/>
+                            Ex: RET =&gt; machine code bytes are 61 00
+                        </td>
+                    </tr>
+			 <tr>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            62  XY
+                        </td>
+                        <td>
+                            SCALL XY
+                        </td>
+                        <td>
+                            Special call to procedure with entry point XY.  Decodes into a number of <br>
+                                instructions to handle an argument, push the return address, push <br>
+                            the base pointer, and move the stack pointer.  <br>
+                                Sets the instruction pointer to XY.
+                            <br/>
+                            PUSH reg[C] (C contains the argument)
+                            <br/>
+                            PUSH reg[IP]+2
+                            <br/>
+                            PUSH reg[BP]
+                            <br/>
+                            reg[BP] := reg[SP]
+                            <br/>
+                            Ex: SCALL 2B =&gt; machine code bytes are 62 2B
+                            <br/>
+                            (The target of a call is usually indicated with a label rather <br>
+                                than a numeric value.)
+                        </td>
+                    </tr>
+			 <tr>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            63  00
+                        </td>
+                        <td>
+                            SRET
+                        </td>
+                        <td>
+                            Special return from current stack frame.  By convention, register 1 <br>
+                                contains the return value.  Last byte is ignored.  Decodes into a<br>
+                                    number of instructions to handle stack frame clean up: sets stack<br>
+                                        pointer to base pointer, pops stored base pointer into BP, and pops<br>
+                            return address into IP.
+                            <br/>
+                            reg[SP] := reg[BP]
+                            <br/>
+                            POP reg[BP]
+                            <br/>
+                            POP reg[IP]
+                            <br/>
+                            Ex: SRET =&gt; machine code bytes are 63 00
+                        </td>
+                    </tr>
+			 <tr>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            64  M0
+                        </td>
+                        <td>
+                            PUSH RM
+                        </td>
+                        <td>
+                            Push the value stored in register M onto the top of the stack.  Decrements <br>
+                                the SP register and writes the data into the allocated memory<br>
+                            cell.  Last 4 bits are ignored.
+                            <br/>
+                            reg[SP] := reg[SP]-1
+                            <br/>
+                            [SP] := reg[M]
+                            <br/>
+                            Ex: PUSH R3 =&gt; machine code bytes are 64 30
+                        </td>
+                    </tr>
+			 <tr>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            65  M0
+                        </td>
+                        <td>
+                            POP RM
+                        </td>
+                        <td>
+                            Pop the value at the top of the stack into register M.  Then increments <br>
+                                the stack pointer.  Last 4 bits are ignored.
+                            <br/>
+                            reg[M] := [SP]
+                            <br/>
+                            reg[SP] := reg[SP]+1
+                            <br/>
+                            Ex: POP R2 =&gt; machine code bytes are 65 20
+                        </td>
+                    </tr>
+			 <tr>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+                    </tr>
+                    <tr>
+                        <td>
+                             <br/>
+                            <br/>
+                            7L  MN  
+                            <br/>
+                            <br/>
+                            <br/>
+                           
+                        </td>
+                        <td>
+                            OR RL,RM,RN  
+                        </td>
+                        <td>
+                            Bit-wise OR the bit patterns in registers M and N and store the result <br>
+                                in register L
+                            <br/>
+                            reg[L] := reg[M] OR reg[N]
+                            <br/>
+                            Ex: OR R1,R2,R3
+                            <br/>
+                            =&gt; machine code bytes are 71 23
+                        </td>
+                    </tr>
+			 <tr>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            8L  MN  
+                        </td>
+                        <td>
+                            AND RL,RM,RN  
+                        </td>
+                        <td>
+                            Bit-wise AND the bit patterns in registers M and N and store the result<br>
+                                in register L
+                            <br/>
+                            reg[L] := reg[M] AND reg[N]
+                            <br/>
+                            Ex: AND R1,R2,R3
+                            <br/>
+                            =&gt; machine code bytes are 81 23
+                        </td>
+                    </tr>
+			 <tr>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            9L  MN  
+                        </td>
+                        <td>
+                            XOR RL,RM,RN  
+                        </td>
+                        <td>
+                            Bit-wise EXCLUSIVE OR the bit patterns in registers M and N and store the result<br>
+                                in register L
+                            <br/>
+                            reg[L] := reg[M] XOR reg[N]
+                            <br/>
+                            Ex: XOR R4,R3,R2
+                            <br/>
+                            =&gt; machine code bytes are 94 32
+                        </td>
+                    </tr>
+			 <tr>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            AN  XY  
+                        </td>
+                        <td>
+                            ROR RN,XY  
+                        </td>
+                        <td>
+                            Rotates the bit pattern in register N one bit to the right XY times. <br>
+                                This is a circular shift, so the bit that is rotated out of the <br>
+                            low-order end is shifted into the high-order end.
+                            <br/>
+                            reg[N] := reg[N] &gt;&gt; XY
+                            <br/>
+                            Ex: ROR R1,4 =&gt; machine code bytes are A1 04
+                        </td>
+                    </tr>
+			 <tr>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            BN  XY  
+                        </td>
+                        <td>
+                            JMPEQ RN=R0,XY  
+                        </td>
+                        <td>
+                            Jumps to the instruction located in the memory cell at address XY if <br>
+                            the value in register N is equal to the value in register 0; <br>
+                            otherwise, continues execution with the next instruction in <br>
+                            sequential order (conditional branch)
+                            <br/>
+                            reg[IP] := XY if reg[N] = reg[0]
+                            <br/>
+                            Ex: JMPEQ R3=R0,0x30
+                            <br/>
+                            =&gt; machine code bytes are B3 30
+                            <br/>
+                            (The target of a jump is usually indicated with a label rather than <br>
+                                with a numeric value.)
+                        </td>
+                    </tr>
+			 <tr>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            B0  XY  
+                        </td>
+                        <td>
+                            JMP 0xXY  
+                        </td>
+                        <td>
+                            Unconditionally jumps to the instruction located in the memory cell <br>
+                                at address XY (unconditional branch)
+                            <br/>
+                            reg[PC] := XY
+                            <br/>
+                            Ex: JMP 30 =&gt; machine code bytes are B0 30
+                            <br/>
+                            (The target of a jump is usually indicated with a label rather<br>
+                                than with a numeric value.)
+                        </td>
+                    </tr>
+			 <tr>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+                    </tr>
+                    <tr>
+                        <td>
+					 <br/>
+                           
+					 C0  00
+                            <br/>
+                            <br/>
+                           
+                        </td>
+                        <td>
+                            HALT  
+                        </td>
+                        <td>
+                            Halts program execution, the last byte is ignored.
+                            <br/>
+                            Ex: HALT =&gt; machine code bytes are C0 00
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            D0  NM  
+                        </td>
+                        <td>
+                            ILOAD RN,[RM]  
+                        </td>
+                        <td>
+                            Indirect Load - loads register N with the value from memory referenced<br>
+                                by the address in register M.
+                            <br/>
+                            reg[N] := memory[reg[M]]
+                            <br/>
+                            Ex: ILOAD R1,[R2]
+                            <br/>
+                            =&gt; machine code bytes are D0 12
+                        </td>
+                    </tr>
+                    <tr>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            D1  NM
+                        </td>
+                        <td>
+                            ISTORE RN,[RM]
+                        </td>
+                        <td>
+                            Indirect Store - stores the value in register N into the memory cell<br>
+                                referenced by the address in register M.
+                            <br/>
+                            memory[reg[M]] := reg[N]
+                            <br/>
+                            Ex: ISTORE RA,[RB]
+                            <br/>
+                            =&gt; machine code bytes are D1 AB
+                        </td>
+                    </tr>
+                    <tr>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            D2  NM
+                        </td>
+                        <td>
+                            RLOAD RN,H[RM]
+                        </td>
+                        <td>
+                            Relative Load - loads register N with the value from memory referenced<br>
+                                by the address in register M, offset by the signed integer or <br>
+                            hexadecimal value H. -8 &lt;= H &lt;= 7.
+                            <br/>
+                            reg[N] := H
+                            <br/>
+                            reg[N] := memory[reg[M] (+/-) reg[N]]
+                            <br/>
+                            Ex0: RLOAD R3,4[R4]
+                            <br/>
+                            <br/>
+                            Ex1: RLOAD R3,0x04[R4]
+                            <br/>
+                            =&gt; machine code bytes are 23 F4 D2 34
+                            <br/>
+                            (Note that this operation assembles into two op-codes, the first is an <br>
+                                immediate load to store the offset (the third nibble F, being a flag for <br> 
+                                rload)and the second is the relative load.)<br/>
+                        </td>
+                    </tr>
+			     <tr>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            EH  NM
+                        </td>
+                        <td>
+                            RSTORE RN,H[RM]
+                        </td>
+                        <td>
+                            Relative Store - stores the value in register N into the memory cell referenced <br>
+                                by the address in register M, offset by the signed integer or hexadecimal value H. <br>
+                                H is a single signed decimal or hexadecimal digit, so the offset range is -8 to +7.
+                            <br/>
+                            memory[reg[M] (+/-) H] := N
+                            <br/>
+                            Ex: RSTORE R5,-1[R2]
+                            <br/>
+                            =&gt; machine code bytes are EF 52
+                        </td>
+                    </tr>
+ 				<tr>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+				<td> &nbsp; </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            FN  XY  
+                        </td>
+                        <td>
+                            JMPLT RN&lt;=R0,0xXY  
+                        </td>
+                        <td>
+                            Conditionally jumps to the instruction located in the memory cell at address XY <br>
+                            if the value in register N is less than or equal to the value in register 0; <br>
+                                otherwise, continue execution with the next instruction in sequential order<br>
+                                    (conditional branch)
+                            <br/>
+                            reg[PC] := XY if reg[N] &lt;= reg[0]
+                            <br/>
+                            Ex: JMPLT R1&lt;=R0,0x30
+                            <br/>
+                            =&gt; machine code bytes are F1 30
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>

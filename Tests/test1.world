@@ -1,0 +1,13 @@
+Robot 1 5 E
+Wall 2 4 N
+Wall 3 2 W 3
+Wall 3 2 E 3
+Wall 4 4 N 4
+Wall 7 5 E 3
+Wall 3 7 N 5
+Wall 3 6 W 2
+Wall 2 5 N
+Wall 4 5 N 3
+Wall 4 6 N 3
+Wall 4 6 W
+Wall 7 6 W
