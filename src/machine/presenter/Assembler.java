@@ -20,9 +20,9 @@
  *                        Adjust String size for quotation (") characters
  * 3 jl948836 - 02/18/16: Added -1 to .length(), to parse off "]" at the end of
  *                        RBP, RSP register aliases
- *     #1 Matt Vertefeuille 02/23/2016 Fixed db so it does not append a null character at the end
- *   #2 Matt Vertefeuille 02/23/2016 rload now requires hex offset to be 0x0N instead of 0xN
- *   #3 Matt Vertefeuille 02/23/2016 jmpeq now works with R0 instead of just r0
+ * 1 Matt Vertefeuille 02/23/2016 Fixed db so it does not append a null character at the end
+ * 2 Matt Vertefeuille 02/23/2016 rload now requires hex offset to be 0x0N instead of 0xN
+ * 3 Matt Vertefeuille 02/23/2016 jmpeq now works with R0 instead of just r0
  */
 
 package machine.presenter;
