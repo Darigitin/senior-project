@@ -78,7 +78,7 @@ public class MachineView extends javax.swing.JFrame {
 
       int style = Font.PLAIN;
 
-      Font newfont = new Font(name, style, size.intValue());
+      Font newfont = new Font(name, style, size);
       textEditor.getTextPane().setFont(newfont);
     }
     public MachineView(final MachineController controller) {
@@ -86,7 +86,7 @@ public class MachineView extends javax.swing.JFrame {
         
         initComponents();
         
-        this.setTitle("Machine Simulator");
+        super.setTitle("Machine Simulator");
         WindowListener exitListener = new WindowAdapter() {
 
             @Override
@@ -94,7 +94,7 @@ public class MachineView extends javax.swing.JFrame {
                 controller.disposeMachineView();
             }
         };
-        this.addWindowListener(exitListener);
+        super.addWindowListener(exitListener);
         
         ColumnHeaderRenderer colRenderer = new ColumnHeaderRenderer();
         RowHeaderRenderer rowRenderer = new RowHeaderRenderer();
@@ -136,9 +136,9 @@ public class MachineView extends javax.swing.JFrame {
         addLanguageReference();
         addSyntaxReference();
         
-        this.pack();
-        this.setLocationRelativeTo(null);
-        this.setVisible(true); 
+        super.pack();
+        super.setLocationRelativeTo(null);
+        super.setVisible(true); 
     }
     
     private void addLanguageReference() {
@@ -300,8 +300,6 @@ public class MachineView extends javax.swing.JFrame {
     
     /**
      * Used to delete an existing activation record and remove it from the stack panel.
-     * @param returnAddress
-     * @param dynamicLink
      */
     public void deleteActivationRecord() {
             stackPanel.removeRecord();
@@ -324,6 +322,7 @@ public class MachineView extends javax.swing.JFrame {
             message = "Instruction pointer out of range.";
         }
         SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 JOptionPane.showMessageDialog(MachineView.this, message, null, JOptionPane.ERROR_MESSAGE);
             }
@@ -731,8 +730,7 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
 
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File machineFile = fc.getSelectedFile();
-            try {
-                FileReader reader = new FileReader(machineFile);
+            try (FileReader reader = new FileReader(machineFile)){
                 String bytes;
                 
                 for (int i = 0; i < 16; i++) {
@@ -764,11 +762,9 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
                 specialTable.setValueAt(bytes, 1, 1);
  
                 reader.close();
-            } catch (FileNotFoundException ex) {
-                ex.printStackTrace();
             }
             catch (IOException ex) {
-                    ex.printStackTrace();
+                    ex.printStackTrace(System.out);
             }
         }
     }//GEN-LAST:event_openMachineMenuItemActionPerformed
@@ -785,8 +781,7 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File machineFile = fc.getSelectedFile();
             
-            try {
-                FileWriter writer = new FileWriter(machineFile);
+            try (FileWriter writer = new FileWriter(machineFile)){
                 String[] strRAMBytes = getAllRAMBytes();
 
                 for (int i = 0; i < 256; i++) {
@@ -805,11 +800,9 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
                 writer.write(ir);
                 
                 writer.close();
-            } catch (FileNotFoundException ex) {
-                ex.printStackTrace();
             }
             catch (IOException ex) {
-                ex.printStackTrace();
+                ex.printStackTrace(System.out);
             }
         }
     }//GEN-LAST:event_saveMachineMenuItemActionPerformed
@@ -817,7 +810,8 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
     private void openSourceMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openSourceMenuItemActionPerformed
         JFileChooser fc = new JFileChooser();
         
-        FileFilter sourceFilter = new FileNameExtensionFilter("Source file (.txt)","txt");
+        FileFilter sourceFilter;
+        sourceFilter = new FileNameExtensionFilter("Source file (.txt)","txt");
         fc.addChoosableFileFilter(sourceFilter);
         fc.setFileFilter(sourceFilter);
         fc.setSelectedFile(new File("untitled.txt"));
@@ -825,8 +819,7 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
         
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File sourceFile = fc.getSelectedFile();
-                try {
-                    BufferedReader reader = new BufferedReader(new FileReader(sourceFile));
+                try(BufferedReader reader = new BufferedReader(new FileReader(sourceFile))){
                     Document doc = textEditor.getDocument();
                     
                     String line;
@@ -834,9 +827,7 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
                         doc.insertString(doc.getLength(), line + '\n', null);
                     }
                     reader.close();
-                } catch (IOException ex) {
-                    Logger.getLogger(MachineView.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (BadLocationException ex) {
+                } catch (IOException | BadLocationException ex) {
                     Logger.getLogger(MachineView.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
@@ -854,8 +845,7 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File sourceFile = fc.getSelectedFile();
             
-            try {
-                PrintWriter writer = new PrintWriter(sourceFile);
+            try(PrintWriter writer = new PrintWriter(sourceFile)) {
                 Document doc = textEditor.getDocument();
                 writer.print(doc.getText(0, doc.getLength()));
                 

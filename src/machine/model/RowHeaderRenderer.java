@@ -9,12 +9,9 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import javax.swing.JTable;
-import static javax.swing.SwingConstants.BOTTOM;
 import static javax.swing.SwingConstants.CENTER;
-import static javax.swing.SwingConstants.LEFT;
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.JTableHeader;
 
 /**
  *
@@ -31,10 +28,10 @@ public class RowHeaderRenderer extends DefaultTableCellRenderer {
     }
     
     public RowHeaderRenderer(Color foregroundColor, Color backgroundColor, Font font) {
-        setHorizontalAlignment(CENTER);
-        setHorizontalTextPosition(CENTER);
-        setVerticalAlignment(CENTER);
-        setOpaque(true);
+        super.setHorizontalAlignment(CENTER);
+        super.setHorizontalTextPosition(CENTER);
+        super.setVerticalAlignment(CENTER);
+        super.setOpaque(true);
         
         this.foregroundColor = foregroundColor;
         this.backgroundColor = backgroundColor;

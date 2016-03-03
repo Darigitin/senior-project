@@ -1,5 +1,14 @@
 # WTAMU Computer Science Programming Utility #
 
+V1.2 Updates
+Store syntax corrected
+Store parser now throws error when brackets are missing
+rload correctly parses RSP RBP alias
+db, rload, iload now parses strings correctly
+Reset button now clears memory and register editing on click
+rload now uses 0x0N format vs. oxN
+jmpeq now parses r0 as well as R0
+
 
 
 ### What is this repository for? ###

@@ -23,10 +23,10 @@ public class CellRenderer extends DefaultTableCellRenderer {
     
     public CellRenderer() {
         
-        setHorizontalAlignment(CENTER);
-        setHorizontalTextPosition(CENTER);
-        setVerticalAlignment(CENTER);
-        setOpaque(true);
+        super.setHorizontalAlignment(CENTER);
+        super.setHorizontalTextPosition(CENTER);
+        super.setVerticalAlignment(CENTER);
+        super.setOpaque(true);
     }
     
     @Override

@@ -22,6 +22,7 @@ public class CellEditor extends DefaultCellEditor {
         super(new JTextField());
     }
     
+    @Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected,
       int row, int column) {
     

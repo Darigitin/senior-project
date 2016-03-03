@@ -1,0 +1,146 @@
+# *******************************************************************
+# * Program: lab0 (Function format) (parameter passing)             *
+# *                                                                 *
+# * Purpose: This is a rewrite of lab0 to functionalize the program *
+# *          so that it can better approximate how high-level       *
+# *          languages work, as well as demonstrate better written  *
+# *          assembly code. This version shows good stack discipline*
+# *          through passing of variables (both by reference and by *
+# *          value).                                                *
+# *                                                                 *
+# * @author: jl948836, Jordan Lescallette                           *
+# *                                                                 *
+# * date/ver: 2/8/16  1.5.0                                         *
+# *           2/14/16 2.0.0                                         *
+# *                                                                 *
+# * Results: Memory Address 0x90 should contain "FB".               *
+# *          Memory Address 0x91 should contain "DB".               *
+# *          Memory Address 0x92 should contain "CA".               *
+# *******************************************************************
+
+# Var Pool
+          org   0x80
+X:        db    0x05
+Num1:     db    0xAB
+Num2:     db    0xCD
+Nmask:    db    0xFF
+Bmask:    db    0xF0
+
+# Storage
+          org   0x90
+Negated:  db    0
+swapA:    bss   1
+swapB:    bss   1
+
+# Code
+          org   0x00
+          sip   main
+
+          # ****************************************
+          # * This resets the base of the stack,   *
+          # * so that you essentially get a new    *
+          # * stack for each function.             *
+          # ****************************************
+Negate:   push  RBP           # put current BP onto the stack
+          move  RBP,RSP       # set BasePointer to StackPointer
+
+          # ****************************************
+          # * Grab parameters from bottom of the   *
+          # * stack.                               *
+          # ****************************************          
+          rload R2,3[RBP]     # get R2 from 3 addrs. higher than BP
+          rload R3,2[RBP]     # get R3 from 2 addrs. higher than BP
+          iload R2,[R2]       # replace addr. in R2 with val. from addr.
+          
+          xor   R2,R2,R3      # Toggle all bits
+          add   R2,R2,R1      # add 1
+          
+          pop   RBP           # put value pointed to by SP and put it in BP
+          ret                 # SP now points to ret addr. on the stack
+
+          # ****************************************
+          # * Grab parameters from top of the      *
+          # * stack.                               *
+          # ****************************************
+BitSwap:  rload R2,-1[RBP]    # get R2 from 1 addr. less than BP
+          iload R2,[R2]       # replace addr. in R2 with val. from the addr.
+          rload R3,-2[RBP]    # get R3 from 2 addrs. less than BP
+          rload R4,-3[RBP]    # get R4 from 3 addrs. less than BP
+
+          # ****************************************
+          # * This resets the base of the stack,   *
+          # * so that you essentially get a new    *
+          # * stack for each function.             *
+          # ****************************************          
+          push  RBP          # put current BP onto the stack
+          move  RBP,RSP      # set BasePointer to StackPointer
+          
+          and   R5,R2,R4     # 0xAB and 0xF0, R5 <- 0xA0
+          ror   R5,4         # R5 <- 0x0A
+          ror   R4,4         # R4 <- 0x0F
+          and   R2,R2,R4     # 0xAB and 0x0F, R2 <- 0x0B
+
+          and   R6,R3,R4     # 0xCD and 0x0F, R6 <- 0x0D
+          ror   R6,4         # R6 <- 0xD0
+          ror   R4,4         # R4 <- 0xF0
+          and   R3,R3,R4     # 0xAB and 0xF0, R3 <- 0xC0
+
+          or    R2,R2,R6     # 0x0B or 0xD0, R2 <- 0xDB
+          or    R3,R3,R5     # 0xC0 or 0x0A, R3 <- 0xCA
+
+          pop   RBP          # put value pointed to by SP and put it in BP
+          ret                # SP now points to ret addr. on the stack
+
+main:     load  R1,1         # Const. 1
+          load  R2,X         # R2 <- address of label X
+          load  R3,[Nmask]   # contains mask 1111 1111
+
+          # ****************************************
+          # * pass parameters onto the stack and   *
+          # * and call the function                *
+          # ****************************************
+          push  R2           # pass X by Reference
+          push  R3           # pass Nmask by Value
+          call  Negate       # calls label Negate
+
+          # ****************************************
+          # * save result from register to memory  *
+          # * Note: pop will take the value from   *
+          # *       the addr. pointed to by SP and *
+          # *       put it in the register.        *
+          # *       This means RH will contain the *
+          # *       the parameter that was pushed  *
+          # *       onto the sack                  *
+          # ****************************************
+          store [Negated],R2 
+          pop   R3           # clean up the stack
+          pop   R2           # clean up the stack
+
+          load  R2,Num1      # R2 <- 0xAB
+          load  R3,[Num2]    # R3 <- 0xCD
+          load  R4,[Bmask]   # R4 <- 0xF0
+
+          # ****************************************
+          # * pass parameters onto the stack and   *
+          # * and call the function                *
+          # ****************************************
+          push  R2           # pass Num1 by Reference
+          push  R3           # pass Num2 by Value
+          push  R4           # pass Num3 by Value
+          call  BitSwap      # calls label BitSwap
+          
+          # ****************************************
+          # * save result from register to memory  *
+          # * Note: pop will take the value from   *
+          # *       the addr. pointed to by SP and *
+          # *       put it in the register.        *
+          # ****************************************
+          store [swapA],R2
+          store [swapB],R3
+          pop   R4           # clean up the stack
+          pop   R3           # clean up the stack
+          pop   R2           # clean up the stack
+
+          jmp   Done        
+
+Done:     halt

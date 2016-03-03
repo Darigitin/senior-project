@@ -5,10 +5,7 @@
  */
 package machine.view;
 
-import java.util.ArrayList;
 import javax.swing.BoxLayout;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
 
 /**
  *
@@ -24,8 +21,8 @@ public class StackPanel extends javax.swing.JPanel {
     public StackPanel() {
         initComponents();
         
-        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        this.add(new ActivationRecord());
+        super.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        super.add(new ActivationRecord());
     }
     
     

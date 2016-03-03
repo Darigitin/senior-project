@@ -5,17 +5,15 @@
  */
 package machine.view;
 
-import javax.swing.JTextArea;
-
 /**
  *
  * @author Ryan Ball
  */
 public class ActivationRecord extends javax.swing.JPanel {
 
-    private int returnAddress;
-    private int dynamicLink;
-    private String call = "Main";
+    private final int returnAddress;
+    private final int dynamicLink;
+    private final String call = "Main";
     
     /**
      * Creates new form StackRecordPanel

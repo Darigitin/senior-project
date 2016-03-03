@@ -17,7 +17,7 @@ import javax.swing.table.AbstractTableModel;
  */
 public class RAMTableModel extends AbstractTableModel {
     
-    private JFrame frame;
+    private final JFrame frame;
     
     public RAMTableModel(JFrame frame) {
         this.frame = frame;
@@ -26,7 +26,7 @@ public class RAMTableModel extends AbstractTableModel {
      private final String[] columnNames = {"RAM", "0", "1", "2", "3", "4", "5", "6",
                                      "7", "8", "9", "A", "B", "C", "D", "E" , "F"};
      
-        private String[][] data = { {"0" , "00", "00", "00", "00", "00", "00",
+        private final String[][] data = { {"0" , "00", "00", "00", "00", "00", "00",
                                     "00", "00", "00", "00", "00", "00", 
                                     "00", "00", "00", "00"},
             
@@ -90,35 +90,31 @@ public class RAMTableModel extends AbstractTableModel {
                                     "00", "00", "00", "00", "00", "00", 
                                     "00", "00", "00", "00"}};
  
+        @Override
         public int getColumnCount() {
             return columnNames.length;
         }
- 
+        @Override
         public int getRowCount() {
             return data.length;
         }
- 
+        @Override
         public String getColumnName(int col) {
             return columnNames[col];
         }
- 
+        @Override
         public Object getValueAt(int row, int col) {
             return data[row][col];
         }
-
+        @Override
         public Class getColumnClass(int c) {
             return String.class;
         }
- 
+        @Override
         public boolean isCellEditable(int row, int col) {
-
-            if (col == 0) {
-                return false;
-            } else {
-                return true;
-            }
+            return col != 0;
         }
- 
+        @Override
         public void setValueAt(Object value, int row, int col) {
             super.setValueAt(value, row, col);
             
@@ -150,6 +146,7 @@ public class RAMTableModel extends AbstractTableModel {
         
         private void showError(final int row, final int col) {
             SwingUtilities.invokeLater(new Runnable() {
+                @Override
                 public void run() {
                     String message = "Invalid bytes entered at RAM address 0x" +
                             Integer.toHexString(row).toUpperCase() +

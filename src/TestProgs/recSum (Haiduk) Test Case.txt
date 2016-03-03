@@ -1,0 +1,81 @@
+# *************************************************************************
+# * FILE:  sumIntR.txt                                                    *
+# *                                                                       *
+# * PROGRAM PURPOSE:  Main program is a driver to invoke a recursive      *
+# *                   function sumIntR that recursively calculates the    *
+# *                   sum of the first N integers                         *
+# *                                                                       *
+# * NOTE:  It is assumed herein that the convention for returning a value *
+# *        from a function is to return that value in RA.                 *
+# *        This program also adheres to the convention that R1 contains   *
+# *        the constant 1.                                                *
+# *                                                                       *
+# * DATE:  February 15, 2016                                              *
+# *                                                                       *
+# * Results: RA should contain "37"                                       *
+# *************************************************************************
+
+# Data Segment
+          ORG      0x60
+N:        DB       10
+RESULT:   BSS      1
+
+
+# *************************************************************************
+# * Function:  sumIntR                                                    *
+# * Argument:  N where N >= 0                                             *
+# * Return:    The sum (return value) is returned in RLOAD                *
+# *                                                                       *
+# * Calling Sequence:   PUSH value of N onto stack                        *
+# *                    CALL sumIntR                                       *
+# *                    ADD  RSP,RSP,R1  #remove parameter from stack      *
+# *                                                                       *
+# * Assumed:  R1 contains 1                                               *
+# *          R0 contains 0                                                *
+# *                                                                       *
+# * Registers Used:  R4 and R5                                            *
+# *************************************************************************
+
+# Code Segment          
+          ORG      0X00
+          SIP      MAIN
+
+sumIntR:  PUSH  RBP        # store old base pointer
+          MOVE  RBP,RSP    # move stack pointer to base pointer
+
+          RLOAD R5,2[RBP]   # get argument n
+          JMPEQ R5=R0,END # jump to end if N <= 0, else...
+          LOAD  R4,0XFF    # -1 for reduction
+          ADD   R5,R5,R4   # n = n - 1
+          PUSH  R5
+          CALL  sumIntR    # recursive call
+                           # return to next instruction
+          ADD   RSP,RSP,R1 # bump stack pointer to move past parameter
+          RLOAD R5,2[RBP]   # fetch this frame's parameter N
+                           #
+          ADD   RA,RA,R5   # Calculate N + sumInt( N - 1 )
+          
+          POP   RD         # restore old base pointer
+          RET
+
+END:      XOR   RA,RA,RA   # this is base case return of 0
+       
+          POP   RBP        # restore base pointer
+          RET
+
+# *********************************************************************
+#
+# MAIN:  The driver program to test the function sumIntR
+#
+# *********************************************************************
+          ORG 0X30
+MAIN:     LOAD R1,1        # constant 1 defined globally
+          LOAD R0,0        # constant defined as a global comparand
+          LOAD R2,[N]
+          PUSH R2 
+          CALL sumIntR
+
+          ADD   RSP,RSP,R1 # clean up operand from stack
+          STORE [RESULT],RA
+          
+          HALT

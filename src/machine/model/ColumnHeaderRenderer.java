@@ -8,7 +8,6 @@ package machine.model;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
-import javax.swing.BorderFactory;
 import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -20,16 +19,16 @@ import javax.swing.table.JTableHeader;
  */
 public class ColumnHeaderRenderer extends DefaultTableCellRenderer {
     
-    private Color foregroundColor = Color.WHITE;
-    private Color backgroundColor = new Color(128, 0, 0);
+    private final Color foregroundColor = Color.WHITE;
+    private final Color backgroundColor = new Color(128, 0, 0);
     private final Font font = new Font("SansSerif", Font.BOLD, 14);
     
     public ColumnHeaderRenderer() {
         
-        setHorizontalAlignment(CENTER);
-        setHorizontalTextPosition(CENTER);
-        setVerticalAlignment(BOTTOM);
-        setOpaque(true);
+        super.setHorizontalAlignment(CENTER);
+        super.setHorizontalTextPosition(CENTER);
+        super.setVerticalAlignment(BOTTOM);
+        super.setOpaque(true);
     }
     
     @Override

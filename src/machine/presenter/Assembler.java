@@ -20,6 +20,9 @@
  *                        Adjust String size for quotation (") characters
  * 3 jl948836 - 02/18/16: Added -1 to .length(), to parse off "]" at the end of
  *                        RBP, RSP register aliases
+ *     #1 Matt Vertefeuille 02/23/2016 Fixed db so it does not append a null character at the end
+ *   #2 Matt Vertefeuille 02/23/2016 rload now requires hex offset to be 0x0N instead of 0xN
+ *   #3 Matt Vertefeuille 02/23/2016 jmpeq now works with R0 instead of just r0
  */
 
 package machine.presenter;
@@ -607,7 +610,7 @@ public class Assembler {
             for (int i = 0; i < result - 1; i++) {
                 tempMem[currentLocation + i] = intToHex(Integer.toString((int) temp.charAt(i + 1)));
             }
-            result -= 1;
+            result -= 1;    //Change Log #1
         } else {
             String[] args = temp.split(",");
             for (int i = 0; i < args.length; i++) {
@@ -1035,7 +1038,7 @@ public class Assembler {
      */
     private String jmpeq(String firstArg, String secondArg, int line) {
         String result = "000";
-        if (firstArg.toUpperCase().contains("=R0")) {
+        if (firstArg.toUpperCase().contains("=R0")) {   //Change Log #3
             String first[] = firstArg.split("=");
             firstArg = getRegister(first[0], line);
             if (labelMap.containsKey(secondArg)) { // arg is a label
@@ -1335,7 +1338,7 @@ public class Assembler {
         return false;
     }
 
-    /**
+        /**
      *
      * @param number
      * @return True if it is Hex, false if not
@@ -1344,18 +1347,18 @@ public class Assembler {
     //      not allow for numbers exceeding range.
     private boolean isSingleHex(String number) {
         //System.out.println(number.length());
-        if (number.length() != 4) {
+        if (number.length() != 4) { //Change Log Begin #2
             return false;
         } else {
             if (number.substring(0, 3).equalsIgnoreCase("0x0")
-                && number.substring(3, 4).toUpperCase().matches("[0-9A-F]")) {
+                && number.substring(3, 4).toUpperCase().matches("[0-9A-F]")) {  //Change Log End #2
                 return true;
             }
         }
         return false;
     }
-
-    /**
+ 
+/**
      * Helper method to check for valid 2 digit hex string must have '0x' at the
      * start to be valid
      *

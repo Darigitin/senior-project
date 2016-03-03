@@ -16,43 +16,46 @@ import machine.view.MachineView;
 public class SpecialTableModel extends AbstractTableModel{
     
     private final String[] columnNames = {"Special", "Contents"};
-    private String[][] data = { {"IP", "00"}, { "IR", "00 00"}};
+    private final String[][] data = { {"IP", "00"}, { "IR", "00 00"}};
     
-    private MachineView machineView;
+    private final MachineView machineView;
     
     public SpecialTableModel(MachineView machineView) {
         this.machineView = machineView;
     }
 
+    @Override
     public int getColumnCount() {
         return columnNames.length;
     }
 
+    @Override
     public int getRowCount() {
         return data.length;
     }
 
+    @Override
     public String getColumnName(int col) {
         return columnNames[col];
     }
 
+    @Override
     public Object getValueAt(int row, int col) {
         return data[row][col];
     }
 
+    @Override
     public Class getColumnClass(int c) {
         return String.class;
     }
     
+    @Override
     public boolean isCellEditable(int row, int col) {
 
-        if (col == 0 || (row == 1 && col == 1)) {
-            return false;
-        } else {
-            return true;
-        }
+        return !(col == 0 || (row == 1 && col == 1));
     }
  
+    @Override
     public void setValueAt(Object value, int row, int col) {
         
         String val = ((String) value).toUpperCase();
@@ -88,6 +91,7 @@ public class SpecialTableModel extends AbstractTableModel{
 
     private void showError() {
         SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 String message = "Invalid bytes entered in IP.";
                 JOptionPane.showMessageDialog(machineView, message, null, JOptionPane.ERROR_MESSAGE);

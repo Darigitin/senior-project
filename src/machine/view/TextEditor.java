@@ -7,10 +7,8 @@ import system.view.TextLineNumber;
 import java.awt.Color;
 import java.awt.Font;
 import java.io.Serializable;
-import javax.swing.JMenuItem;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
@@ -27,15 +25,15 @@ import javax.swing.text.Document;
  */
 public class TextEditor extends JScrollPane implements Serializable {
     
-    private JTextPane textPane;
-    private KarelDocument doc;
-    private TextLineNumber tln;
+    private final JTextPane textPane;
+    private final KarelDocument doc;
+    private final TextLineNumber tln;
     
     public static final Color ERROR_COLOR = new Color(255,50,50);
     public static final Color EXECUTION_COLOR = new Color(0,220,0);
     
     private final JScrollBar verticalBar;
-    private CompoundUndoManager undo;
+    private final CompoundUndoManager undo;
     
     private int tabIndex;
     
@@ -44,15 +42,15 @@ public class TextEditor extends JScrollPane implements Serializable {
     
     public TextEditor() {
         
-        verticalBar = this.getVerticalScrollBar();
+        verticalBar = super.getVerticalScrollBar();
         
         textPane = new JTextPane();
         doc = new KarelDocument();
         textPane.setDocument(doc);
         
-        this.setViewportView(textPane);
+        super.setViewportView(textPane);
         tln = new TextLineNumber(textPane);
-        this.setRowHeaderView( tln );
+        super.setRowHeaderView( tln );
         
         tln.setUpdateFont(true);
         textPane.setFont(SystemView.DEFAULT_FONT);
