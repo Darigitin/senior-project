@@ -13,7 +13,7 @@ public class ActivationRecord extends javax.swing.JPanel {
 
     private final int returnAddress;
     private final int dynamicLink;
-    private final String call = "Main";
+//    private final String call = "Main";
     
     /**
      * Creates new form StackRecordPanel

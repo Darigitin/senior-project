@@ -108,7 +108,7 @@ public class RAMTableModel extends AbstractTableModel {
         }
         @Override
         public Class getColumnClass(int c) {
-            return String.class;
+            return columnNames.getClass();
         }
         @Override
         public boolean isCellEditable(int row, int col) {
