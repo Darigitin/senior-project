@@ -7,6 +7,17 @@
  * 
  * date/ver:
  */
+
+/**
+ * Change Log
+ *
+ * # author - date: description
+ * 1 jl948836 - 02/20/16: Added a third parameter to immediateLoad; Feeds in
+ *                        third Nibble of instruction; If it is hex F; then
+ *                        the immediateLoad is part of the rload instruction,
+ *                        and registerF shouldn't print a value
+ */
+
 package machine.presenter;
 
 import java.util.Timer;
@@ -96,13 +107,11 @@ public class Clock {
 				directLoad(secondNibble,secondByte);
 				execute();
 				break;
-			case '2': 
-				//immediateLoad(secondNibble,secondByte);
-                                //jl948836 - 2/20/16 - modified immediate load to take
-                                //third parameter. thirdNibble
-                                //thirdNibble will be a flag incases of the immediateLoad
-                                //being compiled by the rload instruction.
+			case '2':
+                                //CHANGE LOG BEGIN - 1
+                                //immediateLoad(secondNibble,secondByte);
 				immediateLoad(secondNibble, secondByte, thirdNibble);
+                                //CHANGE LOG END - 1
                                 execute();
 				break;
 			case '3': 
@@ -154,11 +163,11 @@ public class Clock {
 				ror(secondNibble,secondByte);
 				execute();
 				break;
-			case 'B': // jmp
+			case 'B':
 				if (jump(secondNibble)) {
-					execute(secondByte);
+					execute(secondByte); //jmp
 				} else {
-					execute();
+					execute(); //jmpeq
 				}
 				break;
 			// halt operation
@@ -197,7 +206,7 @@ public class Clock {
 	 * Regular execute
 	 */
 	private void execute() {
-                //System.out.println("Execute Me");
+                //System.out.println("Execute Me: Method 1");
                 //System.out.println("********************* END TEST **********************");
 		instructionPointer = controller.getInstructionPointer();
 		instructionPointer += 2;
@@ -211,6 +220,8 @@ public class Clock {
 	 * @param location
 	 */
 	private void execute(int location) {
+                //System.out.println("Execute Me: Method 2");
+                //System.out.println("********************* END TEST **********************");
 		instructionPointer = controller.getInstructionPointer();
 		instructionPointer = location;
 		controller.setInstructionPointer(instructionPointer);
@@ -238,6 +249,7 @@ public class Clock {
 	 * @param register
 	 * @param memIndex
 	 */
+        //CHANGE LOG BEGIN - 1
 	private void immediateLoad(int register, int memIndex, int rloadFlag) {
 		String memory = Integer.toHexString(memIndex);
 		controller.setRegisterValue(register, memory);
@@ -245,6 +257,7 @@ public class Clock {
 			printRegisterF();
 		}
 	}
+        //CHANGE LOG END - 1
 	
 	/**
 	 * Opcode 3 - STORE

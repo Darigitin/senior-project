@@ -1,17 +1,26 @@
+/**
+ * Program: Disassembler.java
+ * 
+ * Purpose: used to generate high-level code from the machine representation for 
+ *          displaying in both the editor view (Disassemble Button) and in the 
+ *          Disassemble console at runtime.
+ * 
+ * @author:
+ * 
+ * date/ver:
+ */
+
+/**
+ * Change Log
+ * 
+ * # author - date: description
+ * 1 Matt Vertefeuille - 02/22/16: Bug Fix - rload now displays the 0x0 to 
+ *                                 reflect Change #2 in Assembler.java
+*/
+
 package machine.presenter;
 
 import java.util.ArrayList;
-
-
-/**
- * Disassembler class 
- * - used to generate high-level code from the machine representation for displaying
- * in both the editor view (Disassemble Button) and in the Disassemble console at 
- * runtime.
- */
-/* Change Log
-    #1 Matt Vertefeuille 02/22/16 Bug Fix - rload now displays the 0x0 to reflect Change #2 in Assembler.java
-*/
 public class Disassembler {
 
 	String[] input;

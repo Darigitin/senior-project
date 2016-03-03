@@ -1,21 +1,27 @@
-/*
+/**
  * Program: Assembler.java
- 
- * Purpose:
- 
+ *
+ * Purpose: This is our Assembler class. It takes the source from the editor 
+ *          view and sends it through a two pass parser. Pass one parses the 
+ *          text, splitting everything into labels, operations, and comments. 
+ *          Pass two takes this information.
+ *
  * @author:
- 
+ *
  * date/ver: 
  */
 
 /**
- * This is our Assembler class. It takes the source from the editor view and
- * sends it through a two pass parser. Pass one parses the text, splitting
- * everything into labels, operations, and comments. Pass two takes this
- * information
+ * Change Log
  *
- *
-*/
+ * # author   - date:     description
+ * 1 jl948836 - 02/11/16: Comment character changes from ";" to "#"
+ * 2 jl948836 - 02/18/16: Add Spaces back into String, that regEx parses out
+ *                        Adjust String size for quotation (") characters
+ * 3 jl948836 - 02/18/16: Added -1 to .length(), to parse off "]" at the end of
+ *                        RBP, RSP register aliases
+ */
+
 package machine.presenter;
 
 import java.awt.Desktop;
@@ -31,13 +37,6 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * This is our Assembler class. It takes the source from the editor view and
- * sends it through a two pass parser. Pass one parses the text, splitting
- * everything into labels, operations, and comments. Pass two takes this
- * information
- *
- */
 public class Assembler {
 
     private final MachineController controller;
@@ -278,13 +277,14 @@ public class Assembler {
         // tokens[1] has comments
         for (i = 0; i < lineCount; i++) { // Removes comments
             codeList.add(lines[i]);
-            //Comment character changes from ";" to "#" - 2/11/16
+            // CHANGE LOG BEGIN - 1
             tokens = lines[i].split("#"); //tokens[0] = code, tokens[1] = comments
             //System.out.println("tokens" +Arrays.toString(tokens));
             //System.out.println("lines" + Arrays.toString(lines));
             if (!lines[i].trim().equals("#")){ //if entire line is NOT comment
                 codes[i] = tokens[0].trim(); //put code in codes
             }//end if
+            //CHANGE LOG END - 1
             else{ //no code
                 codes[i] = "";
             }//end else
@@ -439,16 +439,18 @@ public class Assembler {
         // concatenate the parameter to db
         for (int i = 1; i < tokens.length; i++) {
             temp += tokens[i];
+            //CHANGE LOG BEGIN - 2
             if (i != tokens.length-1) { //re-add spaces that regex kills
                 temp += " ";
             }
+            //CHANGE LOG END - 2
         }
         // is the argument a string?
         if (temp.matches("[\"]{1}.*[\"]{1}") || temp.matches("[\']{1}.*[\']{1}")) {
             System.out.println("**********************************************************");
             System.out.println("dbString is: " + temp + " The size is: " + temp.length());
-            //-2 for both the beginning and ending " char.
-            result = temp.length() - 2; // -2 since quotes count for 2, see passTwo...
+            //-2 for both the beginning and ending " char. See passTwo
+            result = temp.length() - 2; //CHANGE LOG - 2
             System.out.println("In passOneDB, length of string is: " + result);
             logList.add("In passOneDB, length of string is: " + result);
         } else { // not a string, split on ,
@@ -884,6 +886,7 @@ public class Assembler {
             
             return result;
         }
+        //TODO: remove 1 from legnth of tokens.
         secondRegister = getRegister(tokens[1].substring(0, tokens[1].length()), line);
         return offset + firstRegister + secondRegister;
     }
@@ -952,12 +955,12 @@ public class Assembler {
            
             return result;
         }
-        //jl948836 - Added -1 to .length(), now RBP and RSP are converted by
-        //           getRegister()
+        //CHANGE LOG BEGIN - 3
         String regName = tokens[1].substring(0, tokens[1].length()-1); //truncate "]"
         secondRegister = getRegister(regName, line);
-        //construct op-code/machine code
+        //construct op-code/machine code. "F" is a flag.
         return "2" + firstRegister + "F" + offset + "D2" + firstRegister + secondRegister;
+        //CHANGE LOG END - 3
     }
 
     /**
