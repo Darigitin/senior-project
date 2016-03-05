@@ -20,9 +20,16 @@
  *                        Adjust String size for quotation (") characters
  * 3 jl948836 - 02/18/16: Added -1 to .length(), to parse off "]" at the end of
  *                        RBP, RSP register aliases
- * 1 Matt Vertefeuille 02/23/2016 Fixed db so it does not append a null character at the end
- * 2 Matt Vertefeuille 02/23/2016 rload now requires hex offset to be 0x0N instead of 0xN
- * 3 Matt Vertefeuille 02/23/2016 jmpeq now works with R0 instead of just r0
+ * 4 Matt Vertefeuille - 02/23/2016: Fixed db so it does not append a null 
+ *                                   character at the end
+ * 5 Matt Vertefeuille - 02/23/2016: rload now requires hex offset to be 0x0N 
+ *                                   instead of 0xN
+ * 6 Matt Vertefeuille - 02/23/2016: jmpeq now works with R0 instead of just r0
+ * 
+ * 
+ * 8 jl948836 - 03/05/16: Comment Character overflow fixed; Error occurred when
+ *                        comment character was the only character on a line
+ *                        (excluding \n); check for array length to fix
  */
 
 package machine.presenter;
@@ -37,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,10 +60,11 @@ public class Assembler {
     private final ArrayList<String> memMatList = new ArrayList<>();
     private final ArrayList<String> labelList = new ArrayList<>();
     private final static String[] pseudoOps = {"SIP", "ORG", "BSS", "DB"};
-    private final static String[] operations = {"LOAD", "STORE", "MOVE", "ADD", "CALL", "RET",
-        "SCALL", "SRET", "PUSH", "POP", "OR", "AND", "XOR",
-        "ROR", "JMPEQ", "JMP", "HALT", "ILOAD", "ISTORE",
-        "RLOAD", "RSTORE", "JMPLT"}; 
+    private final static String[] operations = 
+        {"LOAD", "STORE", "MOVE", "ADD", "CALL", "RET",
+         "SCALL", "SRET", "PUSH", "POP", "OR", "AND", "XOR",
+         "ROR", "JMPEQ", "JMP", "HALT", "ILOAD", "ISTORE",
+         "RLOAD", "RSTORE", "JMPLT"}; 
     BufferedWriter logfile;
     String[] codes;
     String[] labels;
@@ -75,7 +84,7 @@ public class Assembler {
      */
     public Assembler(MachineController controller) {
         this.controller = controller;
-		//TODO add trim() to Labels and Codes
+	//TODO: add trim() to Labels and Codes
 
         // initialize tempMem to hold our passTwo artifacts
         tempMem = new String[256];
@@ -134,128 +143,129 @@ public class Assembler {
        
         try 
         {
-           logfile = new BufferedWriter
-         (new FileWriter("logfile.txt"));
+            logfile = new BufferedWriter(new FileWriter("logfile.txt"));
         
          
-         logfile.append("************Logfile************");
-         logfile.newLine();
-         logfile.newLine();
-         logfile.append(simpDate.format(date));
-         logfile.newLine();
-         logHeaders("PROGRAM");
-         //This loop prints the program
-       
-         for (int i =0; i<codeList.size(); i++){
-                
-                logfile.append(codeLines +" " +codeList.get(i));
+            logfile.append("************Logfile************");
+            logfile.newLine();
+            logfile.newLine();
+            logfile.append(simpDate.format(date));
+            logfile.newLine();
+            logHeaders("PROGRAM");
+            for (String codeList1 : codeList) {
+                logfile.append(codeLines +" " + codeList1);
                 logfile.newLine(); 
                 codeLines++;
-               
             }  
-        //This loop prints information about special cases
-         for (int i =0; i<logList.size(); i++){
-             logfile.newLine();
-             logfile.append(logList.get(i));
-             logfile.newLine();
-         }
-         logHeaders("Printing through Label Map");
-        logfile.append("*************LABELS*************");
-        logfile.newLine();
-        logfile.newLine();
-       
-        for (int i =0; i<labels.length; i++){
-            if(labels[i] != null){
-                logfile.append(labels[i]);
+            //This loop prints information about special cases
+            for (String logList1 : logList) {
                 logfile.newLine();
-                labelMatching(labels[i]);
-                labelLineNum++;   
-                
-            } 
-        else{
-                 labelLineNum++; 
+                logfile.append(logList1);
+                logfile.newLine();
+            }
+            logHeaders("Printing through Label Map");
+            logfile.append("*************LABELS*************");
+            logfile.newLine();
+            logfile.newLine();
+       
+            for (String label : labels) {
+                if (label != null) {
+                    logfile.append(label);
+                    logfile.newLine();
+                    labelMatching(label);
+                    labelLineNum++;
+                } else {
+                    labelLineNum++; 
                 }
             }
          
 
             logfile.newLine();      
             //This loop prints the defined information
-            for (int i =0; i<defList.size(); i++){
-                logfile.append(defList.get(i));
+            for (String defList1 : defList) {
+                logfile.append(defList1);
                 logfile.newLine();
-                
-                
             }
-         logfile.newLine();
-         //This loop prints the reference information
-          for (int i =0; i<refList.size(); i++){
-              logfile.append(refList.get(i));
+            logfile.newLine();
+            //This loop prints the reference information
+            for (String refList1 : refList) {
+                logfile.append(refList1);
                 logfile.newLine();
-                
             }
                 
-               logHeaders("MEMORY");
-         //This loop prints the memory matrix    
-        for (int i = 0; i < tempMem.length; i++) {
-            if ((i+1) % 16 == 0) {
-               logfile.append(memMatList.get(i));
-               logfile.newLine();
-            } else {
-                 logfile.append(memMatList.get(i) + ", ");
+            logHeaders("MEMORY");
+            //This loop prints the memory matrix    
+            for (int i = 0; i < tempMem.length; i++) {
+                if ((i+1) % 16 == 0) {
+                    logfile.append(memMatList.get(i));
+                    logfile.newLine();
+                } else {
+                     logfile.append(memMatList.get(i) + ", ");
+                }
             }
-        }
                
-                logHeaders("ERROR REPORT");
+            logHeaders("ERROR REPORT");
             
-             //This loop prints the error report
-                if (!errorList.isEmpty()){
-                for (int i =0; i<errorList.size(); i++){
-                    logfile.append(errorList.get(i));
+            //This loop prints the error report
+            if (!errorList.isEmpty()){
+                for (String errorList1 : errorList) {
+                    logfile.append(errorList1);
                     logfile.newLine();
                     logfile.newLine();
                     errorCount = Integer.toString(errorList.size());
                     logfile.append("Error Count: "+errorCount);
-                }
+               }
+            } else{
+                    logfile.append("Error Count: "+errorCount);  
             }
-            
-            else{
-                     logfile.append("Error Count: "+errorCount);  
-                       }
-       logfile.close();
-    }
+            logfile.close();
+        }
        
-    catch (Exception e) {}
+        catch (Exception e) {}
     }
+    
+    /**
+     * 
+     * @param labelAppears 
+     */
     private void labelMatching(String labelAppears) {
    //Programmer: Mariela Barrera
    //Finds where all the labels are referenced
         for (int i =0; i<codeList.size(); i++){ 
             if (codeList.get(i).contains(labelAppears)){
-            labelAppearsLine = i+1;
-            try{
-            logfile.append("appears in line " +labelAppearsLine);
-            logfile.newLine();
+                labelAppearsLine = i+1;
+                try{
+                    logfile.append("appears in line " +labelAppearsLine);
+                    logfile.newLine();
+                }
+                catch (Exception e){}
             }
-            catch (Exception e){}
         }
     }
-    }
+    
+    /**
+     * 
+     * @param header 
+     */
     private void logHeaders(String header) {
     //Creates the logfile headers.    
     //Programmer: Mariela Barrera
         try{ 
-         logfile.newLine();
-         logfile.append( "*******************************");
-         logfile.newLine();
-         logfile.append(header);
-         logfile.newLine();
-         logfile.append( "*******************************");
-         logfile.newLine();         
-         logfile.newLine();
+            logfile.newLine();
+            logfile.append( "*******************************");
+            logfile.newLine();
+            logfile.append(header);
+            logfile.newLine();
+            logfile.append( "*******************************");
+            logfile.newLine();         
+            logfile.newLine();
         }
-         catch (Exception e){}
-     }
+        catch (Exception e){}
+    }
     
+    /**
+     * 
+     */
     public void displayLog() {
         //Displays the logfile as an automated pop up.
         //Programmer: Mariela Barrera
@@ -263,12 +273,13 @@ public class Assembler {
         try{
             Desktop.getDesktop().open(new File ("logfile.txt"));
         }
-    catch (Exception e){}
+        catch (Exception e){}
     }
     
-    
-  
-
+    /**
+     * 
+     * @param text 
+     */
     private void passOne(String text) {
         String[] lines = text.split("\n");
         int lineCount = lines.length;
@@ -282,9 +293,8 @@ public class Assembler {
             codeList.add(lines[i]);
             // CHANGE LOG BEGIN - 1
             tokens = lines[i].split("#"); //tokens[0] = code, tokens[1] = comments
-            //System.out.println("tokens" +Arrays.toString(tokens));
-            //System.out.println("lines" + Arrays.toString(lines));
-            if (!lines[i].trim().equals("#")){ //if entire line is NOT comment
+            //if entire line is NOT comment && line has content (comment or code)
+            if (!lines[i].trim().equals("#") && tokens.length != 0){ //CHANGE LOG - 8
                 codes[i] = tokens[0].trim(); //put code in codes
             }//end if
             //CHANGE LOG END - 1
@@ -293,14 +303,13 @@ public class Assembler {
             }//end else
         }
         
-
-		// codes[] now has all the code and labels
+	// codes[] now has all the code and labels
         // pull out any labels and store them
         for (i = 0; i < lineCount; i++) {
             tokens = codes[i].split(":");
             if (codes[i].contains(":") && isValidLabel(tokens[0]) // check to see if label has been used
                 && tokens.length > 1) {
-                codes[i] = tokens[1].trim(); 		// can put code on same line as label
+                codes[i] = tokens[1].trim(); // can put code on same line as label
                 labels[i] = tokens[0].trim();
             } else if (codes[i].contains(":") && isValidLabel(tokens[0]) // check to see if label without
                 && tokens.length == 1) {                        // code has been used
@@ -310,6 +319,7 @@ public class Assembler {
                 errorList.add("Error: Invalid label found on line " + (i + 1) + ": " + tokens[0]);
             }
         }
+        
 	// codes[] now has all the code without labels or comments
         // labels[] now has all the labels
         // parse pseudo-ops
@@ -321,34 +331,39 @@ public class Assembler {
                 if (tokens[0].toUpperCase().equals("ORG")) { // handle ORG pseudo-op
                     currentLocation = orgLocation(tokens, i);
                     mapLabel(i, currentLocation); // map label to org
-                }   else if ((tokens[0].toUpperCase().equals("RLOAD")) && (labels[i] == null)){ //Rload without a label
+                }   
+                else if ((tokens[0].toUpperCase().equals("RLOAD")) && (labels[i] == null)){ //Rload without a label
                     currentLocation += 4; 
-                }   else if (tokens[0].toUpperCase().equals("DB")) { 	// handle DB pseudo op
+                }   
+                else if (tokens[0].toUpperCase().equals("DB")) { 	// handle DB pseudo op
                     mapLabel(i, currentLocation); // map label before updating current location...
                     System.out.println("In passOne, before dbOneLocation, currentLocation = " + currentLocation);
                     logList.add("In passOne, before dbOneLocation, currentLocation = " + currentLocation);
                     
-        
                     currentLocation += dbOneLocation(tokens, i);
                     System.out.println("In passOne, after dbOneLocation, currentLocation = " + currentLocation);
                     logList.add("In passOne, after dbOneLocation, currentLocation = " + currentLocation);
-                }   else if ((labels[i] != null) && (tokens[0].toUpperCase().equals("RLOAD"))){ //RLOAD after a label
+                }   
+                else if ((labels[i] != null) && (tokens[0].toUpperCase().equals("RLOAD"))){ //RLOAD after a label
                     mapLabel(i, currentLocation);
                     currentLocation +=4;
-                }   else if (labels[i] != null) { 	// we have a label on this line with operation following
+                }   
+                else if (labels[i] != null) { 	// we have a label on this line with operation following
                     mapLabel(i, currentLocation);	// map currentLocation to the label
                     if (tokens[0].toUpperCase().equals("BSS")) { 	// handle BSS pseudo op
                         currentLocation += bssLocation(tokens, i);
                     } else if (tokens[0] != null && isOperation(tokens[0])) { //label found, operation following
                         currentLocation += operationLocation(tokens);
                     }
-                } else if (tokens[0].toUpperCase().equals("BSS")) { // error, bss and no label
-                    errorList.add("Error: BSS pseudo op on line " + (i + 1) + " is missing a label.");
-                    
-                } else if (isOperation(tokens[0])) { 	// operation without label
+                } 
+                else if (tokens[0].toUpperCase().equals("BSS")) { // error, bss and no label
+                    errorList.add("Error: BSS pseudo op on line " + (i + 1) + " is missing a label.");    
+                } 
+                else if (isOperation(tokens[0])) { 	// operation without label
                     currentLocation += operationLocation(tokens);
                 }
-            } else if (labels[i] != null) { // we have a label with nothing following 
+            } 
+            else if (labels[i] != null) { // we have a label with nothing following 
                 mapLabel(i, currentLocation);	// map currentLocation to the label
             }
         }
@@ -377,22 +392,30 @@ public class Assembler {
                
             tokens = codes[i].split("\\s+");
             if (tokens.length > 0) { // A line with pseudo-op or operation
-                if (tokens[0].toUpperCase().equals("ORG")) { 		// handle ORG pseudo-op
-                    currentLocation = orgLocation(tokens, i);
-                } else if (tokens[0].toUpperCase().equals("DB")) { 	// handle DB pseudo-op
-                    System.out.println("Inside passTwo, before dbTwoLocation, currentLocation = " + currentLocation);
-                    logList.add("Inside passTwo, before dbTwoLocation, currentLocation = " + currentLocation);
-                    currentLocation += dbTwoLocation(codes[i], i, currentLocation, i + 1);
-                    System.out.println("Inside passTwo, after dbTwoLocation, currentLocation = " + currentLocation);
-                    logList.add("Inside passTwo, after dbTwoLocation, currentLocation = " + currentLocation);
-                } else if (tokens[0].toUpperCase().equals("BSS")) { // handle BSS pseudo-op
-                    System.out.println("In passTwo(), before bssLocation, currentLocation = " + currentLocation);
-                    logList.add("In passTwo(), before bssLocation, currentLocation = " + currentLocation);
-                    currentLocation += bssLocation(tokens, i);
-                    System.out.println("In passTwo(), after bssLocation, currentLocation = " + currentLocation);
-                    logList.add("In passTwo(), after bssLocation, currentLocation = " + currentLocation);
-                } else if (tokens[0].toUpperCase().equals("SIP")) {
-                    storeSIP(tokens, i);
+                switch (tokens[0].toUpperCase()) {
+                    case "ORG":
+                        // handle ORG pseudo-op
+                        currentLocation = orgLocation(tokens, i);
+                        break;
+                    case "DB":
+                        // handle DB pseudo-op
+                        System.out.println("Inside passTwo, before dbTwoLocation, currentLocation = " + currentLocation);
+                        logList.add("Inside passTwo, before dbTwoLocation, currentLocation = " + currentLocation);
+                        currentLocation += dbTwoLocation(codes[i], i, currentLocation, i + 1);
+                        System.out.println("Inside passTwo, after dbTwoLocation, currentLocation = " + currentLocation);
+                        logList.add("Inside passTwo, after dbTwoLocation, currentLocation = " + currentLocation);
+                        break;
+                    case "BSS":
+                        // handle BSS pseudo-op
+                        System.out.println("In passTwo(), before bssLocation, currentLocation = " + currentLocation);
+                        logList.add("In passTwo(), before bssLocation, currentLocation = " + currentLocation);
+                        currentLocation += bssLocation(tokens, i);
+                        System.out.println("In passTwo(), after bssLocation, currentLocation = " + currentLocation);
+                        logList.add("In passTwo(), after bssLocation, currentLocation = " + currentLocation);
+                        break;
+                    case "SIP":
+                        storeSIP(tokens, i);
+                        break;
                 }
             }
             if (labels[i] != null && !codes[i].trim().isEmpty() && !isPseudoOp(tokens[0])) { //has a label
@@ -400,11 +423,14 @@ public class Assembler {
                 currentLocation = labelMap.get(labels[i]);
                 bytes = getByteCode(codes[i].trim(), i + 1);
                 currentLocation += byteCodeInTemp(bytes, currentLocation, i);
-            } else if (labels[i] != null && (tokens[0].toUpperCase().equals("DB") || tokens[0].toUpperCase().equals("BSS"))) { // Special case for DB and BSS
+            } 
+            else if (labels[i] != null && (tokens[0].toUpperCase().equals("DB") || tokens[0].toUpperCase().equals("BSS"))) { // Special case for DB and BSS
                 // do nothing.
-            } else if (labels[i] != null) { //There is a label with no code.
+            } 
+            else if (labels[i] != null) { //There is a label with no code.
                 currentLocation = labelMap.get(labels[i]);
-            } else if (!codes[i].trim().isEmpty() && !isPseudoOp(tokens[0])) {
+            } 
+            else if (!codes[i].trim().isEmpty() && !isPseudoOp(tokens[0])) {
                 bytes = getByteCode(codes[i].trim(), i + 1);
                 currentLocation += byteCodeInTemp(bytes, currentLocation, i);
             }
@@ -425,9 +451,7 @@ public class Assembler {
         byteCode.add(SIP);
 
         // build up bytecode for return
-        for (int i = 0; i < tempMem.length; i++) {
-            byteCode.add(tempMem[i]);
-        }
+        byteCode.addAll(Arrays.asList(tempMem));
     }
 
     /**
@@ -490,7 +514,6 @@ public class Assembler {
             location = hexToInt(tokens[1]);
         } else { // Invalid number of arguments or argument not hex
             errorList.add("Error: invalid argument to ORG found on line " + (i + 1));
-           
         }
         return location;
     }
@@ -559,9 +582,11 @@ public class Assembler {
         if (tokens.length == 2) {
             if (isHex(tokens[1])) {
                 SIP = tokens[1].substring(2, 4);
-            } else if (isInt(tokens[1])) {
+            } 
+            else if (isInt(tokens[1])) {
                 SIP = intToHex((tokens[1]));
-            } else if (labelMap.containsKey(tokens[1])) {
+            } 
+            else if (labelMap.containsKey(tokens[1])) {
                 SIP = intToHex(labelMap.get(tokens[1]).toString());
             }
         } else {
@@ -599,8 +624,8 @@ public class Assembler {
         dbString = dbString.substring(3, dbString.length());
 
         // find parameters while ignoring whitespace inbetween
-        Matcher matcher = Pattern.compile("([\"]{1}[^\"]*[\"]{1})|([\\']{1}[^\\']*[\\']{1})|([\\S]+)")
-            .matcher(dbString);
+        String regExPattern = "([\"]{1}[^\"]*[\"]{1})|([\\']{1}[^\\']*[\\']{1})|([\\S]+)";
+        Matcher matcher = Pattern.compile(regExPattern).matcher(dbString);
         while (matcher.find()) {
             temp += dbString.substring(matcher.start(), matcher.end());
         }
@@ -610,22 +635,24 @@ public class Assembler {
             for (int i = 0; i < result - 1; i++) {
                 tempMem[currentLocation + i] = intToHex(Integer.toString((int) temp.charAt(i + 1)));
             }
-            result -= 1;    //Change Log #1
+            result -= 1; //CHANGE LOG - 4
         } else {
             String[] args = temp.split(",");
-            for (int i = 0; i < args.length; i++) {
-                if (isHex(args[i])) {
-                    tempMem[currentLocation + result++] = Integer.toHexString(hexToInt(args[i]));
-                } else if (isInt(args[i])) {
-                    tempMem[currentLocation + result++] = intToHex(args[i]);
-                } else if (args[i].matches("[\"]{1}[^\"]*[\"]{1}") || args[i].matches("[\']{1}[^\']*[\']{1}")) {
-                    int argLen = args[i].length() - 1;
+            for (String arg : args) {
+                if (isHex(arg)) {
+                    tempMem[currentLocation + result++] = Integer.toHexString(hexToInt(arg));
+                } 
+                else if (isInt(arg)) {
+                    tempMem[currentLocation + result++] = intToHex(arg);
+                } 
+                else if (arg.matches("[\"]{1}[^\"]*[\"]{1}") || arg.matches("[\']{1}[^\']*[\']{1}")) {
+                    int argLen = arg.length() - 1;
                     for (int j = 0; j < argLen - 1; j++) {
-                        tempMem[currentLocation + result++] = intToHex(Integer.toString((int) args[i].charAt(j + 1)));
+                        tempMem[currentLocation + result++] = intToHex(Integer.toString((int) arg.charAt(j + 1)));
                     }
-                } else {
-                    errorList.add("Invalid db parameter \"" + args[i]
-                        + "\" found on line " + lineNum);
+                } 
+                else {
+                    errorList.add("Invalid db parameter \"" + arg + "\" found on line " + lineNum);
                 }
             }
         }
@@ -641,81 +668,90 @@ public class Assembler {
         // \\s+ means any amount of whitespace
         String[] tokens = operation.split("\\s+", 2); //split opcode from args
         String op = tokens[0];
-        int definedList = 1; //TODO: get rid of me.
+        String opcode; //CHANGE LOG Begin 7 jl948836
         if (tokens.length == 2) { //if op-code has args
             String[] args = tokens[1].split("\\s*,\\s*");
             if (args.length == 1) { // 1 argument found
-                System.out.println("Operation :" + op + " args :" + args[0]);
-                defList.add("Operation :" + op + " args :" + args[0]);
-                definedList++;
-                if (op.toUpperCase().equals("CALL")) {
-                    return "6" + call(args[0], line);
-                } else if (op.toUpperCase().equals("SCALL")) {
-                    return "6" + scall(args[0], line);
-                } else if (op.toUpperCase().equals("PUSH")) {
-                    return "6" + push(args[0], line);
-                } else if (op.toUpperCase().equals("POP")) {
-                    return "6" + pop(args[0], line);
-                } else if (op.toUpperCase().equals("JMP")) {
-                    return "B" + jump(args[0], line);
-                } else if (op.toUpperCase().equals("RET")) {
-                    return "6" + ret(args[0], line);
+                opcode = "Operation :" + op + " args :" + args[0];
+                System.out.println(opcode);
+                defList.add(opcode);
+                switch (op.toUpperCase()) {
+                    case "CALL":
+                        return "6" + call(args[0], line);
+                    case "SCALL":
+                        return "6" + scall(args[0], line);
+                    case "PUSH":
+                        return "6" + push(args[0], line);
+                    case "POP":
+                        return "6" + pop(args[0], line);
+                    case "JMP":
+                        return "B" + jump(args[0], line);
+                    case "RET":
+                        return "6" + ret(args[0], line);
                 }
-            } else if (args.length == 2) { // 2 arguments found
-                System.out.println("Operation :" + op + " args :" + args[0]
-                    + " " + args[1]);
-                defList.add("Operation :" + op + " args :" + args[0]
-                    + " " + args[1] );
+            } 
+            else if (args.length == 2) { // 2 arguments found
+                opcode = "Operation :" + op + " args :" + args[0] + " " + args[1];
+                System.out.println(opcode);
+                defList.add(opcode);
                 
                 if (op.toUpperCase().equals("LOAD") && args[1].startsWith("[")
                     && args[1].endsWith("]")) { // Direct Load
                     return "1" + load1(args[0], args[1], line);
-                } else if (op.toUpperCase().equals("LOAD")) { // Immediate Load
-                    return "2" + load2(args[0], args[1], line);
-                } else if (op.toUpperCase().equals("STORE")) {
-                    return "3" + store(args[0], args[1], line);
-                } else if (op.toUpperCase().equals("MOVE")) {
-                    return "4" + move(args[0], args[1], line);
-                } else if (op.toUpperCase().equals("ROR")) {
-                    return "A" + ror(args[0], args[1], line);
-                } else if (op.toUpperCase().equals("JMPEQ")) {
-                    return "B" + jmpeq(args[0], args[1], line);
-                } else if (op.toUpperCase().equals("ILOAD")) {
-                    return "D" + iload(args[0], args[1], line);
-                } else if (op.toUpperCase().equals("ISTORE")) {
-                    return "D" + istore(args[0], args[1], line);
-                } else if (op.toUpperCase().equals("RLOAD")) {
-                    return rload(args[0], args[1], line); //args[1] #[RN]
-                } else if (op.toUpperCase().equals("RSTORE")) {
-                    return "D" + rstore(args[0], args[1], line);
-                } else if (op.toUpperCase().equals("JMPLT")) {    //change "JMPLE" to "JMPLT"
-                    return "F" + jmplt(args[0], args[1], line);   //change "JMPLE" to "JMPLT"
+                } 
+                //Broke if else statment at load, so that the rest could
+                //be made into a switch statment.
+                switch (op.toUpperCase()) {
+                    case "LOAD":
+                        // Immediate Load
+                        return "2" + load2(args[0], args[1], line);
+                    case "STORE":
+                        return "3" + store(args[0], args[1], line);
+                    case "MOVE":
+                        return "4" + move(args[0], args[1], line);
+                    case "ROR":
+                        return "A" + ror(args[0], args[1], line);
+                    case "JMPEQ":
+                        return "B" + jmpeq(args[0], args[1], line);
+                    case "ILOAD":
+                        return "D" + iload(args[0], args[1], line);
+                    case "ISTORE":
+                        return "D" + istore(args[0], args[1], line);
+                    case "RLOAD":
+                        return rload(args[0], args[1], line); //args[1] #[RN]
+                    case "RSTORE":
+                        return "D" + rstore(args[0], args[1], line);
+                    case "JMPLT":
+                        //change "JMPLE" to "JMPLT"
+                        return "F" + jmplt(args[0], args[1], line); //change "JMPLE" to "JMPLT"
                 }
-            } else if (args.length == 3) {	// 3 arguments found
-                System.out.println("Operation :" + op + " args :" + args[0]
-                    + " " + args[1] + " " + args[2]);
-                defList.add("Operation :" + op + " args :" + args[0]
-                    + " " + args[1] + " " + args[2]);
+            } 
+            else if (args.length == 3) { // 3 arguments found
+                opcode = "Operation :" + op + " args :" + args[0] + " " + args[1] + " " + args[2];
+                System.out.println(opcode);
+                defList.add(opcode);
               
-                if (op.toUpperCase().equals("ADD")) {
-                    return "5" + add(args[0], args[1], args[2], line);
-                } else if (op.toUpperCase().equals("OR")) {
-                    return "7" + or(args[0], args[1], args[2], line);
-                } else if (op.toUpperCase().equals("AND")) {
-                    return "8" + and(args[0], args[1], args[2], line);
-                } else if (op.toUpperCase().equals("XOR")) {
-                    return "9" + xor(args[0], args[1], args[2], line);
+                switch (op.toUpperCase()) {
+                    case "ADD":
+                        return "5" + add(args[0], args[1], args[2], line);
+                    case "OR":
+                        return "7" + or(args[0], args[1], args[2], line);
+                    case "AND":
+                        return "8" + and(args[0], args[1], args[2], line);
+                    case "XOR":
+                        return "9" + xor(args[0], args[1], args[2], line);
                 }
             }
         } else if (tokens.length == 1) { 	// No arguments
-            if (op.toUpperCase().equals("RET")) {
-                return "6100";
-            } else if (op.toUpperCase().equals("SRET")) {
-                return "6300";
-            } else if (op.toUpperCase().equals("HALT")) {
-                return "C000";
-            } else if (op.toUpperCase().equals("NOOP")) {
-                return "0000";
+            switch (op.toUpperCase()) {
+                case "RET":
+                    return "6100";
+                case "SRET":
+                    return "6300";
+                case "HALT":
+                    return "C000";
+                case "NOOP":
+                    return "0000";
             }
 
         }
@@ -740,7 +776,7 @@ public class Assembler {
             tempMem[currentLocation + 3] = bytes.substring(6, 8);
             System.out.println("Code: " + codes[i] + "Currentlocation: " + intToHex(Integer.toString(currentLocation)));
             refList.add("Code: " + codes[i] + "Currentlocation: " + intToHex(Integer.toString(currentLocation)));
-            
+ 
             location = 4;
         } else {
             tempMem[currentLocation] = bytes.substring(0, 2);// Placing Bytecode in memory
@@ -766,11 +802,14 @@ public class Assembler {
         String address = secondArg.substring(1, secondArg.length() - 1);
         if (labelMap.containsKey(address)) {
             result = firstRegister + intToHex(Integer.toString(labelMap.get(address)));
-        } else if (isHex(address)) {
+        }
+        else if (isHex(address)) {
             result = firstRegister + address.substring(2, 4);
-        } else if (isInt(address)) {
+        } 
+        else if (isInt(address)) {
             result = firstRegister + intToHex(address);
-        } else {
+        } 
+        else {
             errorList.add("Error: LOAD operations on line " + line
                 + " has invalid arguments.");
         }
@@ -790,11 +829,14 @@ public class Assembler {
         String address = secondArg;
         if (labelMap.containsKey(address)) {
             result = firstRegister + intToHex(Integer.toString(labelMap.get(address)));
-        } else if (isHex(address)) {
+        } 
+        else if (isHex(address)) {
             result = firstRegister + address.substring(2, 4);
-        } else if (isInt(address)) {
+        } 
+        else if (isInt(address)) {
             result = firstRegister + intToHex(address);
-        } else {
+        } 
+        else {
             errorList.add("Error: LOAD operations on line " + line
                 + " has invalid arguments.");
         }
@@ -810,22 +852,26 @@ public class Assembler {
      */
     private String jmplt(String firstArg, String secondArg, int line) { //change "JMPLE" to "JMPLT"
         String result = "000";
-        if (firstArg.toUpperCase().contains("<R0")) {   //change "<=R0" to "<R0"
-            String first[] = firstArg.split("<");       //change "<=" to "<"
+        if (firstArg.toUpperCase().contains("<R0")) { //change "<=R0" to "<R0"
+            String first[] = firstArg.split("<"); //change "<=" to "<"
             firstArg = getRegister(first[0], line);
             if (labelMap.containsKey(secondArg)) { // arg is a label
                 result = firstArg + intToHex(Integer.toString(labelMap.get(secondArg)));
-            } else if (isInt(secondArg)) { // arg is decimal
+            } 
+            else if (isInt(secondArg)) { // arg is decimal
                 result = firstArg + intToHex(secondArg);
-            } else if (isHex(secondArg)) { // arg is hex
+            } 
+            else if (isHex(secondArg)) { // arg is hex
                 result = firstArg + secondArg.substring(2, 4);
-            } else {
+            } 
+            else {
+                //change "JMPLE" to "JMPLT"
                 errorList.add("Error: Invalid destination for JMPLT on line " + line);
-                                                        //change "JMPLE" to "JMPLT"
             }
         } else {
+            //change "JMPLE" to "JMPLT"
             errorList.add("Error: Missing equal sign for JMPLT on line " + line);
-        }                                               //change "JMPLE" to "JMPLT"
+        }
         return result;
     }
 
@@ -845,7 +891,8 @@ public class Assembler {
         if (tokens.length == 2 && tokens[1].endsWith("]")) {
             if (isSingleHex(tokens[0])) {
                 offset = tokens[0].toUpperCase().substring(2, 3);
-            } else if (tokens[0].startsWith("-") && tokens[0].length() == 2) {
+            } 
+            else if (tokens[0].startsWith("-") && tokens[0].length() == 2) {
                 int number = Integer.parseInt(tokens[0].toUpperCase().substring(1, 2));
                 switch (number) {
                     case 1:
@@ -877,9 +924,11 @@ public class Assembler {
                        
                         return result;
                 }
-            } else if (tokens[0].length() == 1 && Integer.parseInt(tokens[0]) < 8) {
+            } 
+            else if (tokens[0].length() == 1 && Integer.parseInt(tokens[0]) < 8) {
                 offset = tokens[0];
-            } else {
+            } 
+            else {
                 errorList.add("Error: Invalid argument on line " + line);
             
                 return result;
@@ -889,7 +938,7 @@ public class Assembler {
             
             return result;
         }
-        //TODO: remove 1 from legnth of tokens.
+        //TODO: remove 1 from legnth of tokens. Why?
         secondRegister = getRegister(tokens[1].substring(0, tokens[1].length()), line);
         return offset + firstRegister + secondRegister;
     }
@@ -914,7 +963,8 @@ public class Assembler {
         if (tokens.length == 2 && tokens[1].endsWith("]")) {
             if (isSingleHex(tokens[0])) {
                 offset = tokens[0].toUpperCase().substring(2, 3);
-            } else if (tokens[0].startsWith("-") && tokens[0].length() == 2) {
+            } 
+            else if (tokens[0].startsWith("-") && tokens[0].length() == 2) {
                 int number = Integer.parseInt(tokens[0].toUpperCase().substring(1, 2));
                 switch (number) {
                     case 1:
@@ -946,16 +996,16 @@ public class Assembler {
                         
                         return result;
                 }
-            } else if (tokens[0].length() == 1 && Integer.parseInt(tokens[0]) < 8) {
+            } 
+            else if (tokens[0].length() == 1 && Integer.parseInt(tokens[0]) < 8) {
                 offset = tokens[0];
-            } else {
+            } 
+            else {
                 errorList.add("Error: Invalid argument on line " + line);
-              
                 return result;
             }
         } else {
             errorList.add("Error: Invalid argument on line " + line);
-           
             return result;
         }
         //CHANGE LOG BEGIN - 3
@@ -1018,13 +1068,15 @@ public class Assembler {
         String result = "000";
         if (labelMap.containsKey(firstArg)) { // arg is a label
             result = "0" + intToHex(Integer.toString(labelMap.get(firstArg)));
-        } else if (isInt(firstArg)) { // arg is decimal
+        } 
+        else if (isInt(firstArg)) { // arg is decimal
             result = "0" + intToHex(firstArg);
-        } else if (isHex(firstArg)) { // arg is hex
+        } 
+        else if (isHex(firstArg)) { // arg is hex
             result = "0" + firstArg.substring(2, 4);
-        } else {
+        } 
+        else {
             errorList.add("Error: Invalid destination for JUMP on line " + line);
-            
         }
         return result;
     }
@@ -1038,22 +1090,23 @@ public class Assembler {
      */
     private String jmpeq(String firstArg, String secondArg, int line) {
         String result = "000";
-        if (firstArg.toUpperCase().contains("=R0")) {   //Change Log #3
+        if (firstArg.toUpperCase().contains("=R0")) {   //CHANGE LOG - 6
             String first[] = firstArg.split("=");
             firstArg = getRegister(first[0], line);
             if (labelMap.containsKey(secondArg)) { // arg is a label
                 result = firstArg + intToHex(Integer.toString(labelMap.get(secondArg)));
-            } else if (isInt(secondArg)) { // arg is decimal
+            } 
+            else if (isInt(secondArg)) { // arg is decimal
                 result = firstArg + intToHex(secondArg);
-            } else if (isHex(secondArg)) { // arg is hex
+            } 
+            else if (isHex(secondArg)) { // arg is hex
                 result = firstArg + secondArg.substring(2, 4);
-            } else {
+            } 
+            else {
                 errorList.add("Error: Invalid destination for JMPEQ on line " + line);
-           
             }
         } else {
             errorList.add("Error: Missing equal sign for JMPEQ on line " + line);
-        
         }
         return result;
     }
@@ -1070,12 +1123,13 @@ public class Assembler {
         firstArg = getRegister(firstArg, line);
         if (isHex(secondArg)) {
             result = firstArg + secondArg.substring(2, 4);
-        } else if (isInt(secondArg)) {
+        } 
+        else if (isInt(secondArg)) {
             result = firstArg + intToHex(secondArg);
-        } else {
+        } 
+        else {
             errorList.add("Error: ROR operations on line " + line
                 + " has invalid arguments.");
-
         }
         return result;
     }
@@ -1148,13 +1202,15 @@ public class Assembler {
         String result = "000";
         if (labelMap.containsKey(firstArg)) { // arg is a label
             result = "2" + intToHex(Integer.toString(labelMap.get(firstArg)));
-        } else if (isInt(firstArg)) { // arg is decimal
+        } 
+        else if (isInt(firstArg)) { // arg is decimal
             result = "2" + intToHex(firstArg);
-        } else if (isHex(firstArg)) { // arg is hex
+        } 
+        else if (isHex(firstArg)) { // arg is hex
             result = "2" + firstArg.substring(2, 4);
-        } else {
-            errorList.add("Error: Invalid destination for SCALL on line " + line);
-            
+        } 
+        else {
+            errorList.add("Error: Invalid destination for SCALL on line " + line);    
         }
         return result;
     }
@@ -1168,13 +1224,15 @@ public class Assembler {
         String result = "000";
         if (labelMap.containsKey(firstArg)) { // arg is a label
             result = "0" + intToHex(Integer.toString(labelMap.get(firstArg)));
-        } else if (isInt(firstArg)) { // arg is decimal
+        } 
+        else if (isInt(firstArg)) { // arg is decimal
             result = "0" + intToHex(firstArg);
-        } else if (isHex(firstArg)) { // arg is hex
+        } 
+        else if (isHex(firstArg)) { // arg is hex
             result = "0" + firstArg.substring(2, 4);
-        } else {
-            errorList.add("Error: Invalid destination for CALL on line " + line);
-         
+        } 
+        else {
+            errorList.add("Error: Invalid destination for CALL on line " + line); 
         }
         return result;
     }
@@ -1188,9 +1246,11 @@ public class Assembler {
         String result = "100";
         if (isInt(firstArg)) {
             result = "1" + intToHex(firstArg);
-        } else if (isHex(firstArg)) {
+        } 
+        else if (isHex(firstArg)) {
             result = "1" + firstArg.substring(2, 4);
-        } else {
+        } 
+        else {
             errorList.add("Error: Invalid number for RET on line " + line);
         }
         return result;
@@ -1205,7 +1265,7 @@ public class Assembler {
      * @return Last three bytes for assembly of the ADD instruction
      */
     private String add(String firstArg, String secondArg, String thirdArg, int line) {
-        //TODO add error reporting inside getRegister
+        //TODO: add error reporting inside getRegister
         return getRegister(firstArg, line) + getRegister(secondArg, line) + getRegister(thirdArg, line);
     }
 
@@ -1226,7 +1286,6 @@ public class Assembler {
      * @param secondArg
      * @return Last three bytes for assembly of the STORE instruction
      */
-    
     //modified store  --- the store command is: STORE [XY], RN
     //store the value in register N in the memory cell at address XY
     private String store(String firstArg, String secondArg, int line) {
@@ -1250,8 +1309,7 @@ public class Assembler {
                         + " has invalid arguments.");               
                 }
             }
-        }
-        
+        } 
         return result;
     }
     
@@ -1312,13 +1370,13 @@ public class Assembler {
      * @return boolean
      */
     private boolean isValidLabel(String token) {
-        //make sure label is unique 
-        for (int i = 0; i < labels.length; i++) {
-            if (labels[i] != null && labels[i].equals(token)) {
+        //make sure label is unique
+        for (String label : labels) {
+            if (label != null && label.equals(token)) {
                 return false;
             }
         }
-        // TODO make sure we match the regex
+        // TODO: make sure we match the regex
         // label okay
         return true;
     }
@@ -1332,33 +1390,32 @@ public class Assembler {
     private boolean isInt(String number) {
         if (number.length() == 0 || number.length() > 3) {
             return false;
-        } else if (number.matches("[0-9][0-9]{0,2}") || number.matches("-[0-9][0-9]{0,2}")) {
+        } 
+        else if (number.matches("[0-9][0-9]{0,2}") || number.matches("-[0-9][0-9]{0,2}")) {
             return true;
         }
         return false;
     }
 
-        /**
+    /**
      *
      * @param number
      * @return True if it is Hex, false if not
      */
-    //TODO: Fix, currently looks for format 0x#. Should look for 0x##, and
-    //      not allow for numbers exceeding range.
     private boolean isSingleHex(String number) {
         //System.out.println(number.length());
-        if (number.length() != 4) { //Change Log Begin #2
+        if (number.length() != 4) { //CHANGE LOG Begin - 5
             return false;
         } else {
             if (number.substring(0, 3).equalsIgnoreCase("0x0")
-                && number.substring(3, 4).toUpperCase().matches("[0-9A-F]")) {  //Change Log End #2
+                && number.substring(3, 4).toUpperCase().matches("[0-9A-F]")) {  //CHANGE LOG End - 5
                 return true;
             }
         }
         return false;
     }
  
-/**
+    /**
      * Helper method to check for valid 2 digit hex string must have '0x' at the
      * start to be valid
      *
@@ -1405,12 +1462,11 @@ public class Assembler {
         String result = Integer.toHexString(Integer.parseInt(decimal)).toUpperCase();
         if (result.length() == 1) {
             result = "0" + result;
-        } else if (result.length() > 2) {
+        } 
+        else if (result.length() > 2) {
             result = result.substring(result.length() - 2);
-
         }
         return result;
-
     }
 
     /**
@@ -1420,8 +1476,8 @@ public class Assembler {
      * @return boolean
      */
     private boolean isPseudoOp(String token) {
-        for (int i = 0; i < pseudoOps.length; i++) {
-            if (pseudoOps[i].equals(token.toUpperCase())) {
+        for (String pseudoOp : pseudoOps) {
+            if (pseudoOp.equals(token.toUpperCase())) {
                 return true;
             }
         }
@@ -1435,8 +1491,8 @@ public class Assembler {
      * @return boolean
      */
     private boolean isOperation(String token) {
-        for (int i = 0; i < operations.length; i++) {
-            if (operations[i].equals(token.toUpperCase())) {
+        for (String operation : operations) {
+            if (operation.equals(token.toUpperCase())) {
                 return true;
             }
         }
@@ -1452,20 +1508,20 @@ public class Assembler {
      */
     public void printContent(String[] labels, String[] codes) {
         System.out.println("\nLABELS:");
-        for (int i = 0; i < labels.length; i++) {
-            System.out.println(labels[i]); 
-          
-            labelList.add(labels[i]);
+        for (String label : labels) {
+            System.out.println(label);
+            labelList.add(label);
         }
+        
         System.out.println("\nPrinting through Label map");
         for (String key: labelMap.keySet()){
             System.out.println(key + " : " + intToHex(Integer.toString(labelMap.get(key))));
             logList.add(key + " : " + intToHex(Integer.toString(labelMap.get(key))));
         }
-        System.out.println();
+        
         System.out.println("\nCODES:");
-        for (int i = 0; i < codes.length; i++) {
-            System.out.println(codes[i]);
+        for (String code : codes) {
+            System.out.println(code);
             //codeList.add(codes[i]);
         }
     }

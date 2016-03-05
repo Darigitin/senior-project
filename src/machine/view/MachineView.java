@@ -66,6 +66,9 @@ public class MachineView extends javax.swing.JFrame {
 		{
 			GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
 			fontNames = env.getAvailableFontFamilyNames();
+                        //System.out.println("************************************Screen Resolution TEST*******************************************");
+                        //System.out.println(env.getMaximumWindowBounds());
+                        //System.out.println(env.getDefaultScreenDevice());
 		}
 		return fontNames;
 	}
@@ -85,8 +88,10 @@ public class MachineView extends javax.swing.JFrame {
         this.controller = controller;
         
         initComponents();
+        //System.out.println(callStackPanel);
+        //System.out.println(callStackPanel);
         
-        super.setTitle("Machine Simulator");
+        super.setTitle("WAL - Machine Simulator");
         WindowListener exitListener = new WindowAdapter() {
 
             @Override
@@ -1013,4 +1018,5 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
     private javax.swing.JTabbedPane tabbedPane;
     private machine.view.TextEditor textEditor;
     // End of variables declaration//GEN-END:variables
+
 }
