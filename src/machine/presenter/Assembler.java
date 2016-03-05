@@ -14,24 +14,25 @@
 /**
  * Change Log
  *
+ * mv935583 -> Matthew Vertefeuille
+ * jl948836 -> Jordan Lescallatte
  * # author   - date:     description
  * 1 jl948836 - 02/11/16: Comment character changes from ";" to "#"
  * 2 jl948836 - 02/18/16: Add Spaces back into String, that regEx parses out
  *                        Adjust String size for quotation (") characters
  * 3 jl948836 - 02/18/16: Added -1 to .length(), to parse off "]" at the end of
  *                        RBP, RSP register aliases
- * 4 Matt Vertefeuille - 02/23/2016: Fixed db so it does not append a null 
- *                                   character at the end
- * 5 Matt Vertefeuille - 02/23/2016: rload now requires hex offset to be 0x0N 
- *                                   instead of 0xN
- * 6 Matt Vertefeuille - 02/23/2016: jmpeq now works with R0 instead of just r0
- * 
  * 
  * 8 jl948836 - 03/05/16: Comment Character overflow fixed; Error occurred when
  *                        comment character was the only character on a line
  *                        (excluding \n); check for array length to fix
  * 9 jl948836 - 03/05/16: Overload on return now does allows user full range of
  *                        0-Max for SP increment (got rid of "1" + ...)
+ * 4 mv935583 - 02/23/2016: Fixed db so it does not append a null 
+ *                                   character at the end
+ * 5 mv935583 - 02/23/2016: rload now requires hex offset to be 0x0N 
+ *                                   instead of 0xN
+ * 6 mv935583 - 02/23/2016: jmpeq now works with R0 instead of just r0
  */
 
 package machine.presenter;
@@ -1254,7 +1255,7 @@ public class Assembler {
         } 
         else if (isHex(firstArg)) {
             result = firstArg.substring(2, 4); //CHANGE LOG END - 9
-        } 
+        }
         else {
             errorList.add("Error: Invalid number for RET on line " + line);
         }
@@ -1393,7 +1394,7 @@ public class Assembler {
      * @return boolean
      */
     private boolean isInt(String number) {
-        if (number.length() == 0 || number.length() > 3) {
+        if (number.length() == 0 || number.length() > 4) {
             return false;
         } 
         else if (number.matches("[0-9][0-9]{0,2}") || number.matches("-[0-9][0-9]{0,2}")) {
