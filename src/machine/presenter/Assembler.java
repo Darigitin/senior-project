@@ -30,6 +30,8 @@
  * 8 jl948836 - 03/05/16: Comment Character overflow fixed; Error occurred when
  *                        comment character was the only character on a line
  *                        (excluding \n); check for array length to fix
+ * 9 jl948836 - 03/05/16: Overload on return now does allows user full range of
+ *                        0-Max for SP increment (got rid of "1" + ...)
  */
 
 package machine.presenter;
@@ -672,7 +674,7 @@ public class Assembler {
         if (tokens.length == 2) { //if op-code has args
             String[] args = tokens[1].split("\\s*,\\s*");
             if (args.length == 1) { // 1 argument found
-                opcode = "Operation :" + op + " args :" + args[0];
+                opcode = "Operation: " + op + " args: " + args[0];
                 System.out.println(opcode);
                 defList.add(opcode);
                 switch (op.toUpperCase()) {
@@ -691,7 +693,7 @@ public class Assembler {
                 }
             } 
             else if (args.length == 2) { // 2 arguments found
-                opcode = "Operation :" + op + " args :" + args[0] + " " + args[1];
+                opcode = "Operation: " + op + " args: " + args[0] + " " + args[1];
                 System.out.println(opcode);
                 defList.add(opcode);
                 
@@ -727,7 +729,7 @@ public class Assembler {
                 }
             } 
             else if (args.length == 3) { // 3 arguments found
-                opcode = "Operation :" + op + " args :" + args[0] + " " + args[1] + " " + args[2];
+                opcode = "Operation: " + op + " args: " + args[0] + " " + args[1] + " " + args[2];
                 System.out.println(opcode);
                 defList.add(opcode);
               
@@ -743,6 +745,9 @@ public class Assembler {
                 }
             }
         } else if (tokens.length == 1) { 	// No arguments
+            opcode = "Operation: " + op + "args: none";
+            System.out.println(opcode);
+            defList.add(opcode);
             switch (op.toUpperCase()) {
                 case "RET":
                     return "6100";
@@ -1245,10 +1250,10 @@ public class Assembler {
     private String ret(String firstArg, int line) {
         String result = "100";
         if (isInt(firstArg)) {
-            result = "1" + intToHex(firstArg);
+            result = intToHex(firstArg); //CHANGE LOG BEGIN - 9
         } 
         else if (isHex(firstArg)) {
-            result = "1" + firstArg.substring(2, 4);
+            result = firstArg.substring(2, 4); //CHANGE LOG END - 9
         } 
         else {
             errorList.add("Error: Invalid number for RET on line " + line);

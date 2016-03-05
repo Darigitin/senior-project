@@ -78,7 +78,7 @@ public class Clock {
     * Gets the instruction to be executed and calls the decode method
     */
     private void fetch() {
-        System.out.println("Fetch Me");
+        //System.out.println("Fetch Me");
         int[] instructions = controller.getInstructionRegister();
         decode(instructions);
     }
@@ -88,7 +88,7 @@ public class Clock {
     * @param instructions
     */
     private void decode(int[] instructions) {
-        System.out.println("Decode Me");
+        //System.out.println("Decode Me");
         // get the opcode
         String operation = Integer.toHexString(instructions[0]);
         String operand = Integer.toHexString(instructions[1]);
@@ -107,7 +107,7 @@ public class Clock {
         int thirdNibble = Character.digit(firstOperand,16);
         int fourthNibble = Character.digit(secondOperand,16);
         int secondByte = Integer.parseInt(operand, 16);
-        System.out.println("Opcode Decoded: " + firstOpcode + secondOpcode);
+        //System.out.println("Opcode Decoded: " + firstOpcode + secondOpcode);
         switch(firstOpcode){
             case '1':
                 directLoad(secondNibble,secondByte);
@@ -218,8 +218,8 @@ public class Clock {
     * Regular execute
     */
     private void execute() {
-        System.out.println("Execute Me: Method 1");
-        System.out.println("********************* END TEST **********************");
+        //System.out.println("Execute Me: Method 1");
+        //System.out.println("********************* END TEST **********************");
         instructionPointer = controller.getInstructionPointer();
         instructionPointer += 2;
         controller.setInstructionPointer(instructionPointer);

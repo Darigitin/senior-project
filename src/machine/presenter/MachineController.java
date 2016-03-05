@@ -154,8 +154,8 @@ public class MachineController {
         // grab the instruction pointer from the codes array
         int IP = Integer.parseInt(codes.get(0),16);
         if (IP < 255) { // only make sense that IP is < 255...
-            String firstOp = codes.get(IP-2);
-            String secondOp = codes.get(IP-1);
+            String firstOp = codes.get(IP+1);
+            String secondOp = codes.get(IP+2);
             machineView.setInstructionRegister(firstOp + " " + secondOp);
         } else {
             machineView.setInstructionRegister("XX XX");
