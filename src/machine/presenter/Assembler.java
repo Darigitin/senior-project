@@ -20,6 +20,7 @@
     #1 Matt Vertefeuille 02/23/2016 Fixed db so it does not append a null character at the end
     #2 Matt Vertefeuille 02/23/2016 rload now requires hex offset to be 0x0N instead of 0xN
     #3 Matt Vertefeuille 02/23/2016 jmpeq now works with R0 instead of just r0
+    #4 Matt Vertefeuille 03/04/2016 Fixed an issue where negative 3 digit numbers were not being read correctly in DB.
 */
 package machine.presenter;
 
@@ -1331,7 +1332,7 @@ public class Assembler {
      * @return boolean
      */
     private boolean isInt(String number) {
-        if (number.length() == 0 || number.length() > 3) {
+        if (number.length() == 0 || number.length() > 4) {
             return false;
         } else if (number.matches("[0-9][0-9]{0,2}") || number.matches("-[0-9][0-9]{0,2}")) {
             return true;

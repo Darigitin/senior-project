@@ -67,9 +67,9 @@ public class MachineView extends javax.swing.JFrame {
 		if (fontNames == null)
 		{
 			GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
-                        GraphicsConfiguration.
+                        //GraphicsConfiguration.
 			fontNames = env.getAvailableFontFamilyNames();
-                        System.out.println(Arrays.toString(fontNames));
+                        //System.out.println(Arrays.toString(fontNames));
 		}
 		return fontNames;
 	}
