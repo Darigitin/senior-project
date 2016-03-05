@@ -3,19 +3,6 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/matt/NetBeansProjects/MachineSimulatorV1.2/src/machine/presenter/DisassemblerException.java</file>
-            <file>file:/home/matt/NetBeansProjects/MachineSimulatorV1.2/src/machine/presenter/Disassembler.java</file>
-            <file>file:/home/matt/NetBeansProjects/MachineSimulatorV1.2/src/machine/model/CellEditor.java</file>
-            <file>file:/home/matt/NetBeansProjects/MachineSimulatorV1.2/src/machine/model/ColumnHeaderRenderer.java</file>
-            <file>file:/home/matt/NetBeansProjects/MachineSimulatorV1.2/src/machine/model/CellRenderer.java</file>
-            <file>file:/home/matt/NetBeansProjects/MachineSimulatorV1.2/src/machine/view/ActivationRecord.java</file>
-            <file>file:/home/matt/NetBeansProjects/MachineSimulatorV1.2/src/machine/model/RegisterTableModel.java</file>
-            <file>file:/home/matt/NetBeansProjects/MachineSimulatorV1.2/src/machine/model/RAMTableModel.java</file>
-            <file>file:/home/matt/NetBeansProjects/MachineSimulatorV1.2/src/machine/view/MachineView.java</file>
-            <file>file:/home/matt/NetBeansProjects/MachineSimulatorV1.2/src/machine/model/CustomTable.java</file>
-            <file>file:/home/matt/NetBeansProjects/MachineSimulatorV1.2/src/machine/model/SpecialTableModel.java</file>
-            <file>file:/home/matt/NetBeansProjects/MachineSimulatorV1.2/src/machine/presenter/Assembler.java</file>
-            <file>file:/home/matt/NetBeansProjects/MachineSimulatorV1.2/src/machine/presenter/MachineController.java</file>
         </group>
     </open-files>
 </project-private>
