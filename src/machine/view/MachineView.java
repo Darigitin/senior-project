@@ -17,9 +17,11 @@ import machine.model.CustomTable;
 import machine.model.RowHeaderRenderer;
 import machine.model.RegisterTableModel;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
+import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -92,6 +94,7 @@ public class MachineView extends javax.swing.JFrame {
         this.controller = controller;
         
         initComponents();
+        //customInitComponents();
         //System.out.println(callStackPanel);
         //System.out.println(callStackPanel);
         
@@ -145,6 +148,14 @@ public class MachineView extends javax.swing.JFrame {
         addLanguageReference();
         addSyntaxReference();
         
+        
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int width = (int) screenSize.getWidth();
+        int height = (int) screenSize.getHeight();
+        System.out.println("Height and width of the screen: " + width + " " + height);
+        
+        //setBounds(0,0, width,height);
+        super.setSize(screenSize);
         super.pack();
         super.setLocationRelativeTo(null);
         super.setVisible(true); 
@@ -339,6 +350,13 @@ public class MachineView extends javax.swing.JFrame {
   
     }
 
+    private void customInitComponents(){
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int width = (int) screenSize.getWidth();
+        int height = (int) screenSize.getHeight();
+        System.out.println("Height and width of the screen: " + width + " " + height);
+        tabbedPane.setPreferredSize(new java.awt.Dimension(width, height));
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
