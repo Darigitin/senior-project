@@ -52,7 +52,7 @@ public class TestViewResizable {
         });
     }
 
-    public class TestPane extends JPanel {
+    private class TestPane extends JPanel {
 
         private JTable table;
         private JButton historyButton;
