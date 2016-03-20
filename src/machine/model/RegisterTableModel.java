@@ -7,6 +7,7 @@ package machine.model;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
@@ -21,9 +22,9 @@ public class RegisterTableModel extends AbstractTableModel{
      {"4", "00"}, { "5", "00"},  {"6", "00"}, { "7", "00"},  {"8", "00"}, { "9", "00"},
      {"A", "00"}, { "B", "00"},  {"C", "00"}, { "D (BP)", "FF"},  {"E (SP)", "FF"}, { "F", "00"}};
     
-    private final JFrame frame;
+    private final JPanel frame;
     
-    public RegisterTableModel(JFrame frame) {
+    public RegisterTableModel(JPanel frame) {
         this.frame = frame;
     }
 

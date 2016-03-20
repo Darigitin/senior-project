@@ -8,6 +8,7 @@ package machine.model;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
@@ -17,9 +18,9 @@ import javax.swing.table.AbstractTableModel;
  */
 public class RAMTableModel extends AbstractTableModel {
     
-    private final JFrame frame;
+    private final JPanel frame;
     
-    public RAMTableModel(JFrame frame) {
+    public RAMTableModel(JPanel frame) {
         this.frame = frame;
     }
     

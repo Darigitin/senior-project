@@ -24,8 +24,9 @@
 package machine.presenter;
 
 import java.util.ArrayList;
-import machine.view.MachineView;
-
+//import machine.view.MachineView;
+//import testCode.MachineView;
+import machine.view.MachView;
 /**
  *
  * @author Ryan Ball
@@ -33,7 +34,7 @@ import machine.view.MachineView;
 public class MachineController {
         
        
-    private final MachineView machineView;
+    private final MachView machineView;
     private final Clock clock = new Clock(this);
     private ArrayList<String> lastAssembledProg = new ArrayList<>();
     private boolean isRunning = false;
@@ -43,7 +44,7 @@ public class MachineController {
      * 
      */
     public MachineController() {
-        machineView = new MachineView(this);
+        machineView = new MachView(this);
 
         for (int i = 0; i < 257; i++) {
             lastAssembledProg.add("00");
