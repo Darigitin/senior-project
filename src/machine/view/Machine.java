@@ -25,6 +25,9 @@ package machine.view;
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import machine.model.RAMTableModel;
 import machine.model.RegisterTableModel;
 import machine.model.SpecialTableModel;
@@ -37,22 +40,11 @@ import machine.view.ActivationRecord;
  * @author jl948836
  */
 public class Machine extends javax.swing.JPanel {
-
-    MachineController controller;
     
     public Machine(){
         initComponents();
     }
-    
-    /**
-     * Creates new form RAMTable
-     * @param controller
-     */
-    public Machine(MachineController controller) {
-        this.controller = controller;
-        initComponents();
-    }//end Machine()
-    
+
     /**
      * 
      * @param address
@@ -224,6 +216,7 @@ public class Machine extends javax.swing.JPanel {
         return disassembledConsole;
     }
     
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -234,7 +227,6 @@ public class Machine extends javax.swing.JPanel {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        jPanel1 = new javax.swing.JPanel();
         ramScrollPane = new javax.swing.JScrollPane();
         ramTable = new javax.swing.JTable();
         pswScrollPane = new javax.swing.JScrollPane();
@@ -248,28 +240,25 @@ public class Machine extends javax.swing.JPanel {
         stackPanelScrollPane = new javax.swing.JScrollPane();
         stackRecordPanel = new machine.view.StackPanel();
 
-        setMaximumSize(null);
-        setMinimumSize(null);
-        setPreferredSize(null);
         setLayout(new java.awt.GridBagLayout());
 
-        jPanel1.setLayout(new java.awt.BorderLayout());
-
         ramTable.setModel(new RAMTableModel(this));
-        ramTable.setFillsViewportHeight(true);
         ramTable.setMaximumSize(new java.awt.Dimension(2147483647, 2147483647));
         ramTable.setRowHeight(24);
+        ramTable.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                ramTableComponentResized(evt);
+            }
+        });
         ramScrollPane.setViewportView(ramTable);
-
-        jPanel1.add(ramScrollPane, java.awt.BorderLayout.CENTER);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.gridheight = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 0.5;
-        gridBagConstraints.weighty = 0.7;
-        add(jPanel1, gridBagConstraints);
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 0.53;
+        add(ramScrollPane, gridBagConstraints);
 
         pswTable.setModel(new SpecialTableModel(this));
         pswTable.setRowHeight(19);
@@ -310,13 +299,14 @@ public class Machine extends javax.swing.JPanel {
         gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 0.5;
-        gridBagConstraints.weighty = 0.3;
+        gridBagConstraints.weighty = 0.47;
         add(disassembleScrollPane, gridBagConstraints);
 
         displayScrollPane.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true), "Display Console"));
 
         displayConsole.setBackground(new java.awt.Color(0, 0, 0));
         displayConsole.setColumns(20);
+        displayConsole.setForeground(new java.awt.Color(0, 250, 0));
         displayConsole.setRows(5);
         displayScrollPane.setViewportView(displayConsole);
 
@@ -325,7 +315,7 @@ public class Machine extends javax.swing.JPanel {
         gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 0.5;
-        gridBagConstraints.weighty = 0.3;
+        gridBagConstraints.weighty = 0.47;
         add(displayScrollPane, gridBagConstraints);
 
         stackPanelScrollPane.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true), "Stack Panel"));
@@ -340,13 +330,20 @@ public class Machine extends javax.swing.JPanel {
         add(stackPanelScrollPane, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
+    private void ramTableComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_ramTableComponentResized
+        JTableHeader th = ramTable.getTableHeader();
+        TableColumnModel tcm = th.getColumnModel();
+        TableColumn tc = tcm.getColumn(1);
+        int columnWidth = tc.getWidth();
+        ramTable.setRowHeight(columnWidth);
+    }//GEN-LAST:event_ramTableComponentResized
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public static javax.swing.JScrollPane disassembleScrollPane;
     public static javax.swing.JTextArea disassembledConsole;
     public static javax.swing.JTextArea displayConsole;
     public static javax.swing.JScrollPane displayScrollPane;
-    private javax.swing.JPanel jPanel1;
     public static javax.swing.JScrollPane pswScrollPane;
     public static javax.swing.JTable pswTable;
     public static javax.swing.JScrollPane ramScrollPane;
