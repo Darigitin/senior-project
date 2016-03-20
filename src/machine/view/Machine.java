@@ -248,9 +248,9 @@ public class Machine extends javax.swing.JPanel {
         stackPanelScrollPane = new javax.swing.JScrollPane();
         stackRecordPanel = new machine.view.StackPanel();
 
-        setMaximumSize(new java.awt.Dimension(2534, 1904));
-        setMinimumSize(new java.awt.Dimension(528, 344));
-        setPreferredSize(new java.awt.Dimension(726, 544));
+        setMaximumSize(null);
+        setMinimumSize(null);
+        setPreferredSize(null);
         setLayout(new java.awt.GridBagLayout());
 
         jPanel1.setLayout(new java.awt.BorderLayout());
@@ -268,7 +268,7 @@ public class Machine extends javax.swing.JPanel {
         gridBagConstraints.gridheight = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 0.5;
-        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.weighty = 0.7;
         add(jPanel1, gridBagConstraints);
 
         pswTable.setModel(new SpecialTableModel(this));
@@ -310,7 +310,7 @@ public class Machine extends javax.swing.JPanel {
         gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 0.5;
-        gridBagConstraints.weighty = 0.5;
+        gridBagConstraints.weighty = 0.3;
         add(disassembleScrollPane, gridBagConstraints);
 
         displayScrollPane.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true), "Display Console"));
@@ -325,7 +325,7 @@ public class Machine extends javax.swing.JPanel {
         gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 0.5;
-        gridBagConstraints.weighty = 0.5;
+        gridBagConstraints.weighty = 0.3;
         add(displayScrollPane, gridBagConstraints);
 
         stackPanelScrollPane.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true), "Stack Panel"));
@@ -335,7 +335,7 @@ public class Machine extends javax.swing.JPanel {
         gridBagConstraints.gridheight = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.PAGE_START;
-        gridBagConstraints.weightx = 0.29;
+        gridBagConstraints.weightx = 0.3;
         gridBagConstraints.weighty = 1.0;
         add(stackPanelScrollPane, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents

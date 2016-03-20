@@ -458,7 +458,7 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
     gridBagConstraints.gridy = 1;
     gridBagConstraints.gridheight = 2;
     gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-    gridBagConstraints.weightx = 0.2;
+    gridBagConstraints.weightx = 0.1;
     gridBagConstraints.weighty = 0.9;
     getContentPane().add(mainPanel, gridBagConstraints);
 
@@ -472,7 +472,7 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
     );
     textEditorPanelLayout.setVerticalGroup(
         textEditorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        .addComponent(textEditor, javax.swing.GroupLayout.DEFAULT_SIZE, 507, Short.MAX_VALUE)
+        .addComponent(textEditor, javax.swing.GroupLayout.DEFAULT_SIZE, 590, Short.MAX_VALUE)
     );
 
     gridBagConstraints = new java.awt.GridBagConstraints();
@@ -494,7 +494,7 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
     gridBagConstraints.gridy = 2;
     gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
     gridBagConstraints.weightx = 0.5;
-    gridBagConstraints.weighty = 0.25;
+    gridBagConstraints.weighty = 0.1;
     getContentPane().add(errorDisplayScrollPane, gridBagConstraints);
 
     jMenu1.setText("File");
