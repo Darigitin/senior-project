@@ -70,12 +70,12 @@ public class MachineView extends javax.swing.JFrame {
                         //GraphicsConfiguration.
 			fontNames = env.getAvailableFontFamilyNames();
 <<<<<<< HEAD
-                        //System.out.println(Arrays.toString(fontNames));
 =======
+                        //System.out.println(Arrays.toString(fontNames));
+>>>>>>> 2e80ac0f05699f1a16462b1604ee1440dd47195c
                         //System.out.println("************************************Screen Resolution TEST*******************************************");
                         //System.out.println(env.getMaximumWindowBounds());
                         //System.out.println(env.getDefaultScreenDevice());
->>>>>>> jordan
 		}
 		return fontNames;
 	}

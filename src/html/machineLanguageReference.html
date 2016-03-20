@@ -200,14 +200,17 @@ and open the template in the editor.
                     </tr>
                     <tr>
                         <td>
-                            61  00
+                            6N  XY
                         </td>
                         <td>
                             RET
                         </td>
                         <td>
                             Returns from current stack frame.  By convention, register 1 contains <br>
-                                the return value.  Last byte is ignored.
+                                the return value.  Last byte is ignored. Takes an optional argument.
+                                The argument is a number (in either hex or dec.), and is added to the
+                                Stack Pointer (RE/RSP) at the end of execution. If no argument is passed
+                                a default of 1 is passed to the instruction (In this case, opcode is 61 00).
                             <br/>
                             reg[IP] := [BP]
                             <br/>
