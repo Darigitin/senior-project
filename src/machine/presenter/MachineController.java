@@ -21,6 +21,12 @@
  * and open the template in the editor.
  */
 
+/* Change Log
+    #Guojun Liu  03/08/16 
+    1. Create a new string array to hold the instruction in IP
+    2. Create three new methods new CPU cycle
+*/
+
 package machine.presenter;
 
 import java.util.ArrayList;
@@ -38,6 +44,7 @@ public class MachineController {
     private final Clock clock = new Clock(this);
     private ArrayList<String> lastAssembledProg = new ArrayList<>();
     private boolean isRunning = false;
+    private static String[] MemoryAddressRegister = new String[2];     //declear MAR
     Assembler assembler = new Assembler(this);
 
     /**
@@ -143,24 +150,26 @@ public class MachineController {
      * @param Array of bitCode
      */
     private void loadMachine(ArrayList<String> codes) {
-        int memoryIndex = 0;
+	int memoryIndex = 0;
         for (String code : codes) {
             if (memoryIndex == 0) {
-                machineView.setInstructionPointer(code);
+		machineView.setInstructionPointer(code); 
+                machineView.setInstructionRegister("00 00");
             } else {
-                machineView.setRAMBytes(code, memoryIndex - 1);		
+		machineView.setRAMBytes(code, memoryIndex - 1);		
             }
-            memoryIndex++;
-        }
-        // grab the instruction pointer from the codes array
-        int IP = Integer.parseInt(codes.get(0),16);
-        if (IP < 255) { // only make sense that IP is < 255...
+            memoryIndex++;            
+	}
+	// grab the instruction pointer from the codes array
+	int IP = Integer.parseInt(codes.get(0),16);               //Get instruction pointer from the first place
+	if (IP < 255) { // only make sense that IP is < 255...            
             String firstOp = codes.get(IP+1);
-            String secondOp = codes.get(IP+2);
-            machineView.setInstructionRegister(firstOp + " " + secondOp);
-        } else {
+            String secondOp = codes.get(IP+2);                        
+            MemoryAddressRegister[0] = firstOp;
+            MemoryAddressRegister[1] = secondOp;
+	} else {
             machineView.setInstructionRegister("XX XX");
-        }
+	}
     }
     
     /**
@@ -229,10 +238,39 @@ public class MachineController {
      */
     public void setInstructionRegister() {
         int ip = Integer.parseInt(machineView.getInstructionPointer(), 16);
-        String[] newir = {machineView.getRAMBytes(ip).toUpperCase(), 
-                          machineView.getRAMBytes(ip+1).toUpperCase()};
+        //original code
+            /*String[] newir = {machineView.getRAMBytes(ip).toUpperCase(), 
+                            machineView.getRAMBytes(ip+1).toUpperCase()};*/
+            String[] newir = {machineView.getRAMBytes(ip-2).toUpperCase(), 
+                            machineView.getRAMBytes(ip-1).toUpperCase()};
         machineView.setInstructionRegister(newir[0] + " " + newir[1]);
     }
+    
+        //update the current conent to IF before jump
+        public void setInstructionRegisterForJump() {
+            machineView.setInstructionRegister(MemoryAddressRegister[0] + " " 
+                    + MemoryAddressRegister[1]);
+	}
+        
+        //set the current instruction register after the fetch phase
+        public void setIPinstruction() {           
+            int ip = Integer.parseInt(machineView.getInstructionPointer(), 16);
+            String[] newir = {machineView.getRAMBytes(ip).toUpperCase(), 
+                            machineView.getRAMBytes(ip+1).toUpperCase()};
+            MemoryAddressRegister[0] = newir[0];
+            MemoryAddressRegister[1] = newir[1];
+	}
+        
+        public int[] getInstructionFromIP() {
+            String[] ir = MemoryAddressRegister;
+            int[] instructions = {Integer.parseInt(ir[0], 16),
+				Integer.parseInt(ir[1], 16)};
+            return instructions;
+	}
+        
+        public void updateIPwhenHalt(){
+            machineView.setInstructionRegister("C0 00");
+        }
 
     /**
      * Called by Clock to get Instruction Pointer

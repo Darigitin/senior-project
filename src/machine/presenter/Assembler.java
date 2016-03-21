@@ -41,10 +41,19 @@
  * 10 jl948836 - 03/14/16: Implemented EQU Pseudo-Op
  */
 
+/*
+* Change Log
+* 
+* -Guojun Liu
+* -Modified the istore and rstore
+* -Create a method to create assembler listing
+*/
+
 package machine.presenter;
 
 import java.awt.Desktop;
 import java.io.BufferedWriter;
+import java.io.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
@@ -78,6 +87,7 @@ public class Assembler {
     String[] codes; 
     String[] labels;
     String[] tempMem;
+    String Location[], Object_code[];
     HashMap<String, Integer> labelMap = new HashMap<>(256); //labels mapped to addrs.
     HashMap<String, String> equivalencies = new HashMap<>(256); //CHANGE LOG: 10 - labels mapped to labels
     String labelAppears;
@@ -118,6 +128,8 @@ public class Assembler {
         } else {
             displayErrors();
         }
+        
+        generateAssemblerList();  // Create a assembler list
         return byteCode;
     }
 
@@ -246,6 +258,8 @@ public class Assembler {
         int currentLocation = 0;
         String[] tokens;
         String bytes;
+        Location = new String[codes.length];  
+        Object_code = new String[codes.length];
         for (int i = 0; i < codes.length; i++) {
             /*if (i==39){
                 //This is a debug method, ignore this.
@@ -264,6 +278,7 @@ public class Assembler {
                         System.out.println("Inside passTwo, before dbTwoLocation, currentLocation = " + currentLocation);
                         logList.add("Inside passTwo, before dbTwoLocation, currentLocation = " + currentLocation);
                         currentLocation += dbTwoLocation(codes[i], i, currentLocation, i + 1);
+                        Location[i] = intToHex(Integer.toString(currentLocation));
                         System.out.println("Inside passTwo, after dbTwoLocation, currentLocation = " + currentLocation);
                         logList.add("Inside passTwo, after dbTwoLocation, currentLocation = " + currentLocation);
                         break;
@@ -272,6 +287,7 @@ public class Assembler {
                         System.out.println("In passTwo(), before bssLocation, currentLocation = " + currentLocation);
                         logList.add("In passTwo(), before bssLocation, currentLocation = " + currentLocation);
                         currentLocation += bssLocation(tokens, i);
+                        Location[i] = intToHex(Integer.toString(currentLocation));
                         System.out.println("In passTwo(), after bssLocation, currentLocation = " + currentLocation);
                         logList.add("In passTwo(), after bssLocation, currentLocation = " + currentLocation);
                         break;
@@ -283,8 +299,18 @@ public class Assembler {
             if (labels[i] != null && !codes[i].trim().isEmpty() && !isPseudoOp(tokens[0])) { //has a label
                 //also has a code and is not a pseudoOp
                 currentLocation = labelMap.get(labels[i]);
+                Location[i] = intToHex(Integer.toString(currentLocation));     //save current location for assembler listing
                 bytes = getByteCode(codes[i].trim(), i + 1);
                 currentLocation += byteCodeInTemp(bytes, currentLocation, i);
+                // get object code for assembler listing
+                StringBuilder bytesInMemory = new StringBuilder(bytes);
+                if (bytesInMemory.length() > 5){
+                    bytesInMemory.insert (2, " ").toString();
+                    bytesInMemory.insert (5, " ").toString();
+                    Object_code[i] = bytesInMemory.insert (8, " ").toString();
+                }else{
+                    Object_code[i] = bytesInMemory.insert (2, " ").toString();
+                }
             } 
             //CHANGE LOG: 10
             else if (labels[i] != null && (tokens[0].toUpperCase().equals("DB") || tokens[0].toUpperCase().equals("BSS") || 
@@ -293,10 +319,20 @@ public class Assembler {
             } 
             else if (labels[i] != null) { //There is a label with no code.
                 currentLocation = labelMap.get(labels[i]);
+                Location[i] = intToHex(Integer.toString(currentLocation));    //save current location for assembler listing
             } 
             else if (!codes[i].trim().isEmpty() && !isPseudoOp(tokens[0])) {
                 bytes = getByteCode(codes[i].trim(), i + 1);
                 currentLocation += byteCodeInTemp(bytes, currentLocation, i);
+                //get object code for assembler listing
+                StringBuilder bytesInMemory = new StringBuilder(bytes);
+                if (bytesInMemory.length() > 5){
+                    bytesInMemory.insert (2, " ").toString();
+                    bytesInMemory.insert (5, " ").toString();
+                    Object_code[i] = bytesInMemory.insert (8, " ").toString();
+                }else{
+                    Object_code[i] = bytesInMemory.insert (2, " ").toString();
+                }
             }
         }
 
@@ -618,7 +654,10 @@ public class Assembler {
                     case "RLOAD":
                         return rload(args[0], args[1], line); //args[1] #[RN]
                     case "RSTORE":
-                        return "D" + rstore(args[0], args[1], line);
+                        //modified code for RESTORE
+                        return "E" + rstore(args[0], args[1], line);
+                        //original code
+                        //return "D" + rstore(args[0], args[1], line);
                     case "JMPLT":
                         //change "JMPLE" to "JMPLT"
                         return "F" + jmplt(args[0], args[1], line); //change "JMPLE" to "JMPLT"
@@ -677,14 +716,16 @@ public class Assembler {
             tempMem[currentLocation + 3] = bytes.substring(6, 8);
             System.out.println("Code: " + codes[i] + "Currentlocation: " + intToHex(Integer.toString(currentLocation)));
             refList.add("Code: " + codes[i] + "Currentlocation: " + intToHex(Integer.toString(currentLocation)));
- 
+            Location[i] = intToHex(Integer.toString(currentLocation));
+            
             location = 4;
         } else {
             tempMem[currentLocation] = bytes.substring(0, 2);// Placing Bytecode in memory
             tempMem[currentLocation + 1] = bytes.substring(2, 4);
             System.out.println("Code: " + codes[i] + "Currentlocation: " + intToHex(Integer.toString(currentLocation)));
             refList.add("Code: " + codes[i] + "Currentlocation: " + intToHex(Integer.toString(currentLocation)));
-        
+            Location[i] = intToHex(Integer.toString(currentLocation));
+            
             location = 2;
         }
         return location;
@@ -804,6 +845,75 @@ public class Assembler {
      * @param line
      * @return Last three bytes for the assembly of the RSTORE instruction.
      */
+    
+    private String rstore(String firstArg, String secondArg, int line) {
+        String result = "000";
+        String firstRegister = getRegister(secondArg, line);
+        String secondRegister;
+        String offset;
+        String tokens[];
+        if ((firstArg.startsWith("[", 1) || firstArg.startsWith("[", 2))
+                && firstArg.endsWith("]")) {
+            tokens = firstArg.split("\\[");
+            System.out.println("The second arg of RSTORE is: " + tokens[0] + " " + tokens[1]);
+            if (tokens.length == 2 && tokens[1].endsWith("]")) {
+                if (isSingleHex(tokens[0])) {
+                    offset = tokens[0].toUpperCase().substring(2, 3);
+                } else if (tokens[0].startsWith("-") && tokens[0].length() == 2) {
+                    int number = Integer.parseInt(tokens[0].toUpperCase().substring(1, 2));
+                    switch (number) {
+                        case 1:
+                            offset = "F";
+                            break;
+                        case 2:
+                            offset = "E";
+                            break;
+                        case 3:
+                            offset = "D";
+                            break;
+                        case 4:
+                            offset = "C";
+                            break;
+                        case 5:
+                            offset = "B";
+                            break;
+                        case 6:
+                            offset = "A";
+                            break;
+                        case 7:
+                            offset = "9";
+                            break;
+                        case 8:
+                            offset = "8";
+                            break;
+                        default:
+                            errorList.add("Error: Invalid offset found on line " + line);
+                       
+                            return result;
+                    }
+                } else if (tokens[0].length() == 1 && Integer.parseInt(tokens[0]) < 8) {
+                    offset = tokens[0];
+                } else {
+                    errorList.add("Error: Invalid argument on line " + line);
+            
+                    return result;
+                }
+            } else {
+                errorList.add("Error: Invalid argument on line " + line);
+            
+                return result;
+            }
+        }else{
+            errorList.add("Error: Invalid argument on line " + line);
+            return result;
+        }   
+        
+        secondRegister = getRegister(tokens[1].substring(0, tokens[1].length()), line);
+        return offset + firstRegister + secondRegister;
+    }
+    
+    //original code
+    /*
     private String rstore(String firstArg, String secondArg, int line) {
         String result = "000";
         String firstRegister = getRegister(firstArg, line);
@@ -863,7 +973,7 @@ public class Assembler {
         //TODO: remove 1 from legnth of tokens. Why?
         secondRegister = getRegister(tokens[1].substring(0, tokens[1].length()), line);
         return offset + firstRegister + secondRegister;
-    }
+    }*/
 
     /**
      *
@@ -945,6 +1055,26 @@ public class Assembler {
      * @param line
      * @return Last three bytes for assembly of the ISTORE instruction
      */
+    
+    //modified ISTORE: ISTORE [RM], RN
+    //store the value in register N into the memory cell referenced by the 
+    //address in register M
+    private String istore(String firstArg, String secondArg, int line) {
+        String result = "000";
+        secondArg = getRegister(secondArg, line);
+        if (firstArg.startsWith("[") && firstArg.endsWith("]")) {
+            firstArg = firstArg.substring(1, firstArg.length() - 1);
+            firstArg = getRegister(firstArg, line);
+            result = "1" + secondArg + firstArg;
+        } else {
+            errorList.add("Error: ISTORE operation on line " + line
+                + " has invalid arguments.");
+        }
+        return result;
+    }
+    
+    //original code for istore
+    /* 
     private String istore(String firstArg, String secondArg, int line) {
         String result = "000";
         firstArg = getRegister(firstArg, line);
@@ -957,7 +1087,7 @@ public class Assembler {
                 + " has invalid arguments.");
         }
         return result;
-    }
+    }*/
 
     /**
      *
@@ -1688,5 +1818,44 @@ public class Assembler {
         }
         catch (Exception e){}
     }
+    
+    /*
+    *   Author: Guojun Liu
+    *   03/15/2016
+    *   Create a assembler list 
+    */
+      
+    private void generateAssemblerList(){
+        Date date = new Date();
+        SimpleDateFormat simpDate = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a");
+        
+        try{
+            java.io.File file = new java.io.File("Assembler Listing.txt");
+            java.io.PrintWriter output = new java.io.PrintWriter(file);
+            
+            output.println("******** Assembler Listing **********");
+            output.println("Created date: "+simpDate.format(date));
+            output.println("\n");
+            output.println("Location    " + "Object Code    " + "Line   " + "Source Statement");
+            for (int i =0; i<codeList.size(); i++){
+                if ( Location[i] != null){
+                    if (Object_code[i] != null){
+                        if (Object_code[i].endsWith("]")){
+                            Object_code[i] = Object_code[i].substring(0, Object_code[i].length()-1);
+                        }
+                        output.printf("%-12s%-15s%4d%4s", Location[i], Object_code[i], codeLines, " ");
+                    }else{
+                        output.printf("%-12s%-15s%4d%4s", Location[i], " ", codeLines, " ");
+                    }
+                }else{
+                    output.printf("            " + "               " + "%4d" + "   ", codeLines);
+                }
+
+                output.println(codeList.get(i));
+                codeLines++;               
+            }     
+                output.close();    //Close the file
+            }  catch (IOException e){}
+    } 
     
 }

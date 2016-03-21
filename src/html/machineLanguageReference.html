@@ -524,7 +524,8 @@ and open the template in the editor.
                             D1  NM
                         </td>
                         <td>
-                            ISTORE RN,[RM]
+                            ISTORE [RM], RN
+                         <!--   ISTORE RN,[RM] -->
                         </td>
                         <td>
                             Indirect Store - stores the value in register N into the memory cell<br>
@@ -532,7 +533,8 @@ and open the template in the editor.
                             <br/>
                             memory[reg[M]] := reg[N]
                             <br/>
-                            Ex: ISTORE RA,[RB]
+                            Ex: ISTORE [RB], RA
+                           <!-- Ex: ISTORE RA,[RB] -->
                             <br/>
                             =&gt; machine code bytes are D1 AB
                         </td>
@@ -580,7 +582,8 @@ and open the template in the editor.
                             EH  NM
                         </td>
                         <td>
-                            RSTORE RN,H[RM]
+                            RSTORE H[RM],RN
+                            <!--RSTORE RN,H[RM] -->
                         </td>
                         <td>
                             Relative Store - stores the value in register N into the memory cell referenced <br>
@@ -589,7 +592,8 @@ and open the template in the editor.
                             <br/>
                             memory[reg[M] (+/-) H] := N
                             <br/>
-                            Ex: RSTORE R5,-1[R2]
+                            Ex: RSTORE -1[R2],R5
+                            <!--Ex: RSTORE R5,-1[R2]-->
                             <br/>
                             =&gt; machine code bytes are EF 52
                         </td>
@@ -608,9 +612,9 @@ and open the template in the editor.
                         </td>
                         <td>
                             Conditionally jumps to the instruction located in the memory cell at address XY <br>
-                            if the value in register N is less than or equal to the value in register 0; <br>
-                                otherwise, continue execution with the next instruction in sequential order<br>
-                                    (conditional branch)
+                            if the value in register N is less than to the value in register 0; otherwise, <br>
+                            continue execution with the next instruction in sequential order<br>
+                                 (conditional branch)
                             <br/>
                             reg[PC] := XY if reg[N] &lt;= reg[0]
                             <br/>
