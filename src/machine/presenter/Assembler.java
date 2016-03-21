@@ -39,6 +39,12 @@
  *                         0-Max for SP increment (got rid of "1" + ...)
  *  
  * 10 jl948836 - 03/14/16: Implemented EQU Pseudo-Op
+ * 
+ * 11 mv935583 - 03/18/16: Implemented functionality in order to invoke db on
+ *                         a label.
+ * 
+ * 12 mv935583 - 03/20/16: Implemented functionality in order to invoke db on
+ *                         an EQU Pseudo-Op.
  */
 
 package machine.presenter;
@@ -535,13 +541,14 @@ public class Assembler {
             }
             result -= 1; //CHANGE LOG: 4
         }
-        else if (labelMap.containsKey(temp)) {
+        else if (labelMap.containsKey(temp)) {  //Changelog Begin: 11
             tempMem[currentLocation + result++] = intToHex(Integer.toString(labelMap.get(temp)));
-        }
-        else if (equivalencies.containsKey(temp)){
+        }   //Changelog End: 11
+        else if (equivalencies.containsKey(temp)){  //Changelog Begin: 12
             String ref = equivalencies.get(temp);
             tempMem[currentLocation + result++] = intToHex(Integer.toString(labelMap.get(ref)));
-        } else {
+        }   //Changelog End: 12 
+        else {
             String[] args = temp.split(",");
             for (String arg : args) {
                 if (isHex(arg)) {
