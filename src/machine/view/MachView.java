@@ -532,7 +532,7 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
 
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-    gridBagConstraints.weightx = 0.2;
+    gridBagConstraints.weightx = 0.6;
     gridBagConstraints.weighty = 0.05;
     getContentPane().add(controlPanel, gridBagConstraints);
 
@@ -544,7 +544,7 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
     gridBagConstraints.gridy = 1;
     gridBagConstraints.gridheight = 2;
     gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-    gridBagConstraints.weightx = 0.1;
+    gridBagConstraints.weightx = 0.6;
     gridBagConstraints.weighty = 0.9;
     getContentPane().add(mainPanel, gridBagConstraints);
 
@@ -581,6 +581,7 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
 
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+    gridBagConstraints.weightx = 0.4;
     getContentPane().add(textEditorControls, gridBagConstraints);
 
     textEditorPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true), "Text Editor"));
@@ -589,7 +590,7 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
     textEditorPanel.setLayout(textEditorPanelLayout);
     textEditorPanelLayout.setHorizontalGroup(
         textEditorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        .addComponent(textEditor, javax.swing.GroupLayout.DEFAULT_SIZE, 621, Short.MAX_VALUE)
+        .addComponent(textEditor, javax.swing.GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE)
     );
     textEditorPanelLayout.setVerticalGroup(
         textEditorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -600,7 +601,7 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
     gridBagConstraints.gridx = 1;
     gridBagConstraints.gridy = 1;
     gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-    gridBagConstraints.weightx = 0.5;
+    gridBagConstraints.weightx = 0.4;
     gridBagConstraints.weighty = 0.75;
     getContentPane().add(textEditorPanel, gridBagConstraints);
 
@@ -615,7 +616,7 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
     gridBagConstraints.gridx = 1;
     gridBagConstraints.gridy = 2;
     gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-    gridBagConstraints.weightx = 0.5;
+    gridBagConstraints.weightx = 0.4;
     gridBagConstraints.weighty = 0.1;
     getContentPane().add(errorDisplayScrollPane, gridBagConstraints);
 
