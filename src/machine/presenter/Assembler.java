@@ -39,6 +39,12 @@
  *                         0-Max for SP increment (got rid of "1" + ...)
  *  
  * 10 jl948836 - 03/14/16: Implemented EQU Pseudo-Op
+ * 
+ * 11 mv935583 - 03/18/16: Implemented functionality in order to invoke db on
+ *                         a label.
+ * 
+ * 12 mv935583 - 03/20/16: Implemented functionality in order to invoke db on
+ *                         an EQU Pseudo-Op.
  */
 
 /*
@@ -56,13 +62,11 @@ import java.io.BufferedWriter;
 import java.io.*;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -76,9 +80,9 @@ public class Assembler {
     private final ArrayList<String> defList = new ArrayList<>();
     private final ArrayList<String> refList = new ArrayList<>();
     private final ArrayList<String> memMatList = new ArrayList<>();
-    private final ArrayList<String> labelList = new ArrayList<>();
-    private final static String[] pseudoOps = {"SIP", "ORG", "BSS", "DB", "EQU"}; //CHANGE LOG: 10
-    private final static String[] operations = 
+    private final ArrayList<String> labelList;
+    private final static String[] PSEUDOOPS = {"SIP", "ORG", "BSS", "DB", "EQU"}; //CHANGE LOG: 10
+    private final static String[] OPERATIONS = 
         {"LOAD", "STORE", "MOVE", "ADD", "CALL", "RET",
          "SCALL", "SRET", "PUSH", "POP", "OR", "AND", "XOR",
          "ROR", "JMPEQ", "JMP", "HALT", "ILOAD", "ISTORE",
@@ -103,6 +107,7 @@ public class Assembler {
      * @param controller
      */
     public Assembler(MachineController controller) {
+        this.labelList = new ArrayList<>();
         this.controller = controller;
 	//TODO: add trim() to Labels and Codes
 
@@ -570,7 +575,15 @@ public class Assembler {
                 tempMem[currentLocation + i] = intToHex(Integer.toString((int) temp.charAt(i + 1)));
             }
             result -= 1; //CHANGE LOG: 4
-        } else {
+        }
+        else if (labelMap.containsKey(temp)) {  //Changelog Begin: 11
+            tempMem[currentLocation + result++] = intToHex(Integer.toString(labelMap.get(temp)));
+        }   //Changelog End: 11
+        else if (equivalencies.containsKey(temp)){  //Changelog Begin: 12
+            String ref = equivalencies.get(temp);
+            tempMem[currentLocation + result++] = intToHex(Integer.toString(labelMap.get(ref)));
+        }   //Changelog End: 12 
+        else {
             String[] args = temp.split(",");
             for (String arg : args) {
                 if (isHex(arg)) {
@@ -584,7 +597,7 @@ public class Assembler {
                     for (int j = 0; j < argLen - 1; j++) {
                         tempMem[currentLocation + result++] = intToHex(Integer.toString((int) arg.charAt(j + 1)));
                     }
-                } 
+                }
                 else {
                     errorList.add("Invalid db parameter \"" + arg + "\" found on line " + lineNum);
                 }
@@ -1424,7 +1437,7 @@ public class Assembler {
             } else if (isInt(secondArg)) {
                 result = firstArg + intToHex(secondArg);
             } else {
-                errorList.add("Error: STORE operations on line " + line
+                errorList.add("Error: STORE OPERATIONS on line " + line
                     + " has invalid arguments.");
                 
             }
@@ -1600,13 +1613,13 @@ public class Assembler {
     }
 
     /**
-     * loop through pseudoOps and see if token is valid
+     * loop through PSEUDOOPS and see if token is valid
      *
      * @param token
      * @return boolean
      */
     private boolean isPseudoOp(String token) {
-        for (String pseudoOp : pseudoOps) {
+        for (String pseudoOp : PSEUDOOPS) {
             if (pseudoOp.equals(token.toUpperCase())) {
                 return true;
             }
@@ -1615,13 +1628,13 @@ public class Assembler {
     }
 
     /**
-     * loop through operations and see if token is valid
+     * loop through OPERATIONS and see if token is valid
      *
      * @param token
      * @return boolean
      */
     private boolean isOperation(String token) {
-        for (String operation : operations) {
+        for (String operation : OPERATIONS) {
             if (operation.equals(token.toUpperCase())) {
                 return true;
             }
