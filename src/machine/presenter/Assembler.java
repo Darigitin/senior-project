@@ -534,6 +534,13 @@ public class Assembler {
                 tempMem[currentLocation + i] = intToHex(Integer.toString((int) temp.charAt(i + 1)));
             }
             result -= 1; //CHANGE LOG: 4
+        }
+        else if (labelMap.containsKey(temp)) {
+            tempMem[currentLocation + result++] = intToHex(Integer.toString(labelMap.get(temp)));
+        }
+        else if (equivalencies.containsKey(temp)){
+            String ref = equivalencies.get(temp);
+            tempMem[currentLocation + result++] = intToHex(Integer.toString(labelMap.get(ref)));
         } else {
             String[] args = temp.split(",");
             for (String arg : args) {
@@ -548,7 +555,7 @@ public class Assembler {
                     for (int j = 0; j < argLen - 1; j++) {
                         tempMem[currentLocation + result++] = intToHex(Integer.toString((int) arg.charAt(j + 1)));
                     }
-                } 
+                }
                 else {
                     errorList.add("Invalid db parameter \"" + arg + "\" found on line " + lineNum);
                 }

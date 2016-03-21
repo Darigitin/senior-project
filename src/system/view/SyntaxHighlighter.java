@@ -101,40 +101,32 @@ public class SyntaxHighlighter extends SwingWorker<Void,Object> {
                     int end = matcher.end() + lineStart;
                     
                     String word = text.substring(start,end);
+                    String toUpperCase = word.toUpperCase();
 
-                    switch(word) {
-                        case "if": case "else": case "elif":
-                        case "while":
-                        case "do":
-                        case "def":
+                    if(isReservedWord(toUpperCase)){
                             textStyle = style.addAttribute(textStyle,StyleConstants.Foreground, Color.blue);
                             doc.setCharacterAttributes(start, end - start, textStyle, false);
-                            break;
-                        default:
-                            if (isPrimitive(word)) {
+                    }
+                    else if (isPrimitive(toUpperCase)) {
                                 textStyle = style.addAttribute(textStyle,StyleConstants.Foreground, Color.red);
                                 doc.setCharacterAttributes(start, end - start, textStyle, false);
-                            }
-                            else if (isTest(word)) {
-                                textStyle = style.addAttribute(textStyle,StyleConstants.Foreground, Color.CYAN);
-                                doc.setCharacterAttributes(start, end - start, textStyle, false);
-                            }
-                            // match integer literals
-                            else if (word.matches("[0-9]+")) {
-                                textStyle = style.addAttribute(textStyle,StyleConstants.Foreground, Color.ORANGE);
-                                doc.setCharacterAttributes(start, end - start, textStyle, false);
-                            }
-                            // match comment lines
-                            else if (word.matches("[ \t]*#[^\\n]*")) {
-                                textStyle = style.addAttribute(textStyle,StyleConstants.Foreground, Color.lightGray);
-                                doc.setCharacterAttributes(start, end - start, textStyle, false);
-                            }
-                            else {
-                                textStyle = style.addAttribute(textStyle,StyleConstants.Foreground, Color.black);
-                                doc.setCharacterAttributes(start, end - start, textStyle, false);
-                            }  
                     }
-                }
+                    // match integer literals
+                    else if (isInt(toUpperCase) || isHex(toUpperCase)) {
+                        textStyle = style.addAttribute(textStyle,StyleConstants.Foreground, Color.cyan);
+                        doc.setCharacterAttributes(start, end - start, textStyle, false);
+                    }
+                    // match comment lines
+                    else if (word.matches("[ \t]*#[^\\n]*")) {
+                        textStyle = style.addAttribute(textStyle,StyleConstants.Foreground, Color.lightGray);
+                        doc.setCharacterAttributes(start, end - start, textStyle, false);
+                    }
+                    else {
+                        textStyle = style.addAttribute(textStyle,StyleConstants.Foreground, Color.black);
+                        doc.setCharacterAttributes(start, end - start, textStyle, false);
+                    }  
+                    }
+                
             } catch (BadLocationException ex) {
                 Logger.getLogger(TextEditor.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -160,21 +152,59 @@ public class SyntaxHighlighter extends SwingWorker<Void,Object> {
         return offset;
     }
     
+    private boolean isReservedWord(String str){
+        final String[] reservedWords = {"SIP", "ORG", "BSS", 
+            "DB", "EQU", "LOAD", "STORE", "MOVE", "ADD", "CALL", "RET", 
+            "SCALL", "SRET", "PUSH", "POP", "OR", "AND", "XOR", 
+            "ROR", "JMPEQ", "JMP", "HALT", "ILOAD", "ISTORE",
+            "RLOAD", "RSTORE", "JMPLT"};
+        for (String reservedWord : reservedWords) {
+            if (reservedWord.equals(str)) {
+                return true;
+            }
+        }
+        return false;
+        
+    }
+    
     private boolean isPrimitive(String str) {
-        String[] primitives = {"move", "turnleft", "pickbeeper", "putbeeper", "turnoff"};
-        for (int i = 0; i < primitives.length; i++) {
-            if (str.equals(primitives[i])) {
+        String[] primitives = {"R0","R1","R2","R3","R4","R5","R6","R7","R8",
+            "R9","RA","RB","RC","RD","RE","RF", "RSP", "RBP"};
+        for (String primitive : primitives) {
+            if (str.equals(primitive)) {
                 return true;
             }
         }
         return false;
     }
     
-    private boolean isTest(String str) {
-        try {
-            return true;
-        } catch (IllegalArgumentException e) {
+    private boolean isHex(String number) {
+        int len = number.length();
+        if (len > 4 || len < 3) {
             return false;
+        } else {
+            if (len == 4) {
+                if (number.substring(0, 2).equalsIgnoreCase("0x")
+                    && number.substring(2, 4).toUpperCase().matches("[0-9A-F]{2}")) {
+                    return true;
+                }
+            } else {
+                if (number.substring(0, 2).equalsIgnoreCase("0x")
+                    && number.substring(2, 3).toUpperCase().matches("[0-9A-F]")) {
+                    return true;
+                }
+            }
         }
+        return false;
+    }
+    
+    private boolean isInt(String number) {
+        if (number.length() == 0 || number.length() > 4) {
+            return false;
+        } 
+        else if (number.matches("[0-9][0-9]{0,2}") || number.matches("-[0-9][0-9]{0,2}")) {
+            return true;
+        }
+        return false;
     }
 }

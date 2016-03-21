@@ -165,6 +165,13 @@ public class TextEditor extends JScrollPane implements Serializable {
         public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
             str = str.replaceAll("\t", "    ");
             super.insertString(offs, str, a);
+            if (tabIndex == SystemView.CODE_TAB_INDEX) {
+                new SyntaxHighlighter(textPane, false, offs, str.length()).execute();
+            }
+            else {
+                new SyntaxHighlighter(textPane, true, offs, str.length()).execute();
+            }
+            
                         
             resetHighlighter();
         }
@@ -173,6 +180,13 @@ public class TextEditor extends JScrollPane implements Serializable {
         public void remove(int offset, int length) throws BadLocationException {
             
             super.remove(offset, length);
+            if (tabIndex == SystemView.CODE_TAB_INDEX) {
+                new SyntaxHighlighter(textPane, false, offset, 0).execute();
+            }
+            else {
+                new SyntaxHighlighter(textPane, true, offset, 0).execute();
+            }
+            
 
             resetHighlighter();
         }
