@@ -53,13 +53,11 @@ import java.awt.Desktop;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -73,9 +71,9 @@ public class Assembler {
     private final ArrayList<String> defList = new ArrayList<>();
     private final ArrayList<String> refList = new ArrayList<>();
     private final ArrayList<String> memMatList = new ArrayList<>();
-    private final ArrayList<String> labelList = new ArrayList<>();
-    private final static String[] pseudoOps = {"SIP", "ORG", "BSS", "DB", "EQU"}; //CHANGE LOG: 10
-    private final static String[] operations = 
+    private final ArrayList<String> labelList;
+    private final static String[] PSEUDOOPS = {"SIP", "ORG", "BSS", "DB", "EQU"}; //CHANGE LOG: 10
+    private final static String[] OPERATIONS = 
         {"LOAD", "STORE", "MOVE", "ADD", "CALL", "RET",
          "SCALL", "SRET", "PUSH", "POP", "OR", "AND", "XOR",
          "ROR", "JMPEQ", "JMP", "HALT", "ILOAD", "ISTORE",
@@ -99,6 +97,7 @@ public class Assembler {
      * @param controller
      */
     public Assembler(MachineController controller) {
+        this.labelList = new ArrayList<>();
         this.controller = controller;
 	//TODO: add trim() to Labels and Codes
 
@@ -1308,7 +1307,7 @@ public class Assembler {
             } else if (isInt(secondArg)) {
                 result = firstArg + intToHex(secondArg);
             } else {
-                errorList.add("Error: STORE operations on line " + line
+                errorList.add("Error: STORE OPERATIONS on line " + line
                     + " has invalid arguments.");
                 
             }
@@ -1484,13 +1483,13 @@ public class Assembler {
     }
 
     /**
-     * loop through pseudoOps and see if token is valid
+     * loop through PSEUDOOPS and see if token is valid
      *
      * @param token
      * @return boolean
      */
     private boolean isPseudoOp(String token) {
-        for (String pseudoOp : pseudoOps) {
+        for (String pseudoOp : PSEUDOOPS) {
             if (pseudoOp.equals(token.toUpperCase())) {
                 return true;
             }
@@ -1499,13 +1498,13 @@ public class Assembler {
     }
 
     /**
-     * loop through operations and see if token is valid
+     * loop through OPERATIONS and see if token is valid
      *
      * @param token
      * @return boolean
      */
     private boolean isOperation(String token) {
-        for (String operation : operations) {
+        for (String operation : OPERATIONS) {
             if (operation.equals(token.toUpperCase())) {
                 return true;
             }
