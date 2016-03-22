@@ -1200,15 +1200,15 @@ public class Assembler {
     /**
      * @param firstArg
      * @param line
-     * @return Last three bytes for assembly of the RET instruction
+     * @return Last three nibbles for assembly of the RET instruction
      */
     private String ret(String firstArg, int line) {
         String result = "100";
         if (isInt(firstArg)) {
-            result = intToHex(firstArg); //CHANGE LOG BEGIN: 9
+            result = "1" + intToHex(firstArg); //CHANGE LOG BEGIN: 9
         } 
         else if (isHex(firstArg)) {
-            result = firstArg.substring(2, 4); //CHANGE LOG END: 9
+           result = "1" + result.substring(2, 4); //CHANGE LOG BEGIN: 9
         }
         //CHANGE LOG BEGIN: 10
         else if (equivalencies.containsKey(firstArg)){
