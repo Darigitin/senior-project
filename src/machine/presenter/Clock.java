@@ -18,6 +18,11 @@
  *                        and registerF shouldn't print a value
  */
 
+/* Change Log
+    #Guojun Liu  03/08/16 
+    1. Modified the fetch phase
+*/
+
 package machine.presenter;
 
 import java.util.Timer;
@@ -79,7 +84,9 @@ public class Clock {
     */
     private void fetch() {
         //System.out.println("Fetch Me");
-        int[] instructions = controller.getInstructionRegister();
+        //original fetch phase
+	//int[] instructions = controller.getInstructionRegister();
+        int[] instructions = controller.getInstructionFromIP();
         decode(instructions);
     }
 
@@ -183,6 +190,7 @@ public class Clock {
                 break;
             // halt operation
             case 'C': halt();
+                controller.updateIPwhenHalt();
                 break;
             case 'D': 
                 if (secondOpcode == '0') { //ILOAD
@@ -223,6 +231,7 @@ public class Clock {
         instructionPointer = controller.getInstructionPointer();
         instructionPointer += 2;
         controller.setInstructionPointer(instructionPointer);
+        controller.setIPinstruction();    //update MAR
         controller.setInstructionRegister();
         controller.refreshMachineView();
     }
@@ -237,7 +246,9 @@ public class Clock {
         instructionPointer = controller.getInstructionPointer();
         instructionPointer = location;
         controller.setInstructionPointer(instructionPointer);
-        controller.setInstructionRegister();
+        controller.setInstructionRegisterForJump();
+        controller.setIPinstruction();    //update MAR
+        //controller.setInstructionRegister();
         controller.refreshMachineView();
     }
 

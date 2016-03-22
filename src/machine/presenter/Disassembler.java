@@ -18,6 +18,13 @@
  *                                 reflect Change #2 in Assembler.java
 */
 
+/*
+* Change log
+*
+* # author - Guojun Liu - 
+* # modfied istore and restore
+*/
+
 package machine.presenter;
 
 import java.util.ArrayList;
@@ -168,7 +175,10 @@ public class Disassembler {
                 case "0":
                     return "iload " + "R" + thirdNibble + ",[R" + fourthNibble + "]";
                 case "1":
-                    return "istore " + "R" + thirdNibble + ",[R" + fourthNibble	+ "]";
+                    //modified code
+                    return "istore " + "[R" + fourthNibble	+ "]" + " ,R" + thirdNibble;
+                    //original code
+                    //return "istore " + "R" + thirdNibble + ",[R" + fourthNibble	+ "]";
                 case "2":
                     String fb = input[location - 2];
                     String sb = input[location - 1];
@@ -182,8 +192,12 @@ public class Disassembler {
                     return "invalid";
             }
             case "E":
-                return "rstore " + "R" + thirdNibble + ",0x" + secondNibble + "[R"
-                                    + fourthNibble + "]";
+                //modified code
+                return "rstore " + "0x" + secondNibble + "[R"
+			+ fourthNibble + "]"+ " ,R" + thirdNibble;
+                //original code
+		/*return "rstore " + "R" + thirdNibble + ",0x" + secondNibble + "[R"
+                    + fourthNibble + "]";*/
             case "F":
                 return "jmpLT " + "R" + secondNibble + "<R0,0x" + secondByte;  // change "jmpLE" to "jmpLT" and "<=" to "<"
         }
