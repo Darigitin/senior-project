@@ -16,6 +16,9 @@
  *                        third Nibble of instruction; If it is hex F; then
  *                        the immediateLoad is part of the rload instruction,
  *                        and registerF shouldn't print a value
+ * 
+ * 3 jl948836 - 03/24/16: The additional 1 is now generated at byte code, instead
+ *                        of by the clock
  */
 
 /* Change Log
@@ -340,7 +343,7 @@ public class Clock {
         int sp = Integer.parseInt(controller.getRegisterValue(0xE),16);
         int value = Integer.parseInt(controller.getMemoryValue(sp),16);
         controller.setInstructionPointer(value);
-        sp += 1 + spAdd;
+        sp += spAdd; //CHANGE LOG: 3
         String stackPointer = Integer.toHexString(sp);
         controller.setRegisterValue(0xE, stackPointer);
         controller.deleteActivationRecord();

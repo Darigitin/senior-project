@@ -331,11 +331,13 @@ public class Machine extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void ramTableComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_ramTableComponentResized
+        int ramSPHeight = ramScrollPane.getViewport().getSize().height;
+        int ramSPWidth = ramScrollPane.getViewport().getSize().width;
         JTableHeader th = ramTable.getTableHeader();
         TableColumnModel tcm = th.getColumnModel();
         TableColumn tc = tcm.getColumn(1);
         int columnWidth = tc.getWidth();
-        ramTable.setRowHeight(columnWidth);
+        ramTable.setRowHeight(ramSPHeight/16);
     }//GEN-LAST:event_ramTableComponentResized
 
 

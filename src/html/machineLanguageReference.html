@@ -200,7 +200,7 @@ and open the template in the editor.
                     </tr>
                     <tr>
                         <td>
-                            6N  XY
+                            61  XY
                         </td>
                         <td>
                             RET
@@ -210,11 +210,12 @@ and open the template in the editor.
                                 the return value.  Last byte is ignored. Takes an optional argument.
                                 The argument is a number (in either hex or dec.), and is added to the
                                 Stack Pointer (RE/RSP) at the end of execution. If no argument is passed
-                                a default of 1 is passed to the instruction (In this case, opcode is 61 00).
+                                a default of 1 is passed to the instruction (In this case, opcode is 61 01).
                             <br/>
                             reg[IP] := [BP]
+                            reg[SP] := SP + XY
                             <br/>
-                            Ex: RET =&gt; machine code bytes are 61 00
+                            Ex: RET =&gt; machine code bytes are 61 01
                         </td>
                     </tr>
 			 <tr>
@@ -612,7 +613,7 @@ and open the template in the editor.
                         </td>
                         <td>
                             Conditionally jumps to the instruction located in the memory cell at address XY <br>
-                            if the value in register N is less than to the value in register 0; otherwise, <br>
+                            if the value in register N is less than the value in register 0; otherwise, <br>
                             continue execution with the next instruction in sequential order<br>
                                  (conditional branch)
                             <br/>

@@ -1,63 +1,7 @@
 ******** Assembler Listing **********
-Created date: 03/21/2016 05:04:05 PM
+Created date: 03/24/2016 10:56:24 PM
 
 
 Location    Object Code    Line   Source Statement
-                              1   # *******************************************************
-                              2   # * Program: Summation                                  *
-                              3   # *                                                     *
-                              4   # * Purpose: Sum the first 'n' numbers.                 *
-                              5   # *                                                     *
-                              6   # * @author: jl948836, Jordan Lescallette               *
-                              7   # *                                                     *
-                              8   # * date/ver: 2/4/16 1.0.0                              *
-                              9   # *                                                     *
-                             10   # * ERRORS:                                             *
-                             11   # *******************************************************
-                             12   
-                             13   # ***********************************
-                             14   # * 'loop' in a high level language *
-                             15   # * while (n > 0){                  *
-                             16   # *    sum += n                     *
-                             17   # *    n -= 1                       *
-                             18   # * }                               *
-                             19   # * In a way, this is the entire    *
-                             20   # * program. Most of the assembly   *
-                             21   # * code is just set up.            *
-                             22   # ***********************************
-                             23   
-                             24   # Data Section
-                             25             org   0x60
-61                           26    n:        db    10
-62                           27    mask:     db    0xFF
-                             28   
-                             29   # Storage Section
-                             30             org   0x70
-71                           31    sum:      bss   1
-                             32   
-                             33   # Code
-                             34   
-                             35             org   0x00
-                             36             sip   0x00
-                             37             #init. vars.
-00          20 00            38    main:     load  R0,0            #Const. 0
-02          21 01            39              load  R1,1            #Const. 1
-04          25 90            40              load  R5, 0x90
-06          13 61            41              load  R3,[mask]
-08          92 13            42              xor   R2,R1,R3        #toggle all bits
-0A          51 21            43              add   R1,R2,R1        #add 1, R1 now has Const. -1
-                             44   
-0C          92 22            45              xor   R2,R2,R2        #clear R2
-0E          12 60            46              load  R2,[n]          #load value pt. to by label 'n'
-10          93 33            47              xor   R3,R3,R3        #clear R3
-                             48   
-12          B2 1A            49    loop:     jmpeq R2=R0,done      #done if value in R2 is 0
-14          53 32            50              add   R3,R3,R2
-16          52 21            51              add   R2,R2,R1        #subtract 1 from R2
-18          B0 12            52              jmp   loop
-                             53   
-1A          33 70            54    done:     store [sum], R3        #store value in R3 to address of label sum
-1C          D1 35            55              istore [R5], R3
-1E          E5 35            56              rstore 5[R5], R3
-20          ED 35            57              rstore -3[R5], R3
-22          C0 00            58              halt
+00          21 01             1    load R1,1
+02          EF 1D             2    rstore -1[RBP],R1
