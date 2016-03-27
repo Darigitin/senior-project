@@ -1,7 +1,8 @@
 ******** Assembler Listing **********
-Created date: 03/24/2016 10:56:24 PM
+Created date: 03/26/2016 09:30:02 PM
 
 
 Location    Object Code    Line   Source Statement
-00          21 01             1    load R1,1
-02          EF 1D             2    rstore -1[RBP],R1
+00          F1 32             1    JMPLT R1<R0,label
+                              2                               org 0x32
+32                            3                                label:

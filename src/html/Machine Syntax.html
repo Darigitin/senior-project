@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<!--
+Program: machineSyntax
+
+Purpose: Describe the syntactic breakdown of WALL, as wells as give basic information
+         about WALL, its Operations, and its Pseudo-Ops.
+
+@author: jl948836
+
+date/ver: 03/26/16 1.0.0
+-->
+<html>
+    <head>
+        <title>WALL (WTAMU AssembLy Language) Syntax</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <style>
+            table, th, td {
+                 border: 1px solid black;
+            }
+        </style>
+    </head>
+    <body>
+        <div>
+            <h1>WALL (WTAMU AssembLy Language) Syntax</h1>
+            <h2>WALL Syntax Structure</h2>
+            <p>
+                [label:] [instruction] [# comment]
+            </p>
+            <p>
+                The above line is the syntactical structure for every line of code
+                written in WALL.<br>
+                Note: The brackets denote that the content is optional.
+                Even though each portion is optional, the order is not.<br>
+                <br>
+            </p>
+            <ol>
+                <li>
+                    A line begins with an optional label, that is delimited by a colon.<br>
+                    Note: Labels ARE case sensitive.<br>
+                </li>
+                <li>
+                    The next part of the line is an Operation or Pseudo-Op,followed by
+                    its arguments.<br>
+                    Note: Instructions and arguments are NOT case sensitive.<br>                    
+                </li>
+                <li>
+                    Finally a line can end in an optional comment. (Anything that comes
+                    after the comment symbol "#" is treated as a comment, even labels and
+                    instructions.)<br>
+                </li>
+            </ol>
+            <h2>WALL has 16 Registers.</h2>
+            <p>
+                Registers are used as a form of "lag free" memory to store data 
+                temporarily as it is being manipulated.<br> 
+                Most of these are general purpose, and have no special uses, but
+                the following have special purposes.<br>
+            </p>
+            <table id="regTable">
+                <thead>
+                    <tr>
+                        <th>
+                            Register
+                        </th>
+                        <th>
+                            Purpose
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            RO
+                        </td>
+                        <td>
+                            Comparison Register - used for comparison in JMPLT
+                            and JMPEQ Op-Codes.<br>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            RD (RBP)
+                        </td>
+                        <td>
+                            Base Pointer Register - points to the base of the stack
+                            (Used for current Frame of Reference)<br>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            RE (RSP)
+                        </td>
+                        <td>
+                            Stack Pointer Register - points to the top value on
+                            the stack.<br>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            RF
+                        </td>
+                        <td>
+                            Display Register - takes the value placed into it and
+                            displays it's ASCII equivalent to the Display Console.<br>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <h2>Operations</h2>
+            <p>
+                Operations are Instructions and their arguments. Each instruction
+                has its own specific argument structure. All instructions compile
+                into their Op-Code format and are stored into memory for execution.
+                Note: All Instructions, except for RLOAD, are 2 Bytes long.
+                RLOAD is 4 Bytes long, because it compiles as an immediate load,
+                followed by itself.<br>
+            </p>
+            <table>
+                <tbody>
+                    <tr>
+                        <td>
+                            <ol>
+                                <li>ADD</li>
+                                <li>AND</li>
+                                <li>CALL</li>
+                                <li>HALT</li>
+                                <li>ILOAD</li>
+                                <li>ISTORE</li>
+                                <li>JMP</li>
+                                <li>JMPEQ</li>
+                                <li>JMPLT</li>
+                                <li>LOAD</li>
+                            </ol>
+                        </td>
+                        <td>
+                            <ol start="11">
+                                <li>MOVE</li>
+                                <li>OR</li>
+                                <li>POP</li>
+                                <li>PUSH</li>
+                                <li>RET</li>
+                                <li>RLOAD</li>
+                                <li>ROR</li>
+                                <li>RSTORE</li>
+                                <li>STORE</li>
+                                <li>XOR</li>
+                            </ol>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <h2>Pseudo-Ops</h2>
+            <p>
+                Pseudo-Ops are similar to Operations, except that they do not compile
+                as code directly into memory. Instead, they act as a kind of marker
+                that tell the Assembler how to handle some kinds of associations and data.<br>
+            </p>
+            <table>
+                <tbody>
+                    <tr>
+                        <td>
+                            <ol>
+                                <li>BSS</li>
+                                <li>DB</li>
+                                <li>EQU</li>
+                                <li>ORG</li>
+                            </ol>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>
