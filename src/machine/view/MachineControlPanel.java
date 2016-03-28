@@ -7,54 +7,120 @@ package machine.view;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import machine.view.MachView;
+import machine.presenter.MachineController;
 
 /**
  *
  * @author jl948836
  */
-public class Controls extends javax.swing.JPanel {
+public class MachineControlPanel extends javax.swing.JPanel {
 
-    private MachView machineView;
+    private MachineController controller;
+    private MachinePanel machine;
     
     /**
      * Creates new form Controls
      */
-    public Controls() {
-        initComponents();
-    }
-
-    public Controls(MachView machineView){
-        this.machineView = machineView;
+    public MachineControlPanel() {
         initComponents();
     }
     
+    /**
+     * 
+     * @return 
+     */
     public JButton getAssembleButton(){
         return assembleButton;
     }
     
+    /**
+     * 
+     * @return 
+     */
     public JButton getRunButton(){
         return runButton;
     }
     
+    /**
+     * 
+     * @return 
+     */
     public JButton getStopButton(){
         return stopButton;
     }
     
+    /**
+     * 
+     * @return 
+     */
     public JButton getStepButton(){
         return stepButton;
     }
     
+    /**
+     * 
+     * @return 
+     */
     public JButton getResetButton(){
         return resetButton;
     }
     
+    /**
+     * 
+     * @return 
+     */
     public JButton getDisassembleButton(){
         return disassembleButton;
     }
     
+    /**
+     * 
+     * @return 
+     */
     public JComboBox getSpeedComboBox(){
         return speedComboBox;
+    }
+    
+
+    
+    private int getSpeed() {
+        int speed;
+        switch((String)speedComboBox.getSelectedItem()) {
+            case "10%": 
+                speed = 1;
+                break;
+            case "20%": 
+                speed = 2;
+                break;
+            case "30%": 
+                speed = 3;
+                break;
+            case "40%": 
+                speed = 4;
+                break;
+            case "50%": 
+                speed = 5;
+                break;
+            case "60%": 
+                speed = 6;
+                break;
+            case "70%": 
+                speed = 7;
+                break;
+            case "80%": 
+                speed = 8;
+                break;
+            case "90%": 
+                speed = 9;
+                break;
+            case "100%": 
+                speed = 10;
+                break;
+            default: 
+                speed = 500;
+                break;
+        }
+        return speed;
     }
     
     /**
@@ -157,42 +223,47 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
     }// </editor-fold>//GEN-END:initComponents
 
     private void assembleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_assembleButtonActionPerformed
-    
+        //mainPanel.setSelectedIndex(0);
+        controller.performAssemble();
     }//GEN-LAST:event_assembleButtonActionPerformed
 
     private void runButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runButtonActionPerformed
-        // TODO add your handling code here:
+        controller.setClockSpeed(getSpeed());
+        controller.runClock();
     }//GEN-LAST:event_runButtonActionPerformed
 
     private void stopButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopButtonActionPerformed
-        // TODO add your handling code here:
+        controller.stopClock();
     }//GEN-LAST:event_stopButtonActionPerformed
 
     private void stepButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stepButtonActionPerformed
-        // TODO add your handling code here:
+        controller.stepClock();
     }//GEN-LAST:event_stepButtonActionPerformed
 
     private void resetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetButtonActionPerformed
-        // TODO add your handling code here:
+        controller.resetMachine();
     }//GEN-LAST:event_resetButtonActionPerformed
 
     private void disassembleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disassembleButtonActionPerformed
-        // TODO add your handling code here:
+        String[] ramBytes= machine.getAllRAMBytes();
+        
+        //textEditor.getTextPane().setText(
+        //    controller.performDisassemble(machine.getInstructionPointer(), ramBytes));
     }//GEN-LAST:event_disassembleButtonActionPerformed
 
     private void speedComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_speedComboBoxActionPerformed
-        // TODO add your handling code here:
+        controller.setClockSpeed(getSpeed());
     }//GEN-LAST:event_speedComboBoxActionPerformed
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    public static javax.swing.JButton assembleButton;
-    public static javax.swing.JButton disassembleButton;
-    public static javax.swing.JButton resetButton;
-    public static javax.swing.JButton runButton;
-    public static javax.swing.JComboBox speedComboBox;
-    public static javax.swing.JLabel speedLabel;
-    public static javax.swing.JButton stepButton;
-    public static javax.swing.JButton stopButton;
+    private javax.swing.JButton assembleButton;
+    private javax.swing.JButton disassembleButton;
+    private javax.swing.JButton resetButton;
+    private javax.swing.JButton runButton;
+    private javax.swing.JComboBox speedComboBox;
+    private javax.swing.JLabel speedLabel;
+    private javax.swing.JButton stepButton;
+    private javax.swing.JButton stopButton;
     // End of variables declaration//GEN-END:variables
 }

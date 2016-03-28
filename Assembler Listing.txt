@@ -1,7 +1,86 @@
 ******** Assembler Listing **********
-Created date: 03/24/2016 10:56:24 PM
+Created date: 03/27/2016 08:43:55 PM
 
 
 Location    Object Code    Line   Source Statement
-00          21 01             1    load R1,1
-02          EF 1D             2    rstore -1[RBP],R1
+                              1   # *************************************************************************
+                              2   # * FILE:  sumIntR.txt                                                    *
+                              3   # *                                                                       *
+                              4   # * PROGRAM PURPOSE:  Main program is a driver to invoke a recursive      *
+                              5   # *                   function sumIntR that recursively calculates the    *
+                              6   # *                   sum of the first N integers                         *
+                              7   # *                                                                       *
+                              8   # * NOTE:  It is assumed herein that the convention for returning a value *
+                              9   # *        from a function is to return that value in RA.                 *
+                             10   # *        This program also adheres to the convention that R1 contains   *
+                             11   # *        the constant 1.                                                *
+                             12   # *                                                                       *
+                             13   # * DATE:  February 15, 2016                                              *
+                             14   # *                                                                       *
+                             15   # * Results: RA should contain "37"                                       *
+                             16   # *************************************************************************
+                             17   
+                             18   # Data Segment
+                             19             ORG      0x60
+61                           20    N:        DB       10
+62                           21    RESULT:   BSS      1
+                             22   
+                             23   
+                             24   # *************************************************************************
+                             25   # * Function:  sumIntR                                                    *
+                             26   # * Argument:  N where N >= 0                                             *
+                             27   # * Return:    The sum (return value) is returned in RLOAD                *
+                             28   # *                                                                       *
+                             29   # * Calling Sequence:   PUSH value of N onto stack                        *
+                             30   # *                    CALL sumIntR                                       *
+                             31   # *                    ADD  RSP,RSP,R1  #remove parameter from stack      *
+                             32   # *                                                                       *
+                             33   # * Assumed:  R1 contains 1                                               *
+                             34   # *          R0 contains 0                                                *
+                             35   # *                                                                       *
+                             36   # * Registers Used:  R4 and R5                                            *
+                             37   # *************************************************************************
+                             38   
+                             39   # Code Segment          
+                             40             ORG      0X00
+                             41             SIP      MAIN
+                             42   
+00          64 D0            43    sumIntR:  PUSH  RBP        # store old base pointer
+02          40 ED            44              MOVE  RBP,RSP    # move stack pointer to base pointer
+                             45   
+04          25 F2 D2 5D      46              RLOAD R5,2[RBP]   # get argument n
+08          B5 1E            47              JMPEQ R5=R0,END # jump to end if N <= 0, else...
+0A          24 FF            48              LOAD  R4,0XFF    # -1 for reduction
+0C          55 54            49              ADD   R5,R5,R4   # n = n - 1
+0E          64 50            50              PUSH  R5
+10          60 00            51              CALL  sumIntR    # recursive call
+                             52                              # return to next instruction
+12          5E E1            53              ADD   RSP,RSP,R1 # bump stack pointer to move past parameter
+14          25 F2 D2 5D      54              RLOAD R5,2[RBP]   # fetch this frame's parameter N
+                             55                              #
+18          5A A5            56              ADD   RA,RA,R5   # Calculate N + sumInt( N - 1 )
+                             57             
+1A          65 D0            58              POP   RD         # restore old base pointer
+1C          61 01            59              RET
+                             60   
+1E          9A AA            61    END:      XOR   RA,RA,RA   # this is base case return of 0
+                             62          
+20          65 D0            63              POP   RBP        # restore base pointer
+22          61 01            64              RET
+                             65   
+                             66   # *********************************************************************
+                             67   #
+                             68   # MAIN:  The driver program to test the function sumIntR
+                             69   #
+                             70   # *********************************************************************
+                             71             ORG 0X30
+30          21 01            72    MAIN:     LOAD R1,1        # constant 1 defined globally
+32          20 00            73              LOAD R0,0        # constant defined as a global comparand
+34          12 60            74              LOAD R2,[N]
+36          64 20            75              PUSH R2 
+38          60 00            76              CALL sumIntR
+                             77   
+3A          5E E1            78              ADD   RSP,RSP,R1 # clean up operand from stack
+3C          3A 61            79              STORE [RESULT],RA
+                             80             
+3E          C0 00            81              HALT
