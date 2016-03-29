@@ -1,63 +1,151 @@
 ******** Assembler Listing **********
-Created date: 03/21/2016 05:04:05 PM
+Created date: 03/21/2016 05:20:20 PM
 
 
 Location    Object Code    Line   Source Statement
-                              1   # *******************************************************
-                              2   # * Program: Summation                                  *
-                              3   # *                                                     *
-                              4   # * Purpose: Sum the first 'n' numbers.                 *
-                              5   # *                                                     *
-                              6   # * @author: jl948836, Jordan Lescallette               *
-                              7   # *                                                     *
-                              8   # * date/ver: 2/4/16 1.0.0                              *
-                              9   # *                                                     *
-                             10   # * ERRORS:                                             *
-                             11   # *******************************************************
-                             12   
-                             13   # ***********************************
-                             14   # * 'loop' in a high level language *
-                             15   # * while (n > 0){                  *
-                             16   # *    sum += n                     *
-                             17   # *    n -= 1                       *
-                             18   # * }                               *
-                             19   # * In a way, this is the entire    *
-                             20   # * program. Most of the assembly   *
-                             21   # * code is just set up.            *
-                             22   # ***********************************
-                             23   
-                             24   # Data Section
-                             25             org   0x60
-61                           26    n:        db    10
-62                           27    mask:     db    0xFF
+                              1   # *******************************************************************
+                              2   # * Program: lab0 (Function format) (parameter passing)             *
+                              3   # *                                                                 *
+                              4   # * Purpose: This is a rewrite of lab0 to functionalize the program *
+                              5   # *          so that it can better approximate how high-level       *
+                              6   # *          languages work, as well as demonstrate better written  *
+                              7   # *          assembly code. This version shows good stack discipline*
+                              8   # *          through passing of variables (both by reference and by *
+                              9   # *          value).                                                *
+                             10   # *                                                                 *
+                             11   # * @author: jl948836, Jordan Lescallette                           *
+                             12   # *                                                                 *
+                             13   # * date/ver: 2/8/16  1.5.0                                         *
+                             14   # *           2/14/16 2.0.0                                         *
+                             15   # *                                                                 *
+                             16   # * Results: Memory Address 0x90 should contain "FB".               *
+                             17   # *          Memory Address 0x91 should contain "DB".               *
+                             18   # *          Memory Address 0x92 should contain "CA".               *
+                             19   # *******************************************************************
+                             20   ##loaad R5, 5
+                             21   # Var Pool
+                             22             org   0x80
+81                           23    X:        db    0x05
+82                           24    Num1:     db    0xAB
+83                           25    Num2:     db    0xCD
+84                           26    Nmask:    db    0xFF
+85                           27    Bmask:    db    0xF0
                              28   
-                             29   # Storage Section
-                             30             org   0x70
-71                           31    sum:      bss   1
-                             32   
-                             33   # Code
+                             29   # Storage
+                             30             org   0x90
+91                           31    Negated:  db    0
+92                           32    swapA:    bss   1
+93                           33    swapB:    bss   1
                              34   
-                             35             org   0x00
-                             36             sip   0x00
-                             37             #init. vars.
-00          20 00            38    main:     load  R0,0            #Const. 0
-02          21 01            39              load  R1,1            #Const. 1
-04          25 90            40              load  R5, 0x90
-06          13 61            41              load  R3,[mask]
-08          92 13            42              xor   R2,R1,R3        #toggle all bits
-0A          51 21            43              add   R1,R2,R1        #add 1, R1 now has Const. -1
-                             44   
-0C          92 22            45              xor   R2,R2,R2        #clear R2
-0E          12 60            46              load  R2,[n]          #load value pt. to by label 'n'
-10          93 33            47              xor   R3,R3,R3        #clear R3
-                             48   
-12          B2 1A            49    loop:     jmpeq R2=R0,done      #done if value in R2 is 0
-14          53 32            50              add   R3,R3,R2
-16          52 21            51              add   R2,R2,R1        #subtract 1 from R2
-18          B0 12            52              jmp   loop
-                             53   
-1A          33 70            54    done:     store [sum], R3        #store value in R3 to address of label sum
-1C          D1 35            55              istore [R5], R3
-1E          E5 35            56              rstore 5[R5], R3
-20          ED 35            57              rstore -3[R5], R3
-22          C0 00            58              halt
+                             35   # Code
+                             36             org   0x00
+                             37             sip   main
+                             38   
+                             39             # ****************************************
+                             40             # * This resets the base of the stack,   *
+                             41             # * so that you essentially get a new    *
+                             42             # * stack for each function.             *
+                             43             # ****************************************
+00          64 D0            44    Negate:   push  RBP           # put current BP onto the stack
+02          40 ED            45              move  RBP,RSP       # set BasePointer to StackPointer
+                             46   
+                             47             # ****************************************
+                             48             # * Grab parameters from bottom of the   *
+                             49             # * stack.                               *
+                             50             # ****************************************          
+04          22 F3 D2 2D      51              rload R2,3[RBP]     # get R2 from 3 addrs. higher than BP
+08          23 F2 D2 3D      52              rload R3,2[RBP]     # get R3 from 2 addrs. higher than BP
+0C          D0 22            53              iload R2,[R2]       # replace addr. in R2 with val. from addr.
+                             54             
+0E          92 23            55              xor   R2,R2,R3      # Toggle all bits
+10          52 21            56              add   R2,R2,R1      # add 1
+                             57             
+12          65 D0            58              pop   RBP           # put value pointed to by SP and put it in BP
+14          61 00            59              ret                 # SP now points to ret addr. on the stack
+                             60   
+                             61             # ****************************************
+                             62             # * Grab parameters from top of the      *
+                             63             # * stack.                               *
+                             64             # ****************************************
+16          22 FF D2 2D      65    BitSwap:  rload R2,-1[RBP]    # get R2 from 1 addr. less than BP
+1A          D0 22            66              iload R2,[R2]       # replace addr. in R2 with val. from the addr.
+1C          23 FE D2 3D      67              rload R3,-2[RBP]    # get R3 from 2 addrs. less than BP
+20          24 FD D2 4D      68              rload R4,-3[RBP]    # get R4 from 3 addrs. less than BP
+                             69   
+                             70             # ****************************************
+                             71             # * This resets the base of the stack,   *
+                             72             # * so that you essentially get a new    *
+                             73             # * stack for each function.             *
+                             74             # ****************************************          
+24          64 D0            75              push  RBP          # put current BP onto the stack
+26          40 ED            76              move  RBP,RSP      # set BasePointer to StackPointer
+                             77             
+28          85 24            78              and   R5,R2,R4     # 0xAB and 0xF0, R5 <- 0xA0
+2A          A5 04            79              ror   R5,4         # R5 <- 0x0A
+2C          A4 04            80              ror   R4,4         # R4 <- 0x0F
+2E          82 24            81              and   R2,R2,R4     # 0xAB and 0x0F, R2 <- 0x0B
+                             82   
+30          86 34            83              and   R6,R3,R4     # 0xCD and 0x0F, R6 <- 0x0D
+32          A6 04            84              ror   R6,4         # R6 <- 0xD0
+34          A4 04            85              ror   R4,4         # R4 <- 0xF0
+36          83 34            86              and   R3,R3,R4     # 0xAB and 0xF0, R3 <- 0xC0
+                             87   
+38          72 26            88              or    R2,R2,R6     # 0x0B or 0xD0, R2 <- 0xDB
+3A          73 35            89              or    R3,R3,R5     # 0xC0 or 0x0A, R3 <- 0xCA
+                             90   
+3C          65 D0            91              pop   RBP          # put value pointed to by SP and put it in BP
+3E          61 00            92              ret                # SP now points to ret addr. on the stack
+                             93   
+40          21 01            94    main:     load  R1,1         # Const. 1
+42          22 80            95              load  R2,X         # R2 <- address of label X
+44          13 83            96              load  R3,[Nmask]   # contains mask 1111 1111
+                             97   
+                             98             # ****************************************
+                             99             # * pass parameters onto the stack and   *
+                            100             # * and call the function                *
+                            101             # ****************************************
+46          64 20           102              push  R2           # pass X by Reference
+48          64 30           103              push  R3           # pass Nmask by Value
+4A          60 00           104              call  Negate       # calls label Negate
+                            105   
+                            106             # ****************************************
+                            107             # * save result from register to memory  *
+                            108             # * Note: pop will take the value from   *
+                            109             # *       the addr. pointed to by SP and *
+                            110             # *       put it in the register.        *
+                            111             # *       This means RH will contain the *
+                            112             # *       the parameter that was pushed  *
+                            113             # *       onto the sack                  *
+                            114             # ****************************************
+4C          32 90           115              store [Negated],R2 
+4E          65 30           116              pop   R3           # clean up the stack
+50          65 20           117              pop   R2           # clean up the stack
+                            118   
+52          22 81           119              load  R2,Num1      # R2 <- 0xAB
+54          13 82           120              load  R3,[Num2]    # R3 <- 0xCD
+56          14 84           121              load  R4,[Bmask]   # R4 <- 0xF0
+                            122   
+                            123             # ****************************************
+                            124             # * pass parameters onto the stack and   *
+                            125             # * and call the function                *
+                            126             # ****************************************
+58          64 20           127              push  R2           # pass Num1 by Reference
+5A          64 30           128              push  R3           # pass Num2 by Value
+5C          64 40           129              push  R4           # pass Num3 by Value
+5E          60 16           130              call  BitSwap      # calls label BitSwap
+                            131             
+                            132             # ****************************************
+                            133             # * save result from register to memory  *
+                            134             # * Note: pop will take the value from   *
+                            135             # *       the addr. pointed to by SP and *
+                            136             # *       put it in the register.        *
+                            137             # ****************************************
+60          32 91           138              store [swapA],R2
+62          33 92           139              store [swapB],R3
+64          65 40           140              pop   R4           # clean up the stack
+66          65 30           141              pop   R3           # clean up the stack
+68          65 20           142              pop   R2           # clean up the stack
+                            143   
+6A          B0 6C           144              jmp   Done        
+                            145   
+6C          C0 00           146    Done:     halt
