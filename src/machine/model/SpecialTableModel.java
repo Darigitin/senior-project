@@ -4,12 +4,11 @@
  * and open the template in the editor.
  */
 package machine.model;
+import java.util.Arrays;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
-//import machine.view.MachineView;
-//import testCode.MachineView;
-import machine.view.MachView;
 import machine.view.Machine;
 /**
  *
@@ -53,7 +52,6 @@ public class SpecialTableModel extends AbstractTableModel{
     
     @Override
     public boolean isCellEditable(int row, int col) {
-
         return !(col == 0 || (row == 1 && col == 1));
     }
  

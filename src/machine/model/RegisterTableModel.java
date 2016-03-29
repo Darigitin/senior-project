@@ -55,6 +55,7 @@ public class RegisterTableModel extends AbstractTableModel{
     
     @Override
     public boolean isCellEditable(int row, int col) {
+        System.out.println(col!=0);
         return col != 0;
     }
  

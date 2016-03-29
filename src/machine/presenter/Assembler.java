@@ -148,8 +148,10 @@ public class Assembler {
     }
     
     /**
+     * Begins pass one which parses the text storing all codes and labels into
+     * their respected arrays and then executed passtwo. 
      * 
-     * @param text 
+     * @param text Source code from editor view.
      */
     private void passOne(String text) {
         String[] lines = text.split("\n");
@@ -231,7 +233,7 @@ public class Assembler {
                         currentLocation += bssLocation(tokens, i);
                     }
                     else if (tokens[0] != null && isOperation(tokens[0])) { //label found, operation following
-                        currentLocation += operationLocation(tokens);
+                        currentLocation += operationLocation(tokens[0]);
                     }
                 } 
                 else if (tokens[0].toUpperCase().equals("BSS")) { // error, bss and no label
@@ -243,7 +245,7 @@ public class Assembler {
                 }
                 //CHANGE LOG END: 10
                 else if (isOperation(tokens[0])) { 	// operation without label
-                    currentLocation += operationLocation(tokens);
+                    currentLocation += operationLocation(tokens[0]);
                 }
             } 
             else if (labels[i] != null) { // we have a label with nothing following 
@@ -256,7 +258,8 @@ public class Assembler {
     }
 
     /**
-     * Pass Two - Handles RLOAD and handles the SIP pseudo op as well
+     * Executes pass two which handles  all pseudo ops from the codes array,
+     * assigning their arguments locations in memory.
      */
     private void passTwo() {
 
@@ -360,10 +363,11 @@ public class Assembler {
     }
 
     /**
-     * handle instances of found DB pseudo op in passone.
+     * Ensures that the DB pseudo op argument conforms to standards and then returns
+     * length of the DB pseudo op argument.
      *
-     * @param tokens
-     * @return number of bytes to skip
+     * @param tokens String[] of pseudo ops
+     * @return size of db pseudo op argument
      */
     private int passOneDB(String[] tokens) {
         int result;
@@ -393,10 +397,11 @@ public class Assembler {
     }
 
     /**
-     * handle instances of BSS in pass one
+     * Ensures that the BSS pseudo op argument conforms to standards and then returns
+     * length of the BSS pseudo op argument.
      *
-     * @param string
-     * @return number of bytes to skip
+     * @param value argument of BSS pseudo op
+     * @return size of BSS pseudo op argument
      */
     private int passOneBSS(String value) {
         // we know string is valid hex or int
@@ -408,11 +413,12 @@ public class Assembler {
     }
 
     /**
-     * Determines if the address specified in org's argument is valid.
+     * Determines if the address specified in ORG argument is valid hexadecimal
+     * value.
      * 
-     * @param tokens
-     * @param i
-     * @return
+     * @param tokens String[] of pseudo ops
+     * @param i location of ORG pseudo op in tokens
+     * @return valid ORG argument as a integer
      */
     private int orgLocation(String[] tokens, int i) {
         int location = 0;
@@ -426,9 +432,13 @@ public class Assembler {
 
     /**
      *
-     * @param tokens
-     * @param i
-     * @return
+     * Ensures that the tokens array is of the appropriate length and then 
+     * invokes passOneDb to find the number of bytes to skip in memory for 
+     * memory storage of DB pseudo op.
+     * 
+     * @param tokens String[] of pseudo ops
+     * @param i Location of DB pseudo op in tokens
+     * @return Number of bytes to skip in memory
      */
     private int dbOneLocation(String[] tokens, int i) {
         int location = 0;
@@ -441,10 +451,13 @@ public class Assembler {
     }
 
     /**
-     *
-     * @param tokens
-     * @param i
-     * @return
+     * Ensures that the tokens array is of the appropriate length and then 
+     * invokes passOneBSS to find the number of bytes to skip in memory for 
+     * memory storage of BSS pseudo op.
+     * 
+     * @param tokens String[] of pseudo ops
+     * @param i Location of BSS pseudo op in tokens
+     * @return Number of bytes to skip in memory
      */
     private int bssLocation(String[] tokens, int i) {
         int location = 0;
@@ -457,13 +470,15 @@ public class Assembler {
     }
 
     /**
-     *
-     * @param tokens
-     * @return
+     * Determines how many bytes in memory to move forward based on which 
+     * operation it receives, 4 for rload and 2 for all others.
+     * 
+     * @param token String operation
+     * @return Number of bytes to skip in memory
      */
-    private int operationLocation(String[] tokens) {
+    private int operationLocation(String token) {
         int location;
-        if (tokens[0].equals("RLOAD")) {
+        if (token.equals("RLOAD")) {
             location = 4;
         } else {
             location = 2;
