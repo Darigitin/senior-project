@@ -326,7 +326,7 @@ public class Assembler {
                 //also has a code and is not a pseudoOp
                 currentLocation = labelMap.get(labels[i]);
                 Location[i] = intToHex(Integer.toString(currentLocation));     //save current location for assembler listing
-                bytes = getByteCode(codes[i].trim(), i + 1);
+                bytes = generateByteCode(codes[i].trim(), i + 1);
                 currentLocation += byteCodeInTemp(bytes, currentLocation, i);
                 // get object code for assembler listing
                 StringBuilder bytesInMemory = new StringBuilder(bytes);
@@ -354,7 +354,7 @@ public class Assembler {
                 Location[i] = intToHex(Integer.toString(currentLocation));    //save current location for assembler listing
             } 
             else if (!codes[i].trim().isEmpty() && !isPseudoOp(tokens[0])) {
-                bytes = getByteCode(codes[i].trim(), i + 1);
+                bytes = generateByteCode(codes[i].trim(), i + 1);
                 currentLocation += byteCodeInTemp(bytes, currentLocation, i);
                 //get object code for assembler listing
                 StringBuilder bytesInMemory = new StringBuilder(bytes);
@@ -638,7 +638,7 @@ public class Assembler {
      * @param line
      * @return A String value containing the specified operation
      */
-    private String getByteCode(String operation, int line) {
+    private String generateByteCode(String operation, int line) {
         // \\s+ means any amount of whitespace
         String[] tokens = operation.split("\\s+", 2); //split opcode from args
         String op = tokens[0];
