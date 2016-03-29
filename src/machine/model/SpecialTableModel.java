@@ -53,7 +53,6 @@ public class SpecialTableModel extends AbstractTableModel{
     
     @Override
     public boolean isCellEditable(int row, int col) {
-
         return !(col == 0 || (row == 1 && col == 1));
     }
  

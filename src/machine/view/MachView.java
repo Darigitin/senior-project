@@ -74,7 +74,7 @@ public class MachView extends javax.swing.JFrame {
         initComponents();
         customInitComponents();
         
-        super.setTitle("WAL - Machine Simulator");
+        super.setTitle("WALL - Machine Simulator");
         WindowListener exitListener = new WindowAdapter() {
 
             @Override

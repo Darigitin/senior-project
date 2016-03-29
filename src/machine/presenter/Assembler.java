@@ -41,11 +41,19 @@
  * 10 jl948836 - 03/14/16: Implemented EQU Pseudo-Op
  * 
  * 11 mv935583 - 03/18/16: Implemented functionality in order to invoke db on
- *                         a label.
+ *                         a label
  * 
  * 12 mv935583 - 03/20/16: Implemented functionality in order to invoke db on
  *                         an EQU Pseudo-Op.
- */
+ *
+ * 13 jl948836 - 03/23/16: ret overload, now is user input n + 1
+ * 
+ * 14 jl948836 - 03/24/16: Changed byte code for ret Op-code with no argument;
+ *                         Last byte is now 01 instead of 00
+ * 
+ * 15 jl948836 - 03/24/16: Get rid of "]" character so RBP and RSP translate to
+ *                         RD and RE in RSTORE opcode
+ * /
 
 /*
 * Change Log
@@ -67,6 +75,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -318,8 +328,7 @@ public class Assembler {
                 }
             } 
             //CHANGE LOG: 10
-            else if (labels[i] != null && (tokens[0].toUpperCase().equals("DB") || tokens[0].toUpperCase().equals("BSS") || 
-                    tokens[0].toUpperCase().equals("EQU"))) { // Special case for DB, BSS, and EQU
+            else if (labels[i] != null && (tokens[0].toUpperCase().matches("DB|BSS|EQU"))) { // Special case for DB, BSS, and EQU
                 // do nothing.
             } 
             else if (labels[i] != null) { //There is a label with no code.
@@ -634,7 +643,7 @@ public class Assembler {
                     case "JMP":
                         return "B" + jump(args[0], line);
                     case "RET":
-                        return "6" + ret(args[0], line);
+                        return "61" + ret(args[0], line);
                 }
             } 
             else if (args.length == 2) { // 2 arguments found
@@ -698,7 +707,7 @@ public class Assembler {
             defList.add(opcode);
             switch (op.toUpperCase()) {
                 case "RET":
-                    return "6100";
+                    return "6101"; //CHANGE LOG: 14
                 case "SRET":
                     return "6300";
                 case "HALT":
@@ -921,7 +930,7 @@ public class Assembler {
             return result;
         }   
         
-        secondRegister = getRegister(tokens[1].substring(0, tokens[1].length()), line);
+        secondRegister = getRegister(tokens[1].substring(0, tokens[1].length()-1), line); //CHANGE LOG: 15
         return offset + firstRegister + secondRegister;
     }
     
@@ -1336,25 +1345,28 @@ public class Assembler {
     /**
      * @param firstArg
      * @param line
-     * @return Last three bytes for assembly of the RET instruction
+     * @return Last two nibbles for assembly of the RET instruction
      */
     private String ret(String firstArg, int line) {
-        String result = "100";
+        String result = "00"; //CHANGE LOG: 9
         if (isInt(firstArg)) {
-            result = intToHex(firstArg); //CHANGE LOG BEGIN: 9
+            result = Integer.toString(Integer.parseInt(firstArg) + 1); //CHANGE LOG: 13
+            result = intToHex(result); //CHANGE LOG: 9
         } 
         else if (isHex(firstArg)) {
-            result = firstArg.substring(2, 4); //CHANGE LOG END: 9
+            result = Integer.toString(hexToInt(firstArg) + 1); //CHANGE LOG: 13
+            result = result.substring(2, 4); //CHANGE LOG: 9
         }
         //CHANGE LOG BEGIN: 10
         else if (equivalencies.containsKey(firstArg)){
             String ref = equivalencies.get(firstArg);
-            result = intToHex(Integer.toString(labelMap.get(ref)));
+            result = intToHex(Integer.toString(labelMap.get(ref) + 1)); //CHANGE LOG: 13
         }
         //CHANGE LOG END: 10
         else {
             errorList.add("Error: Invalid number for RET on line " + line);
         }
+        System.out.println("return argument: " + result);
         return result;
     }
 
@@ -1456,9 +1468,9 @@ public class Assembler {
         if (equivalencies.containsKey(register)){
             if (equivalencies.get(register).toUpperCase().matches("R[0-9A-F]|RSP|RBP")){
                 register = equivalencies.get(register).toUpperCase();
-                if (register.toUpperCase().equals("RBP") || register.toUpperCase().equals("RD")) {
+                if (register.toUpperCase().equals("RBP|RD")) { //CHANGE LOG: 14
                     return "D";
-                } else if (register.toUpperCase().equals("RSP") || register.toUpperCase().equals("RE")) {
+                } else if (register.toUpperCase().matches("RSP|RE")) { //CHANGE LOG: 14
                     return "E";
                 }
                 return register.substring(1);
@@ -1473,9 +1485,9 @@ public class Assembler {
                  * register name
                  * Cody Galbreath - 03/23/2014
                  */
-                if (register.toUpperCase().equals("RBP") || register.toUpperCase().equals("RD")) {
+                if (register.toUpperCase().matches("RBP|RD")) {
                     return "D";
-                } else if (register.toUpperCase().equals("RSP") || register.toUpperCase().equals("RE")) {
+                } else if (register.toUpperCase().matches("RSP|RE")) {
                     return "E";
                 }
             }
@@ -1842,10 +1854,8 @@ public class Assembler {
         Date date = new Date();
         SimpleDateFormat simpDate = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a");
         
-        try{
-            java.io.File file = new java.io.File("Assembler Listing.txt");
-            java.io.PrintWriter output = new java.io.PrintWriter(file);
-            
+        java.io.File file = new java.io.File("Assembler Listing.txt");
+        try (java.io.PrintWriter output = new java.io.PrintWriter(file)) {
             output.println("******** Assembler Listing **********");
             output.println("Created date: "+simpDate.format(date));
             output.println("\n");
@@ -1865,10 +1875,12 @@ public class Assembler {
                 }
 
                 output.println(codeList.get(i));
-                codeLines++;               
-            }     
-                output.close();    //Close the file
-            }  catch (IOException e){}
+                codeLines++;
+            }
+            output.close();    //Close the file
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Assembler.class.getName()).log(Level.SEVERE, null, ex);
+        }
     } 
     
 }

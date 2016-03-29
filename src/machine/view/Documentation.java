@@ -103,42 +103,63 @@ public class Documentation extends javax.swing.JPanel {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        help = new javax.swing.JSplitPane();
+        documentationTabbedPane = new javax.swing.JTabbedPane();
+        syntaxPanel = new javax.swing.JPanel();
         syntaxScrollPane = new javax.swing.JScrollPane();
         syntaxEditorPane = new javax.swing.JEditorPane();
+        languageRefPanel = new javax.swing.JPanel();
         languageRefScrollPane = new javax.swing.JScrollPane();
         languageRefEditorPane = new javax.swing.JEditorPane();
 
         setLayout(new java.awt.GridBagLayout());
 
-        help.setDividerLocation(195);
+        syntaxPanel.setLayout(new java.awt.GridBagLayout());
 
         syntaxEditorPane.setContentType("text/html"); // NOI18N
         syntaxScrollPane.setViewportView(syntaxEditorPane);
-
-        help.setLeftComponent(syntaxScrollPane);
-
-        languageRefEditorPane.setContentType("text/html"); // NOI18N
-        languageRefScrollPane.setViewportView(languageRefEditorPane);
-
-        help.setRightComponent(languageRefScrollPane);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        add(help, gridBagConstraints);
+        syntaxPanel.add(syntaxScrollPane, gridBagConstraints);
+
+        documentationTabbedPane.addTab("Syntax", syntaxPanel);
+
+        languageRefPanel.setLayout(new java.awt.GridBagLayout());
+
+        languageRefEditorPane.setContentType("text/html"); // NOI18N
+        languageRefScrollPane.setViewportView(languageRefEditorPane);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        languageRefPanel.add(languageRefScrollPane, gridBagConstraints);
+
+        documentationTabbedPane.addTab("Language Reference", languageRefPanel);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        add(documentationTabbedPane, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JSplitPane help;
+    private javax.swing.JTabbedPane documentationTabbedPane;
     private static javax.swing.JEditorPane languageRefEditorPane;
+    private javax.swing.JPanel languageRefPanel;
     private static javax.swing.JScrollPane languageRefScrollPane;
     private static javax.swing.JEditorPane syntaxEditorPane;
+    private javax.swing.JPanel syntaxPanel;
     private static javax.swing.JScrollPane syntaxScrollPane;
     // End of variables declaration//GEN-END:variables
 }
