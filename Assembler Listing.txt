@@ -1,6 +1,0 @@
-******** Assembler Listing **********
-Created date: 03/28/2016 09:47:42 PM
-
-
-Location    Object Code    Line   Source Statement
-00          21 01             1    load R1,1
