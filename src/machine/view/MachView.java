@@ -433,6 +433,8 @@ public class MachView extends javax.swing.JFrame {
         fontComboBox = new javax.swing.JComboBox(getFontNames());
         fontSizeLabel = new javax.swing.JLabel();
         fontSizeComboBox = new javax.swing.JComboBox(SIZES);
+        fontThemeLabel = new javax.swing.JLabel();
+        fontThemeComboBox = new javax.swing.JComboBox();
         textEditorPanel = new javax.swing.JPanel();
         textEditor = new machine.view.TextEditor();
         errorDisplayScrollPane = new javax.swing.JScrollPane();
@@ -579,6 +581,26 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
     gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
     textEditorControls.add(fontSizeComboBox, gridBagConstraints);
 
+    fontThemeLabel.setText("Theme:");
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 1;
+    gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
+    textEditorControls.add(fontThemeLabel, gridBagConstraints);
+
+    fontThemeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+    fontThemeComboBox.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            fontThemeComboBoxActionPerformed(evt);
+        }
+    });
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 1;
+    gridBagConstraints.gridy = 1;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
+    textEditorControls.add(fontThemeComboBox, gridBagConstraints);
+
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
     gridBagConstraints.weightx = 0.4;
@@ -590,11 +612,11 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
     textEditorPanel.setLayout(textEditorPanelLayout);
     textEditorPanelLayout.setHorizontalGroup(
         textEditorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        .addComponent(textEditor, javax.swing.GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE)
+        .addComponent(textEditor, javax.swing.GroupLayout.DEFAULT_SIZE, 481, Short.MAX_VALUE)
     );
     textEditorPanelLayout.setVerticalGroup(
         textEditorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        .addComponent(textEditor, javax.swing.GroupLayout.DEFAULT_SIZE, 590, Short.MAX_VALUE)
+        .addComponent(textEditor, javax.swing.GroupLayout.DEFAULT_SIZE, 559, Short.MAX_VALUE)
     );
 
     gridBagConstraints = new java.awt.GridBagConstraints();
@@ -845,6 +867,10 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
             }
         }
     }//GEN-LAST:event_saveSourceMenuItemActionPerformed
+
+    private void fontThemeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontThemeComboBoxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_fontThemeComboBoxActionPerformed
     
 //    /**
 //     * @param args the command line arguments
@@ -892,6 +918,8 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
     private javax.swing.JLabel fontLabel;
     private javax.swing.JComboBox fontSizeComboBox;
     private javax.swing.JLabel fontSizeLabel;
+    private javax.swing.JComboBox fontThemeComboBox;
+    private javax.swing.JLabel fontThemeLabel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
