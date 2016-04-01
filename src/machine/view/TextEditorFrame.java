@@ -15,14 +15,23 @@ import javax.swing.text.JTextComponent;
  */
 public class TextEditorFrame extends javax.swing.JFrame {
 
+    MachineView machineView;
     Integer[] SIZES = { 8, 9, 10, 11, 12, 14, 16, 18, 20,
         22, 24, 26, 28, 36, 48, 72 }; //the sizes for the font size combo box. MB
     
-    /**
-     * Creates new form machineFrame
-     */
     public TextEditorFrame() {
         initComponents();
+        textEditorPanel.getSplitJoinButton().setText("Join Editor");
+    }
+    
+    /**
+     * Creates new form machineFrame
+     * @param machineView
+     */
+    public TextEditorFrame(MachineView machineView) {
+        this.machineView = machineView;
+        initComponents();
+        textEditorPanel.getSplitJoinButton().setText("Join Editor");
     }
     
     public JTextArea getErrorPane() {
@@ -45,6 +54,10 @@ public class TextEditorFrame extends javax.swing.JFrame {
         return textEditorPanel.getFontNames();
     }
     
+    public TextEditorPanel getTextEditorPanel() {
+        return textEditorPanel;
+    }
+    
     public void updateText() {
         textEditorPanel.updateText();
     }
@@ -59,7 +72,7 @@ public class TextEditorFrame extends javax.swing.JFrame {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        textEditorPanel = new machine.view.TextEditorPanel();
+        textEditorPanel = new machine.view.TextEditorPanel(machineView, this);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setPreferredSize(new java.awt.Dimension(500, 800));
@@ -88,20 +101,18 @@ public class TextEditorFrame extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(TextEditorFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(TextEditorFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(TextEditorFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(TextEditorFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        
         //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new TextEditorFrame().setVisible(true);
             }

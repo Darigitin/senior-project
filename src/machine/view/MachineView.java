@@ -5,9 +5,6 @@
  */
 package machine.view;
 
-import java.awt.Font;
-import java.awt.GraphicsEnvironment;
-import java.awt.Rectangle;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -22,7 +19,6 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
-import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -40,7 +36,6 @@ import java.awt.Toolkit;
 public class MachineView extends javax.swing.JFrame {
 
     private final MachineController controller;
-    private String[] fontNames = null;
     Integer[] SIZES = { 8, 9, 10, 11, 12, 14, 16, 18, 20,
         22, 24, 26, 28, 36, 48, 72 }; //the sizes for the font size combo box. MB
     
@@ -398,7 +393,7 @@ public class MachineView extends javax.swing.JFrame {
         mainPanel = new javax.swing.JTabbedPane();
         machine1 = new machine.view.MachinePanel();
         documentation1 = new machine.view.DocumentationPanel();
-        textEditorPanel = new machine.view.TextEditorPanel(this, controller);
+        textEditorPanel = new machine.view.TextEditorPanel(this);
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         openMachineMenuItem = new javax.swing.JMenuItem();
@@ -682,25 +677,24 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
             File machineFile = fc.getSelectedFile();
             
             try {
-                FileWriter writer = new FileWriter(machineFile);
-                String[] strRAMBytes = getAllRAMBytes();
-
-                for (int i = 0; i < 256; i++) {
-                    writer.write(strRAMBytes[i]);
+                try (FileWriter writer = new FileWriter(machineFile)) {
+                    String[] strRAMBytes = getAllRAMBytes();
+                    
+                    for (int i = 0; i < 256; i++) {
+                        writer.write(strRAMBytes[i]);
+                    }
+                    
+                    String[] strRegisterBytes = getAllRegisterBytes();
+                    for (int i = 0; i < 16; i++) {
+                        writer.write(strRegisterBytes[i]);
+                    }
+                    
+                    String ip = (String) machine1.getPswTable().getValueAt(0, 1);
+                    writer.write(ip);
+                    
+                    String ir = (String) machine1.getPswTable().getValueAt(1, 1);
+                    writer.write(ir);
                 }
-
-                String[] strRegisterBytes = getAllRegisterBytes();
-                for (int i = 0; i < 16; i++) {
-                    writer.write(strRegisterBytes[i]);
-                }
-
-                String ip = (String) machine1.getPswTable().getValueAt(0, 1);
-                writer.write(ip);
-
-                String ir = (String) machine1.getPswTable().getValueAt(1, 1);
-                writer.write(ir);
-                
-                writer.close();
             } catch (FileNotFoundException ex) {
                 ex.printStackTrace();
             }
@@ -734,41 +728,6 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
         }
     }//GEN-LAST:event_saveSourceMenuItemActionPerformed
     
-//    /**
-//     * @param args the command line arguments
-//     */
-//    public static void main(String args[]) {
-//        /* Set the Nimbus look and feel */
-//        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-//        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-//         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-//         */
-//        try {
-//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-//                if ("Nimbus".equals(info.getName())) {
-//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-//                    break;
-//                }
-//            }
-//        } catch (ClassNotFoundException ex) {
-//            java.util.logging.Logger.getLogger(MachineView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (InstantiationException ex) {
-//            java.util.logging.Logger.getLogger(MachineView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (IllegalAccessException ex) {
-//            java.util.logging.Logger.getLogger(MachineView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-//            java.util.logging.Logger.getLogger(MachineView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        }
-//        //</editor-fold>
-//
-//        /* Create and display the form */
-//        java.awt.EventQueue.invokeLater(new Runnable() {
-//            public void run() {
-//                new MachineView().setVisible(true);
-//            }
-//        });
-//    }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton assembleButton;
     private javax.swing.JPanel controlPanel;

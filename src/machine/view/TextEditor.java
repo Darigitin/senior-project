@@ -1,8 +1,7 @@
 package machine.view;
 
-import system.view.SystemView;
 import system.view.CompoundUndoManager;
-import system.view.SyntaxHighlighter;
+import machine.model.SyntaxHighlighter;
 import system.view.TextLineNumber;
 import java.awt.Color;
 import java.awt.Font;
@@ -48,6 +47,8 @@ public class TextEditor extends JScrollPane implements Serializable {
     
     private int highlightStart = 0;
     private int highlightLength = 0;
+    public static final int CODE_TAB_INDEX = 0;
+    public static final Font DEFAULT_FONT = new Font("Tahoma", Font.PLAIN, 14);
     
     public TextEditor() {
         
@@ -62,7 +63,7 @@ public class TextEditor extends JScrollPane implements Serializable {
         super.setRowHeaderView( tln );
         
         tln.setUpdateFont(true);
-        textPane.setFont(SystemView.DEFAULT_FONT);
+        textPane.setFont(DEFAULT_FONT);
         
         undo = new CompoundUndoManager(textPane);
     }
@@ -110,7 +111,7 @@ public class TextEditor extends JScrollPane implements Serializable {
     public void setTextPaneFont(Font font) {
         textPane.setFont(font);
         
-        if (tabIndex == SystemView.CODE_TAB_INDEX) {
+        if (tabIndex == CODE_TAB_INDEX) {
                 new SyntaxHighlighter(textPane, false, 0, doc.getLength()).execute();
         }
         else {
@@ -174,7 +175,7 @@ public class TextEditor extends JScrollPane implements Serializable {
         public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
             str = str.replaceAll("\t", "    ");
             super.insertString(offs, str, a);
-            if (tabIndex == SystemView.CODE_TAB_INDEX) {    //Changelog Begin: 1
+            if (tabIndex == CODE_TAB_INDEX) {    //Changelog Begin: 1
                 new SyntaxHighlighter(textPane, false, offs, str.length()).execute();
             }
             else {
@@ -189,7 +190,7 @@ public class TextEditor extends JScrollPane implements Serializable {
         public void remove(int offset, int length) throws BadLocationException {
             
             super.remove(offset, length);
-            if (tabIndex == SystemView.CODE_TAB_INDEX) {    //Changelog Begin: 1
+            if (tabIndex == CODE_TAB_INDEX) {    //Changelog Begin: 1
                 new SyntaxHighlighter(textPane, false, offset, 0).execute();
             }
             else {

@@ -7,9 +7,6 @@ package machine.model;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
-//import machine.view.MachineView;
-//import testCode.MachineView;
-import machine.view.MachineView;
 import machine.view.MachinePanel;
 /**
  *

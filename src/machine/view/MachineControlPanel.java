@@ -247,7 +247,6 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
     private void disassembleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disassembleButtonActionPerformed
         String[] ramBytes= machine.getAllRAMBytes();
         
-        //textEditor.getTextPane().setText(
         //    controller.performDisassemble(machine.getInstructionPointer(), ramBytes));
     }//GEN-LAST:event_disassembleButtonActionPerformed
 

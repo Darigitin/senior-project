@@ -9,9 +9,9 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.util.ArrayList;
+import javax.swing.JButton;
 import javax.swing.JTextArea;
 import javax.swing.text.JTextComponent;
-import machine.presenter.MachineController;
 
 /**
  *
@@ -23,7 +23,6 @@ public class TextEditorPanel extends javax.swing.JPanel {
     Integer[] SIZES = { 8, 9, 10, 11, 12, 14, 16, 18, 20,
         22, 24, 26, 28, 36, 48, 72 }; //the sizes for the font size combo box. MB
     private MachineView machineView;
-    private MachineController controller;
     private TextEditorFrame editorWindow;
     
     /**
@@ -33,9 +32,25 @@ public class TextEditorPanel extends javax.swing.JPanel {
         initComponents();
     }
     
-    public TextEditorPanel(MachineView machineView, MachineController controller) {
+    /**
+     * Creates the Text Editor for a single Frame/Window
+     * 
+     * @param machineView 
+     */
+    public TextEditorPanel(MachineView machineView) {
         this.machineView = machineView;
-        this.controller = controller;
+        initComponents();
+    }
+    
+    /**
+     * Creates the Text Editor for multiple Frames/Windows
+     * 
+     * @param machineView
+     * @param editorWindow 
+     */
+    public TextEditorPanel(MachineView machineView, TextEditorFrame editorWindow) {
+        this.machineView = machineView;
+        this.editorWindow = editorWindow;
         initComponents();
     }
 
@@ -67,6 +82,14 @@ public class TextEditorPanel extends javax.swing.JPanel {
         return editorWindow;
     }
     
+    public TextEditor getTextEditor() {
+        return textEditor;
+    }
+    
+    public JButton getSplitJoinButton() {
+        return splitJoinButton;
+    }
+    
     protected String[] getFontNames()
     // Will get the all the avalilable texts from the system.
     // Programmer: Mariela Barrera
@@ -83,6 +106,7 @@ public class TextEditorPanel extends javax.swing.JPanel {
         }
         return fontNames;
     }
+    
     public void updateText() {
         //creates and sets the font according to the options selected from the font size and name combo boxs.
         //Programmer: Mariela Barrera
@@ -111,7 +135,7 @@ public class TextEditorPanel extends javax.swing.JPanel {
         fontComboBox = new javax.swing.JComboBox(getFontNames());
         fontSizeLabel = new javax.swing.JLabel();
         fontSizeComboBox = new javax.swing.JComboBox(SIZES);
-        splitMachineAndEditor = new javax.swing.JButton();
+        splitJoinButton = new javax.swing.JButton();
         textEditorPanel = new javax.swing.JPanel();
         textEditor = new machine.view.TextEditor();
         errorDisplayScrollPanel = new javax.swing.JScrollPane();
@@ -141,7 +165,6 @@ public class TextEditorPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
         textEditorControlsPanel.add(fontSizeLabel, gridBagConstraints);
 
-        fontSizeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         fontSizeComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 fontSizeComboBoxActionPerformed(evt);
@@ -151,10 +174,10 @@ public class TextEditorPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
         textEditorControlsPanel.add(fontSizeComboBox, gridBagConstraints);
 
-        splitMachineAndEditor.setText("Split/Join Editor");
-        splitMachineAndEditor.addActionListener(new java.awt.event.ActionListener() {
+        splitJoinButton.setText("Split Editor");
+        splitJoinButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                splitMachineAndEditorActionPerformed(evt);
+                splitJoinButtonActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -163,7 +186,7 @@ public class TextEditorPanel extends javax.swing.JPanel {
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 4);
-        textEditorControlsPanel.add(splitMachineAndEditor, gridBagConstraints);
+        textEditorControlsPanel.add(splitJoinButton, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
@@ -217,26 +240,36 @@ public class TextEditorPanel extends javax.swing.JPanel {
         updateText();
     }//GEN-LAST:event_fontSizeComboBoxActionPerformed
 
-    private void splitMachineAndEditorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_splitMachineAndEditorActionPerformed
+    private void splitJoinButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_splitJoinButtonActionPerformed
         final String codeInEditor = getEditorText();
-        //machineView.dispose();
         
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                editorWindow = new TextEditorFrame();
-                editorWindow.getEditorPane().setText(codeInEditor);
-                machineView.getTextEditorPanel().setVisible(false);
-                editorWindow.getErrorPane().setVisible(false);
-                machineView.setTitle("WALL - Machine Window");
-                editorWindow.setTitle("WALL - Text Editor Window");
-                machineView.pack();
-                editorWindow.pack();
-                editorWindow.setLocationRelativeTo(machineView);
-                editorWindow.setVisible(true);
+                if (splitJoinButton.getText().equals("Split Editor")) {
+                    editorWindow = new TextEditorFrame(machineView);
+                    editorWindow.getEditorPane().setText(codeInEditor);
+                    machineView.getTextEditorPanel().setVisible(false);
+                    editorWindow.getErrorPane().setVisible(false);
+                    machineView.setTitle("WALL - Machine Window");
+                    editorWindow.setTitle("WALL - Text Editor Window");
+                    machineView.pack();
+                    editorWindow.pack();
+                    editorWindow.setLocationRelativeTo(machineView);
+                    editorWindow.setVisible(true);
+                }
+                else { //Join Editor
+                    splitJoinButton.setText("Split Editor");
+                    editorWindow.dispose();
+                    machineView.setTitle("WALL - Machine Simulator");
+                    machineView.getTextEditorPanel().getEditorPane().setText(codeInEditor);
+                    machineView.getTextEditorPanel().setVisible(true);
+                    machineView.pack();
+                    
+                }
             }
         });
-    }//GEN-LAST:event_splitMachineAndEditorActionPerformed
+    }//GEN-LAST:event_splitJoinButtonActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -246,7 +279,7 @@ public class TextEditorPanel extends javax.swing.JPanel {
     private javax.swing.JLabel fontLabel;
     public javax.swing.JComboBox fontSizeComboBox;
     private javax.swing.JLabel fontSizeLabel;
-    public javax.swing.JButton splitMachineAndEditor;
+    public javax.swing.JButton splitJoinButton;
     public machine.view.TextEditor textEditor;
     public javax.swing.JPanel textEditorControlsPanel;
     public javax.swing.JPanel textEditorPanel;
