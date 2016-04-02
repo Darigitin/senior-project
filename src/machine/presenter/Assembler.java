@@ -6,7 +6,9 @@
  *          text, splitting everything into labels, operations, and comments. 
  *          Pass two takes this information.
  *
- * @author:
+ * @author: Jordan Lescallette
+ * @author: Matthew Vertefeuille
+ * @author: Guojun Liu
  *
  * date/ver: 
  */
@@ -65,6 +67,8 @@
  * 
  * 19 jl948836 - 03/26/16: Added error statements to JMPLT and JMPEQ to check for
  *                         invalid characters in the argument.
+ * 
+ * 20 jl948836 - 04/01/16: Changed Byte Code of SRET from "63 00" to "63 01"
  * /
 
 /*
@@ -645,7 +649,7 @@ public class Assembler {
                     case "CALL":
                         return "60" + call(args[0], line);
                     case "SCALL":
-                        return "6" + scall(args[0], line);
+                        return "62" + scall(args[0], line);
                     case "PUSH":
                         return "64" + push(args[0], line);
                     case "POP":
@@ -720,7 +724,7 @@ public class Assembler {
                 case "RET":
                     return "6101"; //CHANGE LOG: 14
                 case "SRET":
-                    return "6300";
+                    return "6301"; //CHANGE LOG: 20
                 case "HALT":
                     return "C000";
                 case "NOOP":
@@ -1306,24 +1310,24 @@ public class Assembler {
      *
      * @param firstArg
      * @param line
-     * @return Last three bytes for assembly of the SCALL instruction
+     * @return Last two nibbles for assembly of the SCALL instruction
      */
     private String scall(String firstArg, int line) {
-        String result = "000";
+        String result = "00";
         if (labelMap.containsKey(firstArg)) { // arg is a label
-            result = "2" + intToHex(Integer.toString(labelMap.get(firstArg)));
+            result = intToHex(Integer.toString(labelMap.get(firstArg)));
         }
         //CHANGE LOG BEGIN: 10
         else if (equivalencies.containsKey(firstArg)){
             String ref = equivalencies.get(firstArg);
-            result = "2" + intToHex(Integer.toString(labelMap.get(ref)));
+            result = intToHex(Integer.toString(labelMap.get(ref)));
         }
         //CHANGE LOG END: 10
         else if (isInt(firstArg)) { // arg is decimal
-            result = "2" + intToHex(firstArg);
+            result = intToHex(firstArg);
         } 
         else if (isHex(firstArg)) { // arg is hex
-            result = "2" + firstArg.substring(2, 4);
+            result = firstArg.substring(2, 4);
         } 
         else {
             errorList.add("Error: Invalid destination for SCALL on line " + line);    
@@ -1365,7 +1369,7 @@ public class Assembler {
         }
         return result;
     }
-
+    
     /**
      * @param firstArg
      * @param line

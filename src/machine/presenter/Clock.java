@@ -19,6 +19,8 @@
  * 
  * 3 jl948836 - 03/24/16: The additional 1 is now generated at byte code, instead
  *                        of by the clock
+ * 
+ * 4 jl948836 - 04/01/16: Fixed the SCALL and SRET functions.
  */
 
 /* Change Log
@@ -351,20 +353,24 @@ public class Clock {
     /**
     * Opcode 62 - SCALL
     */
+    //CHANGE LOG BEGIN: 4
     private void scall() {
-        push(0x0C);
         call();
         push(0x0D);
         move(0x0E,0x0D);
     }
+    //CHANGE LOG END: 4
 
     /**
     * Opcode 63 - SRETURN
     */
+    //CHANGE LOG BEGIN: 4
     private void sret(int spAdd) {
-        move(0x0D,0x0E);
-        ret(spAdd);
+        pop(0x0D); //Reset Frame of Reference
+        ret(spAdd); //Return
+        move(0x0D,0x0E); //Clean arguments off the Stack
     }
+    //CHANGE LOG END: 4
 
     /**
     * Opcode 64 - PUSH
