@@ -32,7 +32,7 @@ package machine.presenter;
 import java.util.ArrayList;
 //import machine.view.MachineView;
 //import testCode.MachineView;
-import machine.view.MachView;
+import machine.view.MachineView;
 /**
  *
  * @author Ryan Ball
@@ -40,7 +40,7 @@ import machine.view.MachView;
 public class MachineController {
         
        
-    private final MachView machineView;
+    private final MachineView machineView;
     private final Clock clock = new Clock(this);
     private ArrayList<String> lastAssembledProg = new ArrayList<>();
     private boolean isRunning = false;
@@ -51,7 +51,7 @@ public class MachineController {
      * 
      */
     public MachineController() {
-        machineView = new MachView(this);
+        machineView = new MachineView(this);
 
         for (int i = 0; i < 257; i++) {
             lastAssembledProg.add("00");
@@ -133,7 +133,7 @@ public class MachineController {
     public void setDisassText(String consoleText) {
         machineView.getDisassTextArea().setText(consoleText);
     }
-
+    
     /**
      * 
      * @param c 
@@ -142,7 +142,7 @@ public class MachineController {
         machineView.getConsoleTextArea().setText(
         machineView.getConsoleTextArea().getText() + c);
     }
-
+ 
     /**
      * When code is assembled loadMachine
      * populates all registers and memory table
@@ -232,7 +232,7 @@ public class MachineController {
         int[] instructions = {Integer.parseInt(ir[0], 16), Integer.parseInt(ir[1], 16)};
         return instructions;
     }
-
+    
     /**
      * 
      */
@@ -246,31 +246,31 @@ public class MachineController {
         machineView.setInstructionRegister(newir[0] + " " + newir[1]);
     }
     
-        //update the current conent to IF before jump
-        public void setInstructionRegisterForJump() {
-            machineView.setInstructionRegister(MemoryAddressRegister[0] + " " 
-                    + MemoryAddressRegister[1]);
-	}
+    //update the current conent to IF before jump
+    public void setInstructionRegisterForJump() {
+        machineView.setInstructionRegister(MemoryAddressRegister[0] + " " 
+                + MemoryAddressRegister[1]);
+    }
         
-        //set the current instruction register after the fetch phase
-        public void setIPinstruction() {           
-            int ip = Integer.parseInt(machineView.getInstructionPointer(), 16);
-            String[] newir = {machineView.getRAMBytes(ip).toUpperCase(), 
-                            machineView.getRAMBytes(ip+1).toUpperCase()};
-            MemoryAddressRegister[0] = newir[0];
-            MemoryAddressRegister[1] = newir[1];
-	}
+    //set the current instruction register after the fetch phase
+    public void setIPinstruction() {           
+        int ip = Integer.parseInt(machineView.getInstructionPointer(), 16);
+        String[] newir = {machineView.getRAMBytes(ip).toUpperCase(), 
+                        machineView.getRAMBytes(ip+1).toUpperCase()};
+        MemoryAddressRegister[0] = newir[0];
+        MemoryAddressRegister[1] = newir[1];
+    }
         
-        public int[] getInstructionFromIP() {
-            String[] ir = MemoryAddressRegister;
-            int[] instructions = {Integer.parseInt(ir[0], 16),
-				Integer.parseInt(ir[1], 16)};
-            return instructions;
-	}
+    public int[] getInstructionFromIP() {
+        String[] ir = MemoryAddressRegister;
+        int[] instructions = {Integer.parseInt(ir[0], 16),
+                            Integer.parseInt(ir[1], 16)};
+        return instructions;
+    }
         
-        public void updateIPwhenHalt(){
-            machineView.setInstructionRegister("C0 00");
-        }
+    public void updateIPwhenHalt(){
+        machineView.setInstructionRegister("C0 00");
+    }
 
     /**
      * Called by Clock to get Instruction Pointer

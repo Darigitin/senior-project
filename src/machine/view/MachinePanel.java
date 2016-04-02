@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  * Program:
  * 
@@ -22,27 +16,28 @@
  */
 package machine.view;
 
-import javax.swing.JOptionPane;
+import java.awt.Color;
+import java.awt.Font;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
-import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
+import machine.model.CellEditor;
+import machine.model.CellRenderer;
+import machine.model.ColumnHeaderRenderer;
 import machine.model.RAMTableModel;
 import machine.model.RegisterTableModel;
+import machine.model.RowHeaderRenderer;
 import machine.model.SpecialTableModel;
-import machine.presenter.MachineController;
-import machine.view.ActivationRecord;
-import machine.view.ActivationRecord;
 
 /**
  *
  * @author jl948836
  */
-public class Machine extends javax.swing.JPanel {
+public class MachinePanel extends javax.swing.JPanel {
     
-    public Machine(){
+    public MachinePanel(){
         initComponents();
+        customInitComponents();
     }
 
     /**
@@ -199,6 +194,30 @@ public class Machine extends javax.swing.JPanel {
     public void resetActivationRecords() {
             stackRecordPanel.resetRecords();
     }
+   
+    /**
+     *
+     * @return 
+     */
+    public JTable getRamTable() {
+        return ramTable;
+    }
+    
+    /**
+     * 
+     * @return 
+     */
+    public JTable getPswTable() {
+        return pswTable;
+    }
+    
+    /**
+     * 
+     * @return 
+     */
+    public JTable getRegisterTable() {
+        return registerTable;
+    }
     
     /**
      * 
@@ -216,6 +235,40 @@ public class Machine extends javax.swing.JPanel {
         return disassembledConsole;
     }
     
+    private void customInitComponents(){
+        ColumnHeaderRenderer colRenderer = new ColumnHeaderRenderer();
+        RowHeaderRenderer rowRenderer = new RowHeaderRenderer();
+        CellRenderer cellRenderer = new CellRenderer();
+        CellEditor cellEditor = new CellEditor();
+        cellEditor.setClickCountToStart(1);
+        TableColumn column;
+        
+        ramTable.getTableHeader().setDefaultRenderer(colRenderer);
+        ramTable.getColumnModel().getColumn(0).setCellRenderer(rowRenderer);
+        for (int col = 1; col < 17; col++) {
+            column = ramTable.getColumnModel().getColumn(col);
+            column.setCellRenderer(cellRenderer);
+            column.setCellEditor(cellEditor);
+        }
+        ramTable.getTableHeader().setReorderingAllowed(false);
+        ramTable.getTableHeader().setResizingAllowed(false);
+        ramTable.setCellSelectionEnabled(true);
+        
+        pswTable.getTableHeader().setDefaultRenderer(colRenderer);
+        pswTable.getColumnModel().getColumn(0).setCellRenderer(
+                new RowHeaderRenderer(new Color(128, 0, 0), Color.white,
+                new Font("SansSerif", Font.BOLD, 16)));
+        column = pswTable.getColumnModel().getColumn(1);
+        column.setCellRenderer(cellRenderer);
+        
+        registerTable.getTableHeader().setDefaultRenderer(colRenderer);
+        registerTable.getColumnModel().getColumn(0).setCellRenderer(
+                new RowHeaderRenderer(new Color(128, 0, 0), Color.white,
+                new Font("SansSerif", Font.BOLD, 16)));
+        column = registerTable.getColumnModel().getColumn(1);
+        column.setCellRenderer(cellRenderer);
+        column.setCellEditor(cellEditor);
+    }
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -332,27 +385,22 @@ public class Machine extends javax.swing.JPanel {
 
     private void ramTableComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_ramTableComponentResized
         int ramSPHeight = ramScrollPane.getViewport().getSize().height;
-        int ramSPWidth = ramScrollPane.getViewport().getSize().width;
-        JTableHeader th = ramTable.getTableHeader();
-        TableColumnModel tcm = th.getColumnModel();
-        TableColumn tc = tcm.getColumn(1);
-        int columnWidth = tc.getWidth();
         ramTable.setRowHeight(ramSPHeight/16);
     }//GEN-LAST:event_ramTableComponentResized
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    public static javax.swing.JScrollPane disassembleScrollPane;
-    public static javax.swing.JTextArea disassembledConsole;
-    public static javax.swing.JTextArea displayConsole;
-    public static javax.swing.JScrollPane displayScrollPane;
-    public static javax.swing.JScrollPane pswScrollPane;
-    public static javax.swing.JTable pswTable;
-    public static javax.swing.JScrollPane ramScrollPane;
-    public static javax.swing.JTable ramTable;
-    public static javax.swing.JScrollPane registerScrollPane;
-    public static javax.swing.JTable registerTable;
+    private javax.swing.JScrollPane disassembleScrollPane;
+    private javax.swing.JTextArea disassembledConsole;
+    private javax.swing.JTextArea displayConsole;
+    private javax.swing.JScrollPane displayScrollPane;
+    private javax.swing.JScrollPane pswScrollPane;
+    private javax.swing.JTable pswTable;
+    private javax.swing.JScrollPane ramScrollPane;
+    private javax.swing.JTable ramTable;
+    private javax.swing.JScrollPane registerScrollPane;
+    private javax.swing.JTable registerTable;
     private javax.swing.JScrollPane stackPanelScrollPane;
-    public static machine.view.StackPanel stackRecordPanel;
+    private machine.view.StackPanel stackRecordPanel;
     // End of variables declaration//GEN-END:variables
 }

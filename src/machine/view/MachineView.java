@@ -5,9 +5,6 @@
  */
 package machine.view;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.GraphicsEnvironment;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -25,42 +22,33 @@ import javax.swing.JFileChooser;
 import javax.swing.JTextArea;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.TableColumn;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
-import machine.model.CellEditor;
-import machine.model.CellRenderer;
-import machine.model.ColumnHeaderRenderer;
-import machine.model.RowHeaderRenderer;
 import machine.presenter.MachineController;
-import static machine.view.Machine.disassembledConsole;
-import static machine.view.Machine.displayConsole;
-import static machine.view.Machine.pswTable;
-import static machine.view.Machine.ramTable;
-import static machine.view.Machine.registerTable;
-import static machine.view.Machine.stackRecordPanel;
-
+import java.awt.Dimension;
+import java.awt.Toolkit;
 
 /**
  *
  * @author jl948836
  */
-public class MachView extends javax.swing.JFrame {
+public class MachineView extends javax.swing.JFrame {
 
     private final MachineController controller;
-    private String[] fontNames = null;
     Integer[] SIZES = { 8, 9, 10, 11, 12, 14, 16, 18, 20,
         22, 24, 26, 28, 36, 48, 72 }; //the sizes for the font size combo box. MB
     
         /**
      * Creates new form MachineView
      */
-    public MachView() {
+    public MachineView() {
         controller = null;
         initComponents();
         
-        super.pack();
+        
+        super.setSize(null);
+        //super.pack();
         super.setLocationRelativeTo(null);
         super.setVisible(true); 
     }
@@ -69,7 +57,7 @@ public class MachView extends javax.swing.JFrame {
      * Creates new form MachView
      * @param controller
      */
-    public MachView(final MachineController controller) {
+    public MachineView(final MachineController controller) {
         this.controller = controller;
         initComponents();
         customInitComponents();
@@ -83,24 +71,23 @@ public class MachView extends javax.swing.JFrame {
             }
         };
         super.addWindowListener(exitListener);
-        
-        super.pack();
+       
+        //super.pack();
         super.setLocationRelativeTo(null);
         super.setVisible(true); 
     }
 
 /*
- * This section is code to help control the Machine tab   
+ * This section is code to help control the MachinePanel tab   
  */
+    
     /**
      * 
      * @param address
      * @return 
      */
     public String getRAMBytes(int address) {
-        int row = address / 16;
-        int col = address % 16;
-        return (String)ramTable.getValueAt(row, col + 1);
+        return machine1.getRAMBytes(address);
     }
     
     /**
@@ -109,9 +96,7 @@ public class MachView extends javax.swing.JFrame {
      * @param address 
      */
     public void setRAMBytes(String value, int address) {
-        int row = address / 16;
-        int col = address % 16;
-        ramTable.setValueAt(value, row, col + 1);
+        machine1.setRAMBytes(value, address);
     }
     
     /**
@@ -119,14 +104,7 @@ public class MachView extends javax.swing.JFrame {
      * @return 
      */
     public String[] getAllRAMBytes() {
-        String[] ramBytes= new String[256];
-
-        int i = 0;
-        for (int address = 0; address < 256; address++) {
-                ramBytes[address] = getRAMBytes(address);
-        }
-
-        return ramBytes;
+        return machine1.getAllRAMBytes();
     }
 
     /**
@@ -134,9 +112,7 @@ public class MachView extends javax.swing.JFrame {
      * @param ramBytes 
      */
     public void setAllRAMBytes(byte[] ramBytes) {
-        for (int i = 0; i < 256; i++) {
-
-        }
+        machine1.setAllRAMBytes(ramBytes);
     }
     
     /**
@@ -144,7 +120,7 @@ public class MachView extends javax.swing.JFrame {
      * @return 
      */
     public String getInstructionPointer() {
-        return (String) pswTable.getValueAt(0, 1);
+        return machine1.getInstructionPointer();
     }
 
     /**
@@ -152,7 +128,7 @@ public class MachView extends javax.swing.JFrame {
      * @param value 
      */
     public void setInstructionPointer(String value) {
-        pswTable.setValueAt(value, 0, 1);
+        machine1.setInstructionPointer(value);
     }
     
     /**
@@ -160,7 +136,7 @@ public class MachView extends javax.swing.JFrame {
      * @return 
      */
     public String getInstructionRegister() {
-        return (String) pswTable.getValueAt(1, 1);
+        return machine1.getInstructionRegister();
     }
 
     /**
@@ -168,7 +144,7 @@ public class MachView extends javax.swing.JFrame {
      * @param value 
      */
     public void setInstructionRegister(String value) {
-        pswTable.setValueAt(value, 1, 1);
+        machine1.setInstructionRegister(value);
     }
     
     /**
@@ -177,7 +153,7 @@ public class MachView extends javax.swing.JFrame {
      * @return 
      */
     public String getRegisterBytes(int register) {
-        return (String) registerTable.getValueAt(register, 1);
+        return machine1.getRegisterBytes(register);
     }
 
     /**
@@ -186,7 +162,7 @@ public class MachView extends javax.swing.JFrame {
      * @param register 
      */
     public void setRegisterBytes(String value, int register) {
-        registerTable.setValueAt(value, register, 1);
+        machine1.setRegisterBytes(value, register);
     }
     
     /**
@@ -194,12 +170,7 @@ public class MachView extends javax.swing.JFrame {
      * @return 
      */
     public String[] getAllRegisterBytes() {
-        String[] registerBytes = new String[16];
-        for (int i = 0; i < 16; i++) {
-            registerBytes[i] = (String) registerTable.getValueAt(i, 1);
-        }
-
-        return registerBytes;
+        return machine1.getAllRegisterBytes();
     }
     
     /**
@@ -208,25 +179,21 @@ public class MachView extends javax.swing.JFrame {
     * @param dynamicLink
     */
     public void createActivationRecord(int returnAddress, int dynamicLink) {
-            String call = "CallAt 0x" + 
-                             Integer.toHexString(returnAddress).toUpperCase();
-            ActivationRecord ar = new ActivationRecord(call, 
-                    returnAddress + 2,dynamicLink);
-            stackRecordPanel.addRecord(ar);
+        machine1.createActivationRecord(returnAddress, dynamicLink);
     }
     
     /**
      * Used to delete an existing activation record and remove it from the stack panel.
      */
     public void deleteActivationRecord() {
-            stackRecordPanel.removeRecord();
+        machine1.deleteActivationRecord();
     }
 
     /**
      * Used to delete all activation records and clear the stack panel.
      */
     public void resetActivationRecords() {
-            stackRecordPanel.resetRecords();
+        machine1.resetActivationRecords();
     }
     
     /**
@@ -234,7 +201,7 @@ public class MachView extends javax.swing.JFrame {
      * @return 
      */
     public JTextArea getConsoleTextArea() {
-        return displayConsole;
+        return machine1.getConsoleTextArea();
     }
     
     /**
@@ -242,67 +209,75 @@ public class MachView extends javax.swing.JFrame {
      * @return 
      */
     public JTextArea getDisassTextArea() {
-        return disassembledConsole;
+        return machine1.getDisassTextArea();
     }
-    
-    public JTextArea getErrorTextArea() {
-        return errorDisplay;
-    }
-    
-/*
- * This section is to help control the Documentation Tab    
- */
-    
-    
     
 /*
  * This section is to help control the Control Panel   
  */
     
+    /**
+     * 
+     */
     public void reset() {
-        if (registerTable.isEditing()){                         //Change Log Begin #1
-            registerTable.getCellEditor().cancelCellEditing();
+        if (machine1.getRegisterTable().isEditing()){                         //Change Log Begin #1
+            machine1.getRegisterTable().getCellEditor().cancelCellEditing();
         }
-        if (ramTable.isEditing()){
-            ramTable.getCellEditor().cancelCellEditing();
+        if (machine1.getRamTable().isEditing()){
+            machine1.getRamTable().getCellEditor().cancelCellEditing();
         }                                                       //Change Log End #1
         for (int i = 0; i < 16; i++) {
             if (i == 13 || i == 14) {
-                registerTable.setValueAt("FF", i, 1);
+                machine1.getRegisterTable().setValueAt("FF", i, 1);
             }
             else {
-                registerTable.setValueAt("00", i, 1);
+                machine1.getRegisterTable().setValueAt("00", i, 1);
             }
 
         }
     }
     
-        private int getSpeed() {
+    /**
+     * 
+     * @return speed
+     */
+    private int getSpeed() {
         int speed;
         switch((String)speedComboBox.getSelectedItem()) {
-            case "10%": speed = 1;
-                            break;
-            case "20%": speed = 2;
-                            break;
-            case "30%": speed = 3;
-                            break;
-            case "40%": speed = 4;
-                            break;
-            case "50%": speed = 5;
-                            break;
-            case "60%": speed = 6;
-                            break;
-            case "70%": speed = 7;
-                            break;
-            case "80%": speed = 8;
-                            break;
-            case "90%": speed = 9;
-                            break;
-            case "100%": speed = 10;
-                            break;
-            default: speed = 500;
-                             break;
-        }
+            case "10%": 
+                speed = 1;
+                break;
+            case "20%": 
+                speed = 2;
+                break;
+            case "30%": 
+                speed = 3;
+                break;
+            case "40%": 
+                speed = 4;
+                break;
+            case "50%": 
+                speed = 5;
+                break;
+            case "60%": 
+                speed = 6;
+                break;
+            case "70%": 
+                speed = 7;
+                break;
+            case "80%": 
+                speed = 8;
+                break;
+            case "90%": 
+                speed = 9;
+                break;
+            case "100%": 
+                speed = 10;
+                break;
+            default: 
+                speed = 500;
+                break;
+            }
         
         return speed;
     }
@@ -310,100 +285,90 @@ public class MachView extends javax.swing.JFrame {
 /*
  * This section is to help control textEditor and ErrorPanel portions   
  */    
-    public JTextArea getErrorPane(){
-        return errorDisplay;
+    
+    public TextEditorPanel getTextEditorPanel() {
+        return textEditorPanel;
+
+    }
+    public JTextArea getErrorPane() {
+        if (textEditorPanel.isVisible()) {
+            return textEditorPanel.getErrorPane();
+        }
+        else {
+            return textEditorPanel.getTextEditorFrame().getErrorPane();
+        }
     }
     
-    /**
-     * Displays the error List after the user presses the Assemble button
-     * @param errorList
-     */
+    public JTextArea getErrorTextArea() {
+        if (textEditorPanel.isVisible()) {
+            return textEditorPanel.getErrorPane();
+        }
+        else {
+            return textEditorPanel.getTextEditorFrame().getErrorPane();
+        }
+    }
+    
     public void setErrorText(ArrayList<String> errorList) {
-            String errorText = "";
-            for (String error : errorList){
-                    errorText += error + "\n";
-            }
-            errorDisplay.setText(errorText);
+        if (textEditorPanel.isVisible()) {
+            textEditorPanel.setErrorText(errorList);
+        }
+        else {
+            textEditorPanel.getTextEditorFrame().setErrorText(errorList);
+        }
     }
     
     public JTextComponent getEditorPane() {
-        return textEditor.getTextPane();
+        if (textEditorPanel.isVisible()) {
+            return textEditorPanel.getEditorPane();
+        }
+        else {
+            return textEditorPanel.getTextEditorFrame().getEditorPane();
+        }
     }
     
     public String getEditorText() {
-        return textEditor.getText();
+        if (textEditorPanel.isVisible()) {
+            return textEditorPanel.getEditorText();
+        }
+        else {
+            return textEditorPanel.getTextEditorFrame().getEditorText();
+        }
     }
     
-    protected String[] getFontNames()
-    // Will get the all the avalilable texts from the system.
-    // Programmer: Mariela Barrera
-    {
-        if (fontNames == null)
-        {
-            GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
-                        //GraphicsConfiguration.
-            fontNames = env.getAvailableFontFamilyNames();
-                        //System.out.println(Arrays.toString(fontNames));
-                        //System.out.println("************************************Screen Resolution TEST*******************************************");
-                        //System.out.println(env.getMaximumWindowBounds());
-                        //System.out.println(env.getDefaultScreenDevice());
+    protected String[] getFontNames() {
+        if (textEditorPanel.isVisible()) {
+            return textEditorPanel.getFontNames();
         }
-        return fontNames;
+        else {
+            return textEditorPanel.getTextEditorFrame().getFontNames();
+        }
     }
+    
     public void updateText() {
-        //creates and sets the font according to the options selected from the font size and name combo boxs.
-        //Programmer: Mariela Barrera
-      String name = (String) fontComboBox.getSelectedItem();
-
-      Integer size = (Integer) fontSizeComboBox.getSelectedItem();
-
-      int style = Font.PLAIN;
-
-      Font newfont = new Font(name, style, size);
-      textEditor.getTextPane().setFont(newfont);
+        if (textEditorPanel.isVisible()) {
+            textEditorPanel.updateText();
+        }
+        else {
+            textEditorPanel.getTextEditorFrame().updateText();
+        }
     }
+    
+    
     
     private void customInitComponents(){
-        ColumnHeaderRenderer colRenderer = new ColumnHeaderRenderer();
-        RowHeaderRenderer rowRenderer = new RowHeaderRenderer();
-        CellRenderer cellRenderer = new CellRenderer();
-        CellEditor cellEditor = new CellEditor();
-        cellEditor.setClickCountToStart(1);
-        TableColumn column;
         
-        Machine.ramTable.getTableHeader().setDefaultRenderer(colRenderer);
-        Machine.ramTable.getColumnModel().getColumn(0).setCellRenderer(rowRenderer);
-        for (int col = 1; col < 17; col++) {
-            column = Machine.ramTable.getColumnModel().getColumn(col);
-            column.setCellRenderer(cellRenderer);
-            column.setCellEditor(cellEditor);
-        }
-        Machine.ramTable.getTableHeader().setReorderingAllowed(false);
-        Machine.ramTable.getTableHeader().setResizingAllowed(false);
-        Machine.ramTable.setCellSelectionEnabled(true);
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        super.setBounds(0,0,(int) ((int) screenSize.width * .85), (int) ((int) screenSize.height * .85));
+        //System.out.println((int) ((int) screenSize.width * .85) + " " + (int) ((int) screenSize.height * .85));
         
-        Machine.pswTable.getTableHeader().setDefaultRenderer(colRenderer);
-        Machine.pswTable.getColumnModel().getColumn(0).setCellRenderer(
-                new RowHeaderRenderer(new Color(128, 0, 0), Color.white,
-                new Font("SansSerif", Font.BOLD, 16)));
-        column = Machine.pswTable.getColumnModel().getColumn(1);
-        column.setCellRenderer(cellRenderer);
-        
-        Machine.registerTable.getTableHeader().setDefaultRenderer(colRenderer);
-        Machine.registerTable.getColumnModel().getColumn(0).setCellRenderer(
-                new RowHeaderRenderer(new Color(128, 0, 0), Color.white,
-                new Font("SansSerif", Font.BOLD, 16)));
-        column = Machine.registerTable.getColumnModel().getColumn(1);
-        column.setCellRenderer(cellRenderer);
-        column.setCellEditor(cellEditor);
         
         //errorDisplayScrollPane.setVisible(false);
-        errorDisplay.setVisible(false);
+        getErrorPane().setVisible(false);
         
         speedComboBox.setSelectedIndex(4);
         
-        Documentation.addLanguageReference();
-        Documentation.addSyntaxReference();
+        documentation1.addLanguageReference();
+        documentation1.addSyntaxReference();
     }
     
     /**
@@ -426,19 +391,9 @@ public class MachView extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         speedComboBox = new javax.swing.JComboBox();
         mainPanel = new javax.swing.JTabbedPane();
-        machine1 = new machine.view.Machine();
-        documentation1 = new machine.view.Documentation();
-        textEditorControls = new javax.swing.JPanel();
-        fontLabel = new javax.swing.JLabel();
-        fontComboBox = new javax.swing.JComboBox(getFontNames());
-        fontSizeLabel = new javax.swing.JLabel();
-        fontSizeComboBox = new javax.swing.JComboBox(SIZES);
-        fontThemeLabel = new javax.swing.JLabel();
-        fontThemeComboBox = new javax.swing.JComboBox();
-        textEditorPanel = new javax.swing.JPanel();
-        textEditor = new machine.view.TextEditor();
-        errorDisplayScrollPane = new javax.swing.JScrollPane();
-        errorDisplay = new javax.swing.JTextArea();
+        machine1 = new machine.view.MachinePanel();
+        documentation1 = new machine.view.DocumentationPanel();
+        textEditorPanel = new machine.view.TextEditorPanel(this);
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         openMachineMenuItem = new javax.swing.JMenuItem();
@@ -450,7 +405,7 @@ public class MachView extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMaximumSize(new java.awt.Dimension(3840, 2160));
         setMinimumSize(new java.awt.Dimension(800, 600));
-        setPreferredSize(new java.awt.Dimension(1100, 800));
+        setPreferredSize(new java.awt.Dimension(1100, 900));
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         controlPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true), "Control Panel"));
@@ -534,7 +489,7 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
 
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-    gridBagConstraints.weightx = 0.6;
+    gridBagConstraints.weightx = 0.7;
     gridBagConstraints.weighty = 0.05;
     getContentPane().add(controlPanel, gridBagConstraints);
 
@@ -546,101 +501,15 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
     gridBagConstraints.gridy = 1;
     gridBagConstraints.gridheight = 2;
     gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-    gridBagConstraints.weightx = 0.6;
+    gridBagConstraints.weightx = 0.7;
     gridBagConstraints.weighty = 0.9;
     getContentPane().add(mainPanel, gridBagConstraints);
-
-    textEditorControls.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true), "Text Editor Controls"));
-    textEditorControls.setLayout(new java.awt.GridBagLayout());
-
-    fontLabel.setText("Font:");
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
-    textEditorControls.add(fontLabel, gridBagConstraints);
-
-    fontComboBox.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(java.awt.event.ActionEvent evt) {
-            fontComboBoxActionPerformed(evt);
-        }
-    });
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
-    textEditorControls.add(fontComboBox, gridBagConstraints);
-
-    fontSizeLabel.setText("Font Size:");
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
-    textEditorControls.add(fontSizeLabel, gridBagConstraints);
-
-    fontSizeComboBox.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(java.awt.event.ActionEvent evt) {
-            fontSizeComboBoxActionPerformed(evt);
-        }
-    });
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
-    textEditorControls.add(fontSizeComboBox, gridBagConstraints);
-
-    fontThemeLabel.setText("Theme:");
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 1;
-    gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
-    textEditorControls.add(fontThemeLabel, gridBagConstraints);
-
-    fontThemeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-    fontThemeComboBox.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(java.awt.event.ActionEvent evt) {
-            fontThemeComboBoxActionPerformed(evt);
-        }
-    });
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 1;
-    gridBagConstraints.gridy = 1;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
-    textEditorControls.add(fontThemeComboBox, gridBagConstraints);
-
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.weightx = 0.4;
-    getContentPane().add(textEditorControls, gridBagConstraints);
-
-    textEditorPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true), "Text Editor"));
-
-    javax.swing.GroupLayout textEditorPanelLayout = new javax.swing.GroupLayout(textEditorPanel);
-    textEditorPanel.setLayout(textEditorPanelLayout);
-    textEditorPanelLayout.setHorizontalGroup(
-        textEditorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        .addComponent(textEditor, javax.swing.GroupLayout.DEFAULT_SIZE, 481, Short.MAX_VALUE)
-    );
-    textEditorPanelLayout.setVerticalGroup(
-        textEditorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        .addComponent(textEditor, javax.swing.GroupLayout.DEFAULT_SIZE, 559, Short.MAX_VALUE)
-    );
-
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 1;
-    gridBagConstraints.gridy = 1;
+    gridBagConstraints.gridheight = 3;
     gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-    gridBagConstraints.weightx = 0.4;
-    gridBagConstraints.weighty = 0.75;
+    gridBagConstraints.weightx = 0.3;
+    gridBagConstraints.weighty = 1.0;
     getContentPane().add(textEditorPanel, gridBagConstraints);
-
-    errorDisplayScrollPane.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true), "Errors"));
-
-    errorDisplay.setColumns(20);
-    errorDisplay.setForeground(new java.awt.Color(250, 0, 0));
-    errorDisplay.setRows(5);
-    errorDisplayScrollPane.setViewportView(errorDisplay);
-
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 1;
-    gridBagConstraints.gridy = 2;
-    gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-    gridBagConstraints.weightx = 0.4;
-    gridBagConstraints.weighty = 0.1;
-    getContentPane().add(errorDisplayScrollPane, gridBagConstraints);
 
     jMenu1.setText("File");
 
@@ -709,21 +578,13 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
     private void disassembleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disassembleButtonActionPerformed
         String[] ramBytes= getAllRAMBytes();
         
-        textEditor.getTextPane().setText(
+        textEditorPanel.textEditor.getTextPane().setText(
             controller.performDisassemble(getInstructionPointer(), ramBytes));
     }//GEN-LAST:event_disassembleButtonActionPerformed
 
     private void speedComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_speedComboBoxActionPerformed
         controller.setClockSpeed(getSpeed());
     }//GEN-LAST:event_speedComboBoxActionPerformed
-
-    private void fontComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontComboBoxActionPerformed
-        updateText();
-    }//GEN-LAST:event_fontComboBoxActionPerformed
-
-    private void fontSizeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontSizeComboBoxActionPerformed
-        updateText();
-    }//GEN-LAST:event_fontSizeComboBoxActionPerformed
 
     private void openMachineMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openMachineMenuItemActionPerformed
         JFileChooser fc = new JFileChooser();
@@ -744,20 +605,20 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
                         for (int j = 1; j < 17; j++) {
                             bytes = String.valueOf((char)reader.read()) +
                                     String.valueOf((char)reader.read());
-                            ramTable.setValueAt(bytes, i, j);
+                            machine1.getRamTable().setValueAt(bytes, i, j);
                         }
                     }
                     
                     for (int i = 0; i < 16; i++) {
                         bytes = String.valueOf((char)reader.read()) +
                                 String.valueOf((char)reader.read());
-                        registerTable.setValueAt(bytes, i, 1);
+                        machine1.getRegisterTable().setValueAt(bytes, i, 1);
                     }
                     
                     // set IP
                     bytes = String.valueOf((char)reader.read()) +
                             String.valueOf((char)reader.read());
-                    pswTable.setValueAt(bytes, 0, 1);
+                    machine1.getPswTable().setValueAt(bytes, 0, 1);
                     
                     // set IR
                     bytes = String.valueOf((char)reader.read()) +
@@ -766,7 +627,7 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
                             String.valueOf((char)reader.read()) +
                             String.valueOf((char)reader.read());
                     
-                    pswTable.setValueAt(bytes, 1, 1);
+                    machine1.getPswTable().setValueAt(bytes, 1, 1);
                 }
             } catch (FileNotFoundException ex) {
                 ex.printStackTrace();
@@ -790,7 +651,7 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
             File sourceFile = fc.getSelectedFile();
                 try {
                 try (BufferedReader reader = new BufferedReader(new FileReader(sourceFile))) {
-                    Document doc = textEditor.getDocument();
+                    Document doc = textEditorPanel.textEditor.getDocument();
                     
                     String line;
                     while ((line = reader.readLine()) != null) {
@@ -798,7 +659,7 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
                     }
                 }
                 } catch (IOException | BadLocationException ex) {
-                    Logger.getLogger(MachView.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(MachineView.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
     }//GEN-LAST:event_openSourceMenuItemActionPerformed
@@ -816,25 +677,24 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
             File machineFile = fc.getSelectedFile();
             
             try {
-                FileWriter writer = new FileWriter(machineFile);
-                String[] strRAMBytes = getAllRAMBytes();
-
-                for (int i = 0; i < 256; i++) {
-                    writer.write(strRAMBytes[i]);
+                try (FileWriter writer = new FileWriter(machineFile)) {
+                    String[] strRAMBytes = getAllRAMBytes();
+                    
+                    for (int i = 0; i < 256; i++) {
+                        writer.write(strRAMBytes[i]);
+                    }
+                    
+                    String[] strRegisterBytes = getAllRegisterBytes();
+                    for (int i = 0; i < 16; i++) {
+                        writer.write(strRegisterBytes[i]);
+                    }
+                    
+                    String ip = (String) machine1.getPswTable().getValueAt(0, 1);
+                    writer.write(ip);
+                    
+                    String ir = (String) machine1.getPswTable().getValueAt(1, 1);
+                    writer.write(ir);
                 }
-
-                String[] strRegisterBytes = getAllRegisterBytes();
-                for (int i = 0; i < 16; i++) {
-                    writer.write(strRegisterBytes[i]);
-                }
-
-                String ip = (String) pswTable.getValueAt(0, 1);
-                writer.write(ip);
-
-                String ir = (String) pswTable.getValueAt(1, 1);
-                writer.write(ir);
-                
-                writer.close();
             } catch (FileNotFoundException ex) {
                 ex.printStackTrace();
             }
@@ -858,12 +718,12 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
             
             try {
                 try (PrintWriter writer = new PrintWriter(sourceFile)) {
-                    Document doc = textEditor.getDocument();
+                    Document doc = textEditorPanel.textEditor.getDocument();
                     writer.print(doc.getText(0, doc.getLength()));
                 }
                 
             } catch (FileNotFoundException | BadLocationException ex) {
-                Logger.getLogger(MachView.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(MachineView.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }//GEN-LAST:event_saveSourceMenuItemActionPerformed
@@ -872,59 +732,16 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
         // TODO add your handling code here:
     }//GEN-LAST:event_fontThemeComboBoxActionPerformed
     
-//    /**
-//     * @param args the command line arguments
-//     */
-//    public static void main(String args[]) {
-//        /* Set the Nimbus look and feel */
-//        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-//        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-//         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-//         */
-//        try {
-//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-//                if ("Nimbus".equals(info.getName())) {
-//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-//                    break;
-//                }
-//            }
-//        } catch (ClassNotFoundException ex) {
-//            java.util.logging.Logger.getLogger(MachView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (InstantiationException ex) {
-//            java.util.logging.Logger.getLogger(MachView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (IllegalAccessException ex) {
-//            java.util.logging.Logger.getLogger(MachView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-//            java.util.logging.Logger.getLogger(MachView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        }
-//        //</editor-fold>
-//
-//        /* Create and display the form */
-//        java.awt.EventQueue.invokeLater(new Runnable() {
-//            public void run() {
-//                new MachView().setVisible(true);
-//            }
-//        });
-//    }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton assembleButton;
     private javax.swing.JPanel controlPanel;
     private javax.swing.JButton disassembleButton;
-    private machine.view.Documentation documentation1;
-    private javax.swing.JTextArea errorDisplay;
-    private javax.swing.JScrollPane errorDisplayScrollPane;
-    private javax.swing.JComboBox fontComboBox;
-    private javax.swing.JLabel fontLabel;
-    private javax.swing.JComboBox fontSizeComboBox;
-    private javax.swing.JLabel fontSizeLabel;
-    private javax.swing.JComboBox fontThemeComboBox;
-    private javax.swing.JLabel fontThemeLabel;
+    private machine.view.DocumentationPanel documentation1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPopupMenu.Separator jSeparator1;
-    private machine.view.Machine machine1;
+    private machine.view.MachinePanel machine1;
     private javax.swing.JTabbedPane mainPanel;
     private javax.swing.JMenuItem openMachineMenuItem;
     private javax.swing.JMenuItem openSourceMenuItem;
@@ -935,8 +752,6 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
     private javax.swing.JComboBox speedComboBox;
     private javax.swing.JButton stepButton;
     private javax.swing.JButton stopButton;
-    private machine.view.TextEditor textEditor;
-    private javax.swing.JPanel textEditorControls;
-    private javax.swing.JPanel textEditorPanel;
+    private machine.view.TextEditorPanel textEditorPanel;
     // End of variables declaration//GEN-END:variables
 }

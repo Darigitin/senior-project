@@ -7,10 +7,7 @@ package machine.model;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
-//import machine.view.MachineView;
-//import testCode.MachineView;
-import machine.view.MachView;
-import machine.view.Machine;
+import machine.view.MachinePanel;
 /**
  *
  * @author Ryan Ball
@@ -20,9 +17,9 @@ public class SpecialTableModel extends AbstractTableModel{
     private final String[] columnNames = {"Special", "Contents"};
     private final String[][] data = { {"IP", "00"}, { "IR", "00 00"}};
     
-    private final Machine machineView;
+    private final MachinePanel machineView;
     
-    public SpecialTableModel(Machine machineView) {
+    public SpecialTableModel(MachinePanel machineView) {
         this.machineView = machineView;
     }
 

@@ -61,6 +61,7 @@
  *                         are resolved
  * 
  * 18 jl948836 - 03/26/16: Added Check to CALL to determine that EQU isn't a Register
+ *                         RD and RE in RSTORE opcode.
  * 
  * 19 jl948836 - 03/26/16: Added error statements to JMPLT and JMPEQ to check for
  *                         invalid characters in the argument.
@@ -117,7 +118,6 @@ public class Assembler {
     HashMap<String, String> equivalencies = new HashMap<>(256); //CHANGE LOG: 10 - labels mapped to labels
     String labelAppears;
     String SIP = "00";
-    int errorCount = 0;
     int codeLines = 1;
     int labelAppearsLine;
     
@@ -222,13 +222,13 @@ public class Assembler {
             if (tokens.length > 0) { // A line with pseudo-op or operation
                 if (tokens[0].toUpperCase().equals("ORG")) { // handle ORG pseudo-op
                     currentLocation = orgLocation(tokens, i);
-                    mapLabel(i, currentLocation); // map label to org
+                    labelMap.put(labels[i], currentLocation); 
                 }
                 else if ((tokens[0].toUpperCase().equals("RLOAD")) && (labels[i] == null)){ //Rload without a label
                     currentLocation += 4; 
                 }   
                 else if (tokens[0].toUpperCase().equals("DB")) { 	// handle DB pseudo op
-                    mapLabel(i, currentLocation); // map label before updating current location...
+                    labelMap.put(labels[i], currentLocation); 
                     //TODO: Get rid of superfluous statemens
                     System.out.println("In passOne, before dbOneLocation, currentLocation = " + currentLocation);
                     logList.add("In passOne, before dbOneLocation, currentLocation = " + currentLocation);
@@ -238,7 +238,7 @@ public class Assembler {
                     logList.add("In passOne, after dbOneLocation, currentLocation = " + currentLocation);
                 }   
                 else if ((labels[i] != null) && (tokens[0].toUpperCase().equals("RLOAD"))){ //RLOAD after a label
-                    mapLabel(i, currentLocation);
+                    labelMap.put(labels[i], currentLocation);
                     currentLocation +=4;
                 }   
                 //CHANGE LOG BEGIN: 10
@@ -247,7 +247,7 @@ public class Assembler {
                 }
                 //CHANGE LOG END: 10
                 else if (labels[i] != null) { 	// we have a label on this line with operation following
-                    mapLabel(i, currentLocation);	// map currentLocation to the label
+                    labelMap.put(labels[i], currentLocation);	
                     if (tokens[0].toUpperCase().equals("BSS")) { 	// handle BSS pseudo op
                         currentLocation += bssLocation(tokens, i);
                     }
@@ -268,7 +268,7 @@ public class Assembler {
                 }
             } 
             else if (labels[i] != null) { // we have a label with nothing following 
-                mapLabel(i, currentLocation);	// map currentLocation to the label
+                labelMap.put(labels[i], currentLocation);	
             }
         }
         
@@ -507,10 +507,10 @@ public class Assembler {
     private void equ(String[] tokens, int i){
         if (tokens.length == 2){ //EQU and Argument
             if (isHex(tokens[1])) { //Hex for Argument
-                mapLabel(i, hexToInt(tokens[1]));
+                labelMap.put(labels[i], hexToInt(tokens[1]));
             }
             else if (isInt(tokens[1])){ //Int for Argument
-                mapLabel(i, Integer.parseInt(tokens[1]));
+                labelMap.put(labels[i], Integer.parseInt(tokens[1]));
             }
             else { //Label for Argument
                 equivalencies.put(labels[i], tokens[1]);
@@ -524,15 +524,6 @@ public class Assembler {
         }
     }
     //CHANGE LOG END: 10
-
-    /**
-     *
-     * @param i
-     * @param currentLocation
-     */
-    private void mapLabel(int i, int currentLocation) {
-        labelMap.put(labels[i], currentLocation);
-    }
 
     /**
      *

@@ -13,17 +13,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-import system.view.SystemView;
 
 /**
  *
  * @author jl948836
  */
-public class Documentation extends javax.swing.JPanel {
-
+public class DocumentationPanel extends javax.swing.JPanel {
+    
     public static void main(String[] args){
         JFrame frame = new JFrame();
-        frame.add(new Documentation());
+        frame.add(new DocumentationPanel());
         frame.pack();
         frame.setVisible(true);
     }
@@ -31,16 +30,14 @@ public class Documentation extends javax.swing.JPanel {
     /**
      * Creates new form Documentation
      */
-    public Documentation() {
+    public DocumentationPanel() {
         initComponents();
-        addLanguageReference();
-        addSyntaxReference();
     }
 
-    public static void addLanguageReference() {
+    public void addLanguageReference() {
         languageRefEditorPane.setContentType("text/html");
         //InputStream inputStream =  SystemView.class.getResourceAsStream("/html/machineLanguageReference.html");
-        InputStream inputStream =  SystemView.class.getResourceAsStream("/html/Language Reference.html");
+        InputStream inputStream =  DocumentationPanel.class.getResourceAsStream("/html/machineLanguageReference.html");
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         StringBuilder sb = new StringBuilder();
         String line;
@@ -55,7 +52,7 @@ public class Documentation extends javax.swing.JPanel {
         try {
             reader.close();
         } catch (IOException ex) {
-            Logger.getLogger(SystemView.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(DocumentationPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
         languageRefEditorPane.setEditable(false);
         SwingUtilities.invokeLater(new Runnable() {
@@ -66,9 +63,9 @@ public class Documentation extends javax.swing.JPanel {
         });
     }
     
-    public static void addSyntaxReference() {
+    public void addSyntaxReference() {
         syntaxEditorPane.setContentType("text/html");
-        InputStream inputStream =  SystemView.class.getResourceAsStream("/html/Machine Syntax.html");
+        InputStream inputStream =  DocumentationPanel.class.getResourceAsStream("/html/machineSyntax.html");
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         StringBuilder sb = new StringBuilder();
         String line;
@@ -83,7 +80,7 @@ public class Documentation extends javax.swing.JPanel {
         try {
             reader.close();
         } catch (IOException ex) {
-            Logger.getLogger(SystemView.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(DocumentationPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
         syntaxEditorPane.setEditable(false);
         SwingUtilities.invokeLater(new Runnable() {

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package system.view;
+package machine.model;
 
 import java.awt.Color;
 import java.util.logging.Level;
@@ -17,6 +17,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 import javax.swing.JTextPane;
+import machine.view.TextEditor;
 
 /**
  *
