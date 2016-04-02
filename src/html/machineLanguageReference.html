@@ -609,7 +609,7 @@ and open the template in the editor.
                             FN  XY  
                         </td>
                         <td>
-                            JMPLT RN&lt;=R0,0xXY  
+                            JMPLT RN&lt;R0,0xXY  
                         </td>
                         <td>
                             Conditionally jumps to the instruction located in the memory cell at address XY <br>
@@ -617,7 +617,7 @@ and open the template in the editor.
                             continue execution with the next instruction in sequential order<br>
                                  (conditional branch)
                             <br/>
-                            reg[PC] := XY if reg[N] &lt;= reg[0]
+                            reg[PC] := XY if reg[N] &lt; reg[0]
                             <br/>
                             Ex: JMPLT R1&lt;R0,0x30
                             <br/>
