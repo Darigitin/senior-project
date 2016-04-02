@@ -405,19 +405,39 @@ date/ver: 03/26/16 1.0.0
                             ROR RN,XY
                         </td>
                         <td>
-                            AN XY
+                            A0 NX
                         </td>
                         <td>
                             ROR R1,4<br>
-                            Assembled => A1 04<br>
+                            Assembled => A0 14<br>
                         </td>
                         <td>
-                            Rotates the bit pattern in Register N one bit to the
-                            right XY times.<br>
+                            Rotate Right - Rotates the bit pattern in Register N one bit to the
+                            right X times.<br>
                             Note: This is a circular shift, so the bit that is
                             rotated out of the low-order end is appended to the start
                             of the high-order end.<br>
-                            reg[N] := Reg[N] ROR XY<br>
+                            reg[N] := Reg[N] ROR X<br>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            ROL RN,X
+                        </td>
+                        <td>
+                            A1 NX
+                        </td>
+                        <td>
+                            ROL R1,3
+                            Assembled => A1 13
+                        </td>
+                        <td>
+                            Rotate Left - Rotates the bit pattern in Register N
+                            one bit to the right X times.<br>
+                            Note: This is a circular shift; so the bit that is
+                            rotated out of the high-order end is appended to the
+                            end of the low-order end.<br>
+                            reg[N] := Reg[N] ROL X<br>
                         </td>
                     </tr>
                     <tr>
@@ -437,6 +457,89 @@ date/ver: 03/26/16 1.0.0
                             plus Offset H.<br>
                             Offset Range: -8 &lt;= H &lt;= 7<br>
                             memory[reg[M] + H] := reg[N]<br>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            SCALL XY
+                        </td>
+                        <td>
+                            62 XY
+                        </td>
+                        <td>
+                            SCALL label<br>
+                            org 0x30<br>
+                            label: bss 0x01<br>
+                            Assembled => 62 30<br>
+                        </td>
+                        <td>
+                            <ol>
+                                <li>Pushes the Instruction Pointer onto the Stack.</li>
+                                <li>Places address indicated by argument into the IP.</li>
+                                <li>Pushes the Base Pointer onto the Stack.</li>
+                                <li>Copies the value in RE(SP) into RD(BP).</li>
+                            </ol>
+                            The argument can be a Label, EQU label, int, or hex value.<br>
+                            Note: Pushes twice, once for the Return Address and once
+                            for the Base Pointer.<br>
+                            PUSH reg[IP]<br>
+                            reg[IP] := XY (typically a Label)<br>
+                            PUSH reg[D(BP)]<br>
+                            reg[BP] := reg[SP]<br>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            SRA RN,X
+                        </td>
+                        <td>
+                            A2 NX
+                        </td>
+                        <td>
+                            SRA R1,6<br>
+                            Assembled => A2 16
+                        </td>
+                        <td>
+                            Shift Right (Arithmetic) - Shifts the value in Register
+                            N to the right X number of times. After each shift the
+                            vacant High-Order bit is filled with the sign bit (1 if
+                            negative, 0 if positive).<br>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            SRL RN,X
+                        </td>
+                        <td>
+                            A3 NX
+                        </td>
+                        <td>
+                            SRL R1,8<br>
+                            Assembled => A3 18
+                        </td>
+                        <td>
+                            Shift Right (Logical) - Shifts the value in Register
+                            N to the right X number of times. After each shift, the
+                            vacant High-Order bit is filled in with a 0.<br>
+                            reg[N] := reg[N] &gt;&gt; X<br>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            SL RN,X
+                        </td>
+                        <td>
+                            A4 NX
+                        </td>
+                        <td>
+                            SL R1,0<br>
+                            A4 10
+                        </td>
+                        <td>
+                            Shift Left - Shifts the value in Register N to the
+                            left X number of times. After each shift, the vacant
+                            Low-Order bit is filled in with a 0.<br>
+                            reg[N] := reg[N] &lt;&lt; X<br>
                         </td>
                     </tr>
                     <tr>
