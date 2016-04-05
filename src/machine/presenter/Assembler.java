@@ -44,7 +44,7 @@
  *                         a label
  * 
  * 12 mv935583 - 03/20/16: Implemented functionality in order to invoke db on
- *                         an EQU Pseudo-Op.
+ *                         an EQU Pseudo-Op
  *
  * 13 jl948836 - 03/23/16: ret overload, now is user input n + 1
  * 
@@ -53,6 +53,17 @@
  * 
  * 15 jl948836 - 03/24/16: Get rid of "]" character so RBP and RSP translate to
  *                         RD and RE in RSTORE opcode
+ * 
+ * 16 jl948836 - 03/24/16: Took away excess nibble given to methods that do not
+ *                         require the information
+ * 
+ * 17 jl948836 - 03/26/16: Added check to passTwo, to ensure EQU forward references
+ *                         are resolved
+ * 
+ * 18 jl948836 - 03/26/16: Added Check to CALL to determine that EQU isn't a Register
+ * 
+ * 19 jl948836 - 03/26/16: Added error statements to JMPLT and JMPEQ to check for
+ *                         invalid characters in the argument.
  * /
 
 /*
@@ -318,7 +329,7 @@ public class Assembler {
                 //also has a code and is not a pseudoOp
                 currentLocation = labelMap.get(labels[i]);
                 Location[i] = intToHex(Integer.toString(currentLocation));     //save current location for assembler listing
-                bytes = getByteCode(codes[i].trim(), i + 1);
+                bytes = generateByteCode(codes[i].trim(), i + 1);
                 currentLocation += byteCodeInTemp(bytes, currentLocation, i);
                 // get object code for assembler listing
                 StringBuilder bytesInMemory = new StringBuilder(bytes);
@@ -330,16 +341,23 @@ public class Assembler {
                     Object_code[i] = bytesInMemory.insert (2, " ").toString();
                 }
             } 
-            //CHANGE LOG: 10
-            else if (labels[i] != null && (tokens[0].toUpperCase().matches("DB|BSS|EQU"))) { // Special case for DB, BSS, and EQU
+            else if (labels[i] != null && (tokens[0].toUpperCase().matches("DB|BSS"))) { // Special case for DB, BSS
                 // do nothing.
             } 
+            //CHANGE LOG BEGIN: 17
+            else if (labels[i] != null && (tokens[0].toUpperCase().matches("EQU"))){
+                //If forward reference hasn't been resolved and not a register
+                if (!labelMap.containsKey(equivalencies.get(labels[i])) && !equivalencies.get(labels[i]).matches("R[0-9A-F]|RSP|RBP")){ 
+                    errorList.add("Error: Forward Reference undefined - " + labels[i]);
+                }
+            }
+            //CHANGE LOG END: 17
             else if (labels[i] != null) { //There is a label with no code.
                 currentLocation = labelMap.get(labels[i]);
                 Location[i] = intToHex(Integer.toString(currentLocation));    //save current location for assembler listing
             } 
             else if (!codes[i].trim().isEmpty() && !isPseudoOp(tokens[0])) {
-                bytes = getByteCode(codes[i].trim(), i + 1);
+                bytes = generateByteCode(codes[i].trim(), i + 1);
                 currentLocation += byteCodeInTemp(bytes, currentLocation, i);
                 //get object code for assembler listing
                 StringBuilder bytesInMemory = new StringBuilder(bytes);
@@ -507,7 +525,7 @@ public class Assembler {
                 mapLabel(i, hexToInt(tokens[1]));
             }
             else if (isInt(tokens[1])){ //Int for Argument
-               mapLabel(i, Integer.parseInt(tokens[1]));
+                mapLabel(i, Integer.parseInt(tokens[1]));
             }
             else { //Label for Argument
                 equivalencies.put(labels[i], tokens[1]);
@@ -616,7 +634,7 @@ public class Assembler {
                 else if (isInt(arg)) {
                     tempMem[currentLocation + result++] = intToHex(arg);
                 } 
-                else if (arg.matches("[\"]{1}[^\"]*[\"]{1}") || arg.matches("[\']{1}[^\']*[\']{1}")) {
+                else if (arg.matches("[\"]{1}[^\"]*[\"]{1}|[\']{1}[^\']*[\']{1}")) {
                     int argLen = arg.length() - 1;
                     for (int j = 0; j < argLen - 1; j++) {
                         tempMem[currentLocation + result++] = intToHex(Integer.toString((int) arg.charAt(j + 1)));
@@ -635,7 +653,7 @@ public class Assembler {
      * @param line
      * @return A String value containing the specified operation
      */
-    private String getByteCode(String operation, int line) {
+    private String generateByteCode(String operation, int line) {
         // \\s+ means any amount of whitespace
         String[] tokens = operation.split("\\s+", 2); //split opcode from args
         String op = tokens[0];
@@ -647,18 +665,20 @@ public class Assembler {
                 System.out.println(opcode);
                 defList.add(opcode);
                 switch (op.toUpperCase()) {
+                    //CHANGE LOG BEGIN: 16
                     case "CALL":
-                        return "6" + call(args[0], line);
+                        return "60" + call(args[0], line);
                     case "SCALL":
                         return "6" + scall(args[0], line);
                     case "PUSH":
-                        return "6" + push(args[0], line);
+                        return "64" + push(args[0], line);
                     case "POP":
-                        return "6" + pop(args[0], line);
+                        return "65" + pop(args[0], line);
                     case "JMP":
-                        return "B" + jump(args[0], line);
+                        return "B0" + jump(args[0], line);
                     case "RET":
                         return "61" + ret(args[0], line);
+                    //CHANGE LOG END: 16
                 }
             } 
             else if (args.length == 2) { // 2 arguments found
@@ -679,15 +699,15 @@ public class Assembler {
                     case "STORE":
                         return "3" + store(args[0], args[1], line);
                     case "MOVE":
-                        return "4" + move(args[0], args[1], line);
+                        return "40" + move(args[0], args[1], line);
                     case "ROR":
                         return "A" + ror(args[0], args[1], line);
                     case "JMPEQ":
                         return "B" + jmpeq(args[0], args[1], line);
                     case "ILOAD":
-                        return "D" + iload(args[0], args[1], line);
+                        return "D0" + iload(args[0], args[1], line);
                     case "ISTORE":
-                        return "D" + istore(args[0], args[1], line);
+                        return "D1" + istore(args[0], args[1], line);
                     case "RLOAD":
                         return rload(args[0], args[1], line); //args[1] #[RN]
                     case "RSTORE":
@@ -861,6 +881,9 @@ public class Assembler {
                     //change "JMPLE" to "JMPLT"
                     errorList.add("Error: Invalid destination for JMPLT on line " + line);
                 }
+            }
+            else {
+                errorList.add("Error: Invalid Comparison Register or Operation Symbol for JMPLT on line " + line); //CHANGE LOG: 19
             }
         }
         //CHANGE LOG END: 10
@@ -1097,12 +1120,12 @@ public class Assembler {
     //store the value in register N into the memory cell referenced by the 
     //address in register M
     private String istore(String firstArg, String secondArg, int line) {
-        String result = "000";
+        String result = "00";
         secondArg = getRegister(secondArg, line);
         if (firstArg.startsWith("[") && firstArg.endsWith("]")) {
             firstArg = firstArg.substring(1, firstArg.length() - 1);
             firstArg = getRegister(firstArg, line);
-            result = "1" + secondArg + firstArg;
+            result = secondArg + firstArg;
         } else {
             errorList.add("Error: ISTORE operation on line " + line
                 + " has invalid arguments.");
@@ -1131,15 +1154,15 @@ public class Assembler {
      * @param firstArg
      * @param secondArg
      * @param line
-     * @return Last three bytes for assembly of the ILOAD instruction
+     * @return Last two nibbles for assembly of the ILOAD instruction
      */
     private String iload(String firstArg, String secondArg, int line) {
-        String result = "000";
+        String result = "00";
         firstArg = getRegister(firstArg, line);
         if (secondArg.startsWith("[") && secondArg.endsWith("]")) {
             secondArg = secondArg.substring(1, secondArg.length() - 1);
             secondArg = getRegister(secondArg, line);
-            result = "0" + firstArg + secondArg;
+            result = firstArg + secondArg;
         } else {
             errorList.add("Error: ILOAD operation on line " + line
                 + " has invalid arguments.");
@@ -1151,24 +1174,24 @@ public class Assembler {
      *
      * @param firstArg
      * @param line
-     * @return Last three bytes for assembly of the JMP instruction
+     * @return Last two nibbles for assembly of the JMP instruction
      */
     private String jump(String firstArg, int line) {
-        String result = "000";
+        String result = "00";
         if (labelMap.containsKey(firstArg)) { // arg is a label
-            result = "0" + intToHex(Integer.toString(labelMap.get(firstArg)));
+            result = intToHex(Integer.toString(labelMap.get(firstArg)));
         } 
         //CHANGE LOG BEGIN: 10
         else if (equivalencies.containsKey(firstArg)){
             String ref = equivalencies.get(firstArg);
-            result = "0" + intToHex(Integer.toString(labelMap.get(ref)));
+            result = intToHex(Integer.toString(labelMap.get(ref)));
         }
         //CHANGE LOG END: 10
         else if (isInt(firstArg)) { // arg is decimal
-            result = "0" + intToHex(firstArg);
+            result = intToHex(firstArg);
         } 
         else if (isHex(firstArg)) { // arg is hex
-            result = "0" + firstArg.substring(2, 4);
+            result = firstArg.substring(2, 4);
         } 
         else {
             errorList.add("Error: Invalid destination for JUMP on line " + line);
@@ -1206,6 +1229,9 @@ public class Assembler {
                 else {
                     errorList.add("Error: Invalid destination for JMPEQ on line " + line);
                 }
+            }
+            else {
+                errorList.add("Error: Invalid Comparison Register or Operation Symbol for JMPEQ on line " + line); //CHANGE LOG: 19
             }
         }
         //CHANGE LOG END: 10
@@ -1285,7 +1311,7 @@ public class Assembler {
      * @return Last three bytes for assembly of the POP instruction
      */
     private String pop(String firstArg, int line) {
-        String result = "5" + getRegister(firstArg, line) + "0";
+        String result = getRegister(firstArg, line) + "0";
         return result;
     }
 
@@ -1293,10 +1319,10 @@ public class Assembler {
      *
      * @param firstArg
      * @param line
-     * @return Last three bytes for assembly of the PUSH instruction
+     * @return Last two nibbles for assembly of the PUSH instruction
      */
     private String push(String firstArg, int line) {
-        String result = "4" + getRegister(firstArg, line) + "0";
+        String result = getRegister(firstArg, line) + "0";
         return result;
     }
 
@@ -1332,24 +1358,31 @@ public class Assembler {
     /**
      * @param firstArg
      * @param line
-     * @return Last three bytes for assembly of the CALL instruction
+     * @return Last two nibbles for assembly of the CALL instruction
      */
     private String call(String firstArg, int line) {
-        String result = "000";
+        String result = "00";
         if (labelMap.containsKey(firstArg)) { // arg is a label
-            result = "0" + intToHex(Integer.toString(labelMap.get(firstArg)));
+            result = intToHex(Integer.toString(labelMap.get(firstArg)));
         } 
         //CHANGE LOG BEGIN: 10
         else if (equivalencies.containsKey(firstArg)){
             String ref = equivalencies.get(firstArg);
-            result = firstArg + intToHex(Integer.toString(labelMap.get(ref)));
+            //CHANGE LOG BEGIN: 18
+            if (!ref.toUpperCase().matches("R[0-9A-F]|RSP|RBP")){ //Not a register
+                result = intToHex(Integer.toString(labelMap.get(ref)));
+            }
+            else {
+                errorList.add("Error: Invalid Destination for CALL on line " + line);
+            }
+            //CHANGE LOG END: 16
         }
         //CHANGE LOG END: 10
         else if (isInt(firstArg)) { // arg is decimal
-            result = "0" + intToHex(firstArg);
+            result = intToHex(firstArg);
         } 
         else if (isHex(firstArg)) { // arg is hex
-            result = "0" + firstArg.substring(2, 4);
+            result = firstArg.substring(2, 4);
         } 
         else {
             errorList.add("Error: Invalid destination for CALL on line " + line); 
@@ -1363,7 +1396,7 @@ public class Assembler {
      * @return Last two nibbles for assembly of the RET instruction
      */
     private String ret(String firstArg, int line) {
-        String result = "00"; //CHANGE LOG: 9
+        String result = "01"; //CHANGE LOG: 9
         if (isInt(firstArg)) {
             result = Integer.toString(Integer.parseInt(firstArg) + 1); //CHANGE LOG: 13
             result = intToHex(result); //CHANGE LOG: 9
@@ -1391,7 +1424,7 @@ public class Assembler {
      * @param secondArg
      * @param thirdArg
      * @param line
-     * @return Last three bytes for assembly of the ADD instruction
+     * @return Last two nibbles for assembly of the ADD instruction
      */
     private String add(String firstArg, String secondArg, String thirdArg, int line) {
         //TODO: add error reporting inside getRegister
@@ -1406,7 +1439,7 @@ public class Assembler {
      * @return Last three bytes for assembly of the MOVE instruction
      */
     private String move(String firstArg, String secondArg, int line) {
-        return "0" + getRegister(secondArg, line) + getRegister(firstArg, line);
+        return getRegister(secondArg, line) + getRegister(firstArg, line);
     }
 
     /**
@@ -1492,23 +1525,21 @@ public class Assembler {
             }
         }
         //CHANGE LOG END: 10
-        else if (register.toUpperCase().contains("R")) {
-            if (register.length() == 3) {
-                /*
-                 * Added the or statements to allow for users to call
-                 * either the literal name of the bp or just the 
-                 * register name
-                 * Cody Galbreath - 03/23/2014
-                 */
-                if (register.toUpperCase().matches("RBP|RD")) {
-                    return "D";
-                } else if (register.toUpperCase().matches("RSP|RE")) {
-                    return "E";
-                }
-            }
+        else if (register.toUpperCase().matches("R[0-9A-F]|RSP|RBP")) {
+            /*
+             * Added the or statements to allow for users to call
+             * either the literal name of the bp or just the 
+             * register name
+             * Cody Galbreath - 03/23/2014
+             */
+            if (register.toUpperCase().equals("RBP"))
+                return "D";
+            else if (register.toUpperCase().equals("RSP"))
+                return "E";
+            
             return register.substring(1);
         }       
-        errorList.add("Error: Invalid register on line " + line);
+        errorList.add("Error: Invalid register or Operation Symbol on line " + line);
         return "0";
     }
     /**
