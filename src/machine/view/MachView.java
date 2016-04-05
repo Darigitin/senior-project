@@ -53,6 +53,10 @@ public class MachView extends javax.swing.JFrame {
     Integer[] SIZES = { 8, 9, 10, 11, 12, 14, 16, 18, 20,
         22, 24, 26, 28, 36, 48, 72 }; //the sizes for the font size combo box. MB
     
+    String[] THEMES = { "Black on White", "Green on Black", "Blue on Black", "Red on Black", 
+        "White on Black", "Black on Light-Yellow"};
+    
+    
         /**
      * Creates new form MachineView
      */
@@ -353,14 +357,48 @@ public class MachView extends javax.swing.JFrame {
     public void updateText() {
         //creates and sets the font according to the options selected from the font size and name combo boxs.
         //Programmer: Mariela Barrera
-      String name = (String) fontComboBox.getSelectedItem();
+        String name = (String) fontComboBox.getSelectedItem();
+        int themeNumber = fontThemeComboBox.getSelectedIndex();
+        String textColor, backGroundColor;
+        switch (themeNumber){
+            case 2:
+                textColor = "GREEN";
+                backGroundColor = "BLACK";
+                break;
+            case 1:
+                textColor = "BLUE";
+                backGroundColor = "BLACK";
+                break;
+            case 3:
+                textColor = "RED";
+                backGroundColor = "BLACK";
+                break;
+            case 4:
+                textColor = "WHITE";
+                backGroundColor = "BLACK";
+                break;
+            case 0:
+                textColor = "BLACK";
+                backGroundColor = "WHITE";
+                break;
+            case 5:
+                textColor = "BLACK";
+                backGroundColor = "LIGHT-YELLOW";
+                break;
+            default:
+                textColor = "BLACK";
+                backGroundColor = "WHITE";
+                break;
+        }
+        
+        textEditor.setBackGround(backGroundColor);
+        
+        Integer size = (Integer) fontSizeComboBox.getSelectedItem();
 
-      Integer size = (Integer) fontSizeComboBox.getSelectedItem();
+        int style = Font.PLAIN;
 
-      int style = Font.PLAIN;
-
-      Font newfont = new Font(name, style, size);
-      textEditor.getTextPane().setFont(newfont);
+        Font newfont = new Font(name, style, size);
+        textEditor.getTextPane().setFont(newfont);
     }
     
     private void customInitComponents(){
@@ -586,7 +624,7 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
     gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
     textEditorControls.add(fontThemeLabel, gridBagConstraints);
 
-    fontThemeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+    fontThemeComboBox.setModel(new javax.swing.DefaultComboBoxModel(THEMES));
     fontThemeComboBox.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
             fontThemeComboBoxActionPerformed(evt);
@@ -610,7 +648,7 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
     textEditorPanel.setLayout(textEditorPanelLayout);
     textEditorPanelLayout.setHorizontalGroup(
         textEditorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        .addComponent(textEditor, javax.swing.GroupLayout.DEFAULT_SIZE, 481, Short.MAX_VALUE)
+        .addComponent(textEditor, javax.swing.GroupLayout.DEFAULT_SIZE, 495, Short.MAX_VALUE)
     );
     textEditorPanelLayout.setVerticalGroup(
         textEditorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -868,6 +906,7 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
 
     private void fontThemeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontThemeComboBoxActionPerformed
         // TODO add your handling code here:
+        updateText();
     }//GEN-LAST:event_fontThemeComboBoxActionPerformed
     
 //    /**
