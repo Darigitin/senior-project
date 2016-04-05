@@ -64,6 +64,10 @@
  * 
  * 19 jl948836 - 03/26/16: Added error statements to JMPLT and JMPEQ to check for
  *                         invalid characters in the argument.
+ * 
+ * 20 gl939543 - 03/30/16: Modified DB sudoop 
+ *
+ * 21 gl939543 - 03/30/16  Add new condition to print out the DB contents in memory
  * /
 
 /*
@@ -113,6 +117,7 @@ public class Assembler {
     String[] labels;
     String[] tempMem;
     String Location[], Object_code[];
+    String DBcode = "";
     HashMap<String, Integer> labelMap = new HashMap<>(256); //labels mapped to addrs.
     HashMap<String, String> equivalencies = new HashMap<>(256); //CHANGE LOG: 10 - labels mapped to labels
     String labelAppears;
@@ -304,21 +309,22 @@ public class Assembler {
                         break;
                     case "DB":
                         // handle DB pseudo-op
-                        System.out.println("Inside passTwo, before dbTwoLocation, currentLocation = " + currentLocation);
-                        logList.add("Inside passTwo, before dbTwoLocation, currentLocation = " + currentLocation);
-                        currentLocation += dbTwoLocation(codes[i], i, currentLocation, i + 1);
+                        //System.out.println("Inside passTwo, before dbTwoLocation, currentLocation = " + currentLocation);
+                        //logList.add("Inside passTwo, before dbTwoLocation, currentLocation = " + currentLocation);
                         Location[i] = intToHex(Integer.toString(currentLocation));
-                        System.out.println("Inside passTwo, after dbTwoLocation, currentLocation = " + currentLocation);
-                        logList.add("Inside passTwo, after dbTwoLocation, currentLocation = " + currentLocation);
+                        currentLocation += dbTwoLocation(codes[i], i, currentLocation, i + 1);
+                        Object_code[i] = DBcode;
+                        //System.out.println("Inside passTwo, after dbTwoLocation, currentLocation = " + currentLocation);
+                        //logList.add("Inside passTwo, after dbTwoLocation, currentLocation = " + currentLocation);
                         break;
                     case "BSS":
                         // handle BSS pseudo-op
-                        System.out.println("In passTwo(), before bssLocation, currentLocation = " + currentLocation);
-                        logList.add("In passTwo(), before bssLocation, currentLocation = " + currentLocation);
-                        currentLocation += bssLocation(tokens, i);
+                        //System.out.println("In passTwo(), before bssLocation, currentLocation = " + currentLocation);
+                        //logList.add("In passTwo(), before bssLocation, currentLocation = " + currentLocation);
                         Location[i] = intToHex(Integer.toString(currentLocation));
-                        System.out.println("In passTwo(), after bssLocation, currentLocation = " + currentLocation);
-                        logList.add("In passTwo(), after bssLocation, currentLocation = " + currentLocation);
+                        currentLocation += bssLocation(tokens, i);
+                        //System.out.println("In passTwo(), after bssLocation, currentLocation = " + currentLocation);
+                        //logList.add("In passTwo(), after bssLocation, currentLocation = " + currentLocation);
                         break;
                     case "SIP":
                         storeSIP(tokens, i);
@@ -602,6 +608,7 @@ public class Assembler {
         logList.add(dbString);
         int result = 0;
         String temp = "";
+        DBcode = "";
         dbString = dbString.substring(3, dbString.length());
 
         // find parameters while ignoring whitespace inbetween
@@ -610,34 +617,39 @@ public class Assembler {
         while (matcher.find()) {
             temp += dbString.substring(matcher.start(), matcher.end());
         }
-
         if (temp.matches("[\"]{1}[^\"]*[\"]{1}") || temp.matches("[\']{1}[^\']*[\']{1}")) {
             result = temp.length() - 1;
             for (int i = 0; i < result - 1; i++) {
                 tempMem[currentLocation + i] = intToHex(Integer.toString((int) temp.charAt(i + 1)));
+                DBcode += tempMem[currentLocation + i].toUpperCase() + " ";
             }
             result -= 1; //CHANGE LOG: 4
         }
         else if (labelMap.containsKey(temp)) {  //Changelog Begin: 11
             tempMem[currentLocation + result++] = intToHex(Integer.toString(labelMap.get(temp)));
+            DBcode += intToHex(Integer.toString(labelMap.get(temp))).toUpperCase() + " "; 
         }   //Changelog End: 11
         else if (equivalencies.containsKey(temp)){  //Changelog Begin: 12
             String ref = equivalencies.get(temp);
             tempMem[currentLocation + result++] = intToHex(Integer.toString(labelMap.get(ref)));
+            DBcode += intToHex(Integer.toString(labelMap.get(ref))).toUpperCase();
         }   //Changelog End: 12 
         else {
             String[] args = temp.split(",");
             for (String arg : args) {
-                if (isHex(arg)) {
+                if (isHex(arg)) { 
                     tempMem[currentLocation + result++] = Integer.toHexString(hexToInt(arg));
+                    DBcode += Integer.toHexString(hexToInt(arg)).toUpperCase() + " "; 
                 } 
                 else if (isInt(arg)) {
                     tempMem[currentLocation + result++] = intToHex(arg);
+                    DBcode += intToHex(arg).toUpperCase() + " "; 
                 } 
                 else if (arg.matches("[\"]{1}[^\"]*[\"]{1}|[\']{1}[^\']*[\']{1}")) {
                     int argLen = arg.length() - 1;
                     for (int j = 0; j < argLen - 1; j++) {
                         tempMem[currentLocation + result++] = intToHex(Integer.toString((int) arg.charAt(j + 1)));
+                        DBcode += intToHex(Integer.toString((int) arg.charAt(j + 1))).toUpperCase() + " "; 
                     }
                 }
                 else {
@@ -1897,6 +1909,7 @@ public class Assembler {
     */
       
     private void generateAssemblerList(){
+        String restDBcode = "";             //Declare a string DB contents in the memory
         Date date = new Date();
         SimpleDateFormat simpDate = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a");
         
@@ -1905,22 +1918,42 @@ public class Assembler {
             output.println("******** Assembler Listing **********");
             output.println("Created date: "+simpDate.format(date));
             output.println("\n");
-            output.println("Location    " + "Object Code    " + "Line   " + "Source Statement");
-            for (int i =0; i<codeList.size(); i++){
+            output.println("Location    " + "Object Code       " + "Line   " + "Source Statement");
+            for (int i = 0; i<codeList.size(); i++){
                 if ( Location[i] != null){
                     if (Object_code[i] != null){
                         if (Object_code[i].endsWith("]")){
                             Object_code[i] = Object_code[i].substring(0, Object_code[i].length()-1);
                         }
-                        output.printf("%-12s%-15s%4d%4s", Location[i], Object_code[i], codeLines, " ");
+                        if (Object_code[i].length() > 15){     
+                            String tempDBcode = Object_code[i].substring(0, 15);
+                            output.printf("%-12s%-18s%4d%4s", Location[i], tempDBcode, codeLines, " ");
+                            restDBcode  = Object_code[i].replace(tempDBcode, "");     //Remove first row of DB content
+                        }else{
+                            output.printf("%-12s%-18s%4d%4s", Location[i], Object_code[i], codeLines, " ");
+                        }                       
                     }else{
-                        output.printf("%-12s%-15s%4d%4s", Location[i], " ", codeLines, " ");
+                        output.printf("%-12s%-18s%4d%4s", Location[i], " ", codeLines, " ");
                     }
                 }else{
-                    output.printf("            " + "               " + "%4d" + "   ", codeLines);
+                    output.printf("            " + "                  " + "%4d" + "   ", codeLines);
                 }
-
                 output.println(codeList.get(i));
+                //This while loop invoks only when DB is very long
+                while(restDBcode.length() > 0){
+                    if (restDBcode.length() > 15){
+                        String tempDBcode = restDBcode.substring(0, 15);
+                        output.printf("%-12s%-18s%4s%4s", " ", tempDBcode, " ", " ");
+                        output.println();
+                        restDBcode  = restDBcode.replace(tempDBcode, "");     //Remove first row of DB content
+                    }else{
+                        //String tempDBcode = restDBcode;
+                        output.printf("%-12s%-18s%4s%4s", " ", restDBcode, " ", " ");
+                        output.println();
+                        restDBcode  = "";                                   //Clear restDBcode
+                    }
+                }//end while
+                
                 codeLines++;
             }
             output.close();    //Close the file
