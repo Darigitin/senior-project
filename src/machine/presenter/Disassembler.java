@@ -58,9 +58,9 @@ public class Disassembler {
         ArrayList<String> output = new ArrayList<>();
         String code = "sip 0x" + instructionPointer + "\n";
         for (int i = 0; i < bytecode.length; i += 2) {
-            if (bytecode[i].equals("D2")) {
-                output.remove(output.size()-1);
-            }
+            //if (bytecode[i].equals("D2")) {
+            //    output.remove(output.size()-1);
+            //}
             output.add(disassemble(bytecode[i], bytecode[i + 1], i));
         }
         for(String line : output){
@@ -85,11 +85,11 @@ public class Disassembler {
         String code = "";
         boolean foundRload = false;
         for (int i = 0; i < bytecode.length; i += 2) {
-            if (bytecode[i].equals("D2")) {
-                output.remove(output.size()-1);
-                foundRload = true;
-            }
-            if ( (IP * 2) == i || (foundRload && (IP == 2)) ) {
+            //if (bytecode[i].equals("D2")) {
+            //    output.remove(output.size()-1);
+            //    foundRload = true;
+            //}
+            if ( (IP * 2) == i) { //|| (foundRload && (IP == 2)) ) {
                 String outText;
                 outText = disassemble(bytecode[i], bytecode[i + 1], i);
                 if (outText.length() > 11) {
@@ -134,7 +134,17 @@ public class Disassembler {
                 //return "store " + "R" + secondNibble + ",[0x" + secondByte + "]";
                 return "store " + "[0x" + secondByte + "]" + ",R"+ secondNibble ;
             case "4":
-                return "move " + "R" + fourthNibble + ",R" + thirdNibble;
+                //CHANGE LOG BEGIN: 3
+                return "rload " + "R" + thirdNibble + ",0x" + secondNibble + "[R" + fourthNibble + "]";
+//                String fb = input[location - 2];
+//                    String sb = input[location - 1];
+//                    if (fb.substring(0, 1).equals("2") && fb.substring(1, 2).equals(thirdNibble)) {
+//                        // delete last operation then do this
+//                        return "rload " + "R" + thirdNibble + ",0x0" + sb.substring(1, 2) + "[R" + fourthNibble + "]";  //Change #1
+//                    } else {
+//                        return "ERROR";
+//                    }
+                //CHANGE LOG END: 3
             case "5":
                 return "add " + "R" + secondNibble + ",R" + thirdNibble + ",R" + fourthNibble;
             case "6":
@@ -179,15 +189,8 @@ public class Disassembler {
                     return "istore " + "[R" + fourthNibble	+ "]" + " ,R" + thirdNibble;
                     //original code
                     //return "istore " + "R" + thirdNibble + ",[R" + fourthNibble	+ "]";
-                case "2":
-                    String fb = input[location - 2];
-                    String sb = input[location - 1];
-                    if (fb.substring(0, 1).equals("2") && fb.substring(1, 2).equals(thirdNibble)) {
-                        // delete last operation then do this
-                        return "rload " + "R" + thirdNibble + ",0x0" + sb.substring(1, 2) + "[R" + fourthNibble + "]";  //Change #1
-                    } else {
-                        return "ERROR";
-                    }
+                case "2": //CHANGE LOG: 3
+                    return "move " + "R" + fourthNibble + ",R" + thirdNibble;
                 default:
                     return "invalid";
             }
