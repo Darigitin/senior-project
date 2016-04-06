@@ -62,12 +62,12 @@ date/ver: 03/26/16 1.0.0
                         </td>
                         <td>
                             ADD R0,R1,R2<br>
-                            Assembled => 50 12<br> 
+                            Assembled => 50 12
                         </td>
                         <td>
-                            Adds the value in Registers M and N, assuming unsigned
-                            numbers, and stores the result in Register L.<br>
-                            reg[L] := reg[M] + reg[N]<br>
+                            Adds the value in Registers M and N (assuming unsigned
+                            numbers) and stores the result in Register L.<br>
+                            reg[L] := reg[M] + reg[N]
                         </td>
                     </tr>
                     <tr>
@@ -79,12 +79,12 @@ date/ver: 03/26/16 1.0.0
                         </td>
                         <td>
                             AND R1,R2,R3<br>
-                            Assembled => 8123<br>
+                            Assembled => 81 23
                         </td>
                         <td>
                             Bit-wise AND the bit patterns in Registers M and N and
                             store the result in Register L.<br>
-                            reg[L] := reg[M] AND reg[N]<br>
+                            reg[L] := reg[M] AND reg[N]
                         </td>
                     </tr>
                     <tr>
@@ -98,18 +98,18 @@ date/ver: 03/26/16 1.0.0
                             CALL label<br>
                             org 0x30<br>
                             label: bss 0x01<br>
-                            Assembled => 60 30<br>
+                            Assembled => 60 30
                         </td>
                         <td>
                             <ol>
                                 <li>Pushes the Instruction Pointer onto the stack.</li>
-                                <li>Places address indicated by argument into the IP.</li>
+                                <li>Places address indicated XY into the Instruction Pointer.</li>
                             </ol>
-                            The argument can be a Label, EQU label, int, or hex value.<br>
-                            Note: The push causes the Stack Pointer to be decremented
+                            Notes: The argument can be a Label, EQU label, int, or hex value.
+                            The push causes the Stack Pointer to be decremented
                             by 1.<br>
                             PUSH reg[IP]<br>
-                            reg[IP] := label (the address of the label)<br>
+                            reg[IP] := label (the address of the label)
                         </td>
                     </tr>
                     <tr>
@@ -121,11 +121,11 @@ date/ver: 03/26/16 1.0.0
                         </td>
                         <td>
                             HALT<br>
-                            Assembled => C0 00<br>
+                            Assembled => C0 00
                         </td>
                         <td>
-                            Halts program execution. The last byte of the instruction
-                            is ignored.<br>
+                            Halts program execution.<br>
+                            Note: The last byte of the instruction is ignored.
                         </td>
                     </tr>
                     <tr>
@@ -137,12 +137,12 @@ date/ver: 03/26/16 1.0.0
                         </td>
                         <td>
                             ILOAD R1,[R2]<br>
-                            Assembled => D0 12<br>
+                            Assembled => D0 12
                         </td>
                         <td>
                             Indirect Load - loads Register N with the value from memory
                             pointed to by the value in Register M.<br>
-                            reg[N] := memory[reg[M]]<br>
+                            reg[N] := memory[reg[M]]
                         </td>
                     </tr>
                     <tr>
@@ -154,12 +154,12 @@ date/ver: 03/26/16 1.0.0
                         </td>
                         <td>
                             ISTORE [RB],RA<br>
-                            Assembled => D1 AB<br>
+                            Assembled => D1 AB
                         </td>
                         <td>
                             Indirect Store - stores the value in Register N into
                             the memory cell pointed to by Register M.<br>
-                            memory[reg[M]] := reg[N]<br>
+                            memory[reg[M]] := reg[N]
                         </td>
                     </tr>
                     <tr>
@@ -173,12 +173,12 @@ date/ver: 03/26/16 1.0.0
                             JMP label<br>
                             org 0x30<br>
                             label:<br>
-                            Assembled => B0 30<br>
+                            Assembled => B0 30
                         </td>
                         <td>
                             Unconditional Jump - loads the Instruction Pointer with the value
                             indicated by the argument (usually a label), unconditionally.<br>
-                            reg[IP] := XY<br>
+                            reg[IP] := XY
                         </td>
                     </tr>
                     <tr>
@@ -192,18 +192,17 @@ date/ver: 03/26/16 1.0.0
                             JMPEQ R1=R0,label<br>
                             org 0x32<br>
                             label:<br>
-                            Assembled => B1 32<br>
+                            Assembled => B1 32
                         </td>
                         <td>
                             (Conditional Branch)<br>
                             Jump Equal To - loads the Instruction Pointer with the value
-                            indicated by the XY portion of the argument (usually a label
-                            is used instead of an Absolute Address), if the value in
-                            Register N is equal to the value in Register 0; otherwise,
-                            execution will continue to the next sequential instruction
-                            in memory.<br>
-                            if (RN=R0)<br>
-                            &nbsp;reg[IP] := XY<br>
+                            indicated by XY (usually a label is used instead of an Absolute 
+                            Address) if the value in Register N is equal to the value in 
+                            Register 0; otherwise, execution will continue to the next 
+                            sequential instruction in memory.<br>
+                            if (RN == R0)<br>
+                            &nbsp;reg[IP] := XY
                         </td>
                     </tr>
                     <tr>
@@ -217,18 +216,19 @@ date/ver: 03/26/16 1.0.0
                             JMPLT R1&lt;R0,label<br>
                             org 0x32<br>
                             label:<br>
-                            Assembled => F1 32<br>
+                            Assembled => F1 32
                         </td>
                         <td>
                             (Conditional Branch)<br>
-                            Jump Less Than - loads the Instruction Pointer with the value
-                            indicated by the XY portion of the argument (usually a label
-                            is used instead of an Absolute Address), if the value in
-                            Register N is less than the value in Register 0; otherwise,
-                            execution will continue to the next sequential instruction in
-                            memory.<br>
-                            if (RN&lt;R0)<br>
-                            &nbsp;reg[IP] := XY<br>
+                            Jump Less Than - 
+                            &nbsp;If the value in Register N is less than the value
+                            in Register 0, then it will load the Instruction Pointer
+                            with the value indicated by XY (usually a label is used
+                            instead of an Absolute Address);<br>
+                            &nbsp;Otherwise, execution will continue with the next
+                            sequential instruction in memory.<br>
+                            if (RN &lt; R0)<br>
+                            &nbsp;reg[IP] := XY
                         </td>
                     </tr>
                     <tr>
@@ -240,12 +240,12 @@ date/ver: 03/26/16 1.0.0
                         </td>
                         <td>
                             LOAD R3,0x01<br>
-                            Assembled => 13 01<br>
+                            Assembled => 13 01
                         </td>
                         <td>
                             Immediate Load - loads Register N with the value XY.<br>
                             Note: A label can be used in place of an XY value.<br>
-                            reg[N] := XY<br>
+                            reg[N] := XY
                         </td>
                     </tr>
                     <tr>
@@ -258,13 +258,13 @@ date/ver: 03/26/16 1.0.0
                         <td>
                             label: db 1<br>
                             LOAD R3,[label]<br>
-                            Assembled => 23 01<br>
+                            Assembled => 23 01
                         </td>
                         <td>
                             Direct Load - loads Register N with the value at address
                             XY in memory.<br>
-                            Note: A label can be used in place of an Absolute Address.<br>
-                            reg[N] := memory[XY]<br>
+                            Note: A label can be used in place of an Absolute Address (XY).<br>
+                            reg[N] := memory[XY]
                         </td>
                     </tr>
                     <tr>
@@ -276,11 +276,11 @@ date/ver: 03/26/16 1.0.0
                         </td>
                         <td>
                             MOVE R1,R2<br>
-                            Assembled => 40 21<br>
+                            Assembled => 40 21
                         </td>
                         <td>
                             Copies the value in Register M to Register N.<br>
-                            reg[N] := reg[M]<br>
+                            reg[N] := reg[M]
                         </td>
                     </tr>
                     <tr>
@@ -292,60 +292,60 @@ date/ver: 03/26/16 1.0.0
                         </td>
                         <td>
                             OR R1,R2,R3<br>
-                            Assembled => 71 23<br>
+                            Assembled => 71 23
                         </td>
                         <td>
                             Bit-wise OR the bit patterns in Registers M and N, and
                             store the result in Register L.<br>
-                            reg[L] := reg[M] OR reg[N]<br>
+                            reg[L] := reg[M] OR reg[N]
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            POP RM
+                            POP RN
                         </td>
                         <td>
-                            65 M0
+                            65 N0
                         </td>
                         <td>
-                            POP RBP
+                            POP RBP<br>
                             Assembled => 65 D0
                         </td>
                         <td>
                             <ol>
                                 <li>
                                     Get the value pointed to by the Stack Pointer, and
-                                    place it into Register M.<br>
+                                    place it into Register N.
                                 </li>
                                 <li>Increment the Stack Pointer by 1.</li>
                             </ol>
                             Note: Last nibble is ignored.<br>
-                            reg[M] := memory[reg[SP]]<br>
-                            reg[SP] := reg[SP] + 1<br>
+                            reg[N] := memory[reg[SP]]<br>
+                            reg[SP] := reg[SP] + 1
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            PUSH RM
+                            PUSH RN
                         </td>
                         <td>
-                            64 M0
+                            64 N0
                         </td>
                         <td>
-                            PUSH R2
+                            PUSH R2<br>
                             Assembled => 64 20
                         </td>
                         <td>
                             <ol>
                                 <li>Decrement the Stack Pointer by 1.</li>
                                 <li>
-                                    Place value in Register M into the memory
-                                    cell pointed to by the Stack Pointer.<br>
+                                    Place value in Register N into the memory
+                                    cell pointed to by the Stack Pointer.
                                 </li>
                             </ol>
                             Note: Last nibble is ignored.<br>
                             reg[SP] := reg[SP] - 1<br>
-                            memory[reg[SP]] := reg[M]<br>
+                            memory[reg[SP]] := reg[N]
                         </td>
                     </tr>
                     <tr>
@@ -357,24 +357,25 @@ date/ver: 03/26/16 1.0.0
                         </td>
                         <td>
                             RET<br>
-                            Assembled => 61 01<br>
+                            Assembled => 61 01
                         </td>
                         <td>
-                            Returns from current stack frame. Takes an optional argument.
-                            The argument is a number (in either hex or dec.), and is added to the
-                            Stack Pointer (RE/RSP) at the end of execution (in addition to the
-                            default 1 passed to the instruction). If no argument is passed
-                            a default of 1 is passed to the instruction (In this case, opcode is 61 01).<br>
+                            Returns from the current Stack Frame.<br>
+                            Takes an optional argument; a number (in either hex or dec.), 
+                            and adds it to the Stack Pointer (RE/RSP) at the end of 
+                            execution (in addition to the default 1 passed to the instruction). 
+                            If no argument is passed a default of 1 is passed to the instruction 
+                            (In this case, opcode is 61 01).<br>
                             Note: By convention, Register A contains the return value.<br>
                             <ol>
                                 <li>
                                     Gets Return Address pointed to by the Stack Pointer and
-                                    loads it into the IP.
+                                    loads it into the Instruction Pointer.
                                 </li>
                                 <li>Increment Stack pointer by 1 + XY</li>
                             </ol>
                             reg[IP] := memory[reg[SP]]<br>
-                            reg[SP] := reg[SP] + 1 + XY<br>
+                            reg[SP] := reg[SP] + 1 + XY
                         </td>
                     </tr>
                     <tr>
@@ -383,21 +384,21 @@ date/ver: 03/26/16 1.0.0
                         </td>
                         <td>
                             Immediate load - 2N FH<br>
-                            Relative load  - D2 NM<br>
+                            Relative load  - D2 NM
                         </td>
                         <td>
                             RLOAD R1,0x04[R2]<br>
-                            Assembled => 21 F4 D2 12<br>
+                            Assembled => 21 F4 D2 12
                         </td>
                         <td>
                             Relative Load - loads Register N with the value from
-                            memory pointed to by Register M, plus the offset H.
+                            memory pointed to by Register M, plus the offset H.<br>
                             Offset Range: -8 &lt;= H &lt;= 7<br>
                             Note: This operation assembles into two op-codes. The
-                            first is an Immediate Load, to store the offset (the
-                            third nibble "F" is a flag for the RLOAD Instruction),
-                            and the second is the relative load itself.<br>
-                            reg[N] := memory[reg[M] + H]<br>
+                            first is an Immediate Load, to store the offset (In the
+                            Immediate Load, the third nibble "F" is a flag for the 
+                            RLOAD Instruction). The second is the relative load itself.<br>
+                            reg[N] := memory[reg[M] + H]
                         </td>
                     </tr>
                     <tr>
@@ -409,14 +410,14 @@ date/ver: 03/26/16 1.0.0
                         </td>
                         <td>
                             ROR R1,4<br>
-                            Assembled => A0 14<br>
+                            Assembled => A0 14
                         </td>
                         <td>
                             Rotate Right - Rotates the bit pattern in Register N one bit to the
                             right X times.<br>
                             Note: This is a circular shift, so the bit that is
-                            rotated out of the low-order end is appended to the start
-                            of the high-order end.<br>
+                            truncated in the low-order nibble is appended to the start
+                            of the high-order nibble.<br>
                             reg[N] := Reg[N] ROR X<br>
                         </td>
                     </tr>
@@ -428,16 +429,16 @@ date/ver: 03/26/16 1.0.0
                             A1 NX
                         </td>
                         <td>
-                            ROL R1,3
+                            ROL R1,3<br>
                             Assembled => A1 13
                         </td>
                         <td>
                             Rotate Left - Rotates the bit pattern in Register N
-                            one bit to the right X times.<br>
+                            one bit to the left X times.<br>
                             Note: This is a circular shift; so the bit that is
-                            rotated out of the high-order end is appended to the
-                            end of the low-order end.<br>
-                            reg[N] := Reg[N] ROL X<br>
+                            truncated in the high-order nibble is appended to the
+                            end of the low-order nibble.<br>
+                            reg[N] := Reg[N] ROL X
                         </td>
                     </tr>
                     <tr>
@@ -449,14 +450,14 @@ date/ver: 03/26/16 1.0.0
                         </td>
                         <td>
                             RSTORE 0x04[R2],R1<br>
-                            Assembled: E4 12<br>
+                            Assembled: E4 12
                         </td>
                         <td>
                             Relative Store - stores the value in Register N into
                             the memory cell pointed to by the address in Register M,
                             plus Offset H.<br>
                             Offset Range: -8 &lt;= H &lt;= 7<br>
-                            memory[reg[M] + H] := reg[N]<br>
+                            memory[reg[M] + H] := reg[N]
                         </td>
                     </tr>
                     <tr>
@@ -470,22 +471,21 @@ date/ver: 03/26/16 1.0.0
                             SCALL label<br>
                             org 0x30<br>
                             label: bss 0x01<br>
-                            Assembled => 62 30<br>
+                            Assembled => 62 30
                         </td>
                         <td>
                             <ol>
                                 <li>Pushes the Instruction Pointer onto the Stack.</li>
-                                <li>Places address indicated by argument into the IP.</li>
+                                <li>Places address XY into the Instuction Pointer.</li>
                                 <li>Pushes the Base Pointer onto the Stack.</li>
                                 <li>Copies the value in RE(SP) into RD(BP).</li>
                             </ol>
-                            The argument can be a Label, EQU label, int, or hex value.<br>
-                            Note: Pushes twice, once for the Return Address and once
-                            for the Base Pointer.<br>
+                            Notes: The argument can be a Label, EQU label, int, or hex value.
+                            Pushes twice, once for the Return Address and once for the Base Pointer.<br>
                             PUSH reg[IP]<br>
                             reg[IP] := XY (typically a Label)<br>
-                            PUSH reg[D(BP)]<br>
-                            reg[BP] := reg[SP]<br>
+                            PUSH reg[BP]<br>
+                            reg[BP] := reg[SP]
                         </td>
                     </tr>
                     <tr>
@@ -504,6 +504,7 @@ date/ver: 03/26/16 1.0.0
                             N to the right X number of times. After each shift the
                             vacant High-Order bit is filled with the sign bit (1 if
                             negative, 0 if positive).<br>
+                            Note: Truncates the low-order bit X number of times.<br>
                         </td>
                     </tr>
                     <tr>
@@ -521,7 +522,8 @@ date/ver: 03/26/16 1.0.0
                             Shift Right (Logical) - Shifts the value in Register
                             N to the right X number of times. After each shift, the
                             vacant High-Order bit is filled in with a 0.<br>
-                            reg[N] := reg[N] &gt;&gt; X<br>
+                            Note: Truncates the low-order bit X number of times.<br>
+                            reg[N] := reg[N] &gt;&gt; X
                         </td>
                     </tr>
                     <tr>
@@ -533,13 +535,14 @@ date/ver: 03/26/16 1.0.0
                         </td>
                         <td>
                             SL R1,0<br>
-                            A4 10
+                            Assembled => A4 10
                         </td>
                         <td>
                             Shift Left - Shifts the value in Register N to the
                             left X number of times. After each shift, the vacant
                             Low-Order bit is filled in with a 0.<br>
-                            reg[N] := reg[N] &lt;&lt; X<br>
+                            Note: Truncates the high-order bit X number of times.<br>
+                            reg[N] := reg[N] &lt;&lt; X
                         </td>
                     </tr>
                     <tr>
@@ -551,7 +554,7 @@ date/ver: 03/26/16 1.0.0
                         </td>
                         <td>
                             Store [0x30],R1<br>
-                            Assembled => 31 30<br>
+                            Assembled => 31 30
                         </td>
                         <td>
                             Direct Store - stores the value in Register N into the
@@ -569,12 +572,12 @@ date/ver: 03/26/16 1.0.0
                         </td>
                         <td>
                             XOR R3,R2,R1<br>
-                            Assembled => 93 21<br>
+                            Assembled => 93 21
                         </td>
                         <td>
                             Bit-wise EXCLUSIVE OR the bit patterns in Registers M and
                             N and store the result in Register L.<br>
-                            reg[L] := reg[M] XOR reg[N]<br>
+                            reg[L] := reg[M] XOR reg[N]
                         </td>
                     </tr>
                 </tbody>
@@ -583,7 +586,7 @@ date/ver: 03/26/16 1.0.0
             <p>
                 Pseudo-Ops are similar to Operations, except that they do not compile
                 as code directly into memory. Instead, they act as a kind of marker
-                that tell the Assembler how to handle some kinds of associations and data.<br>
+                that tell the Assembler how to handle some kinds of associations and data.
             </p>
             <table>
                 <thead>
@@ -610,7 +613,7 @@ date/ver: 03/26/16 1.0.0
                         <td>
                             Block Storage Start - allocates a block of memory the
                             size of XY (in hex). The block is referenced by the label
-                            (which is required by the syntax of the instruction).<br>
+                            (which is required by the syntax of the instruction).
                         </td>
                     </tr>
                     <tr>
@@ -621,7 +624,7 @@ date/ver: 03/26/16 1.0.0
                             label: db 0xXY[,0xXY]<br>
                             label: DB XY[,XY]<br>
                             label: db "String"<br>
-                                   dB label<br>
+                                   dB label
                         </td>
                         <td>
                             Data Byte - places the value(s) in memory, starting at the
@@ -629,8 +632,8 @@ date/ver: 03/26/16 1.0.0
                             Pseudo-Op, plus some offset; calculated by the Instructions
                             and Pseudo-Ops between itself and the ORG).<br>
                             Note: Labels are optional, and a db located below a label with
-                            no instruction following it, will be associated with that<br>
-                            label.<br>
+                            no instruction following it, will be associated with that
+                            label.
                         </td>
                     </tr>
                     <tr>
@@ -641,11 +644,11 @@ date/ver: 03/26/16 1.0.0
                             label: equ newLabel<br>
                             label: equ 0xXY<br>
                             label: EQU XY<br>
-                            label: eQU RH<br>
+                            label: eQU RH
                         </td>
                         <td>
                             Equivalent - creates a label to reference hex values, int
-                            values, other labels, and registers.<br>
+                            values, other labels, and registers.
                         </td>
                     </tr>
                     <tr>
@@ -654,13 +657,13 @@ date/ver: 03/26/16 1.0.0
                         </td>
                         <td>
                             org 0xXY<br>
-                            org label<br>
+                            org label
                         </td>
                         <td>
                             Origin - places the next instruction or data byte at the
                             memory address XY. This allows a program or data to be
                             placed at arbitrary places in memory.<br>
-                            Note: the argument must be Hex or a Label.<br>
+                            Note: the argument must be Hex or a Label.
                         </td>
                     </tr>
                 </tbody>
