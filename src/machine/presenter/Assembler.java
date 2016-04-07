@@ -235,9 +235,9 @@ public class Assembler {
                     currentLocation = orgLocation(tokens, i);
                     labelMap.put(labels[i], currentLocation); 
                 }
-                else if ((tokens[0].toUpperCase().equals("RLOAD")) && (labels[i] == null)){ //Rload without a label
+                /*else if ((tokens[0].toUpperCase().equals("RLOAD")) && (labels[i] == null)){ //Rload without a label
                     currentLocation += 4; 
-                }   
+                } */  
                 else if (tokens[0].toUpperCase().equals("DB")) { 	// handle DB pseudo op
                     labelMap.put(labels[i], currentLocation); 
                     //TODO: Get rid of superfluous statemens
@@ -248,10 +248,10 @@ public class Assembler {
                     System.out.println("In passOne, after dbOneLocation, currentLocation = " + currentLocation);
                     logList.add("In passOne, after dbOneLocation, currentLocation = " + currentLocation);
                 }   
-                else if ((labels[i] != null) && (tokens[0].toUpperCase().equals("RLOAD"))){ //RLOAD after a label
+                /*else if ((labels[i] != null) && (tokens[0].toUpperCase().equals("RLOAD"))){ //RLOAD after a label
                     labelMap.put(labels[i], currentLocation);
                     currentLocation +=4;
-                }   
+                } */  
                 //CHANGE LOG BEGIN: 10
                 else if ((labels[i] != null) && (tokens[0].toUpperCase().equals("EQU"))) {                    
                     equ(tokens,i);
@@ -706,7 +706,7 @@ public class Assembler {
                     case "STORE":
                         return "3" + store(args[0], args[1], line);
                     case "MOVE":
-                        return "40" + move(args[0], args[1], line);
+                        return "D2" + move(args[0], args[1], line);
                     case "ROR":
                         return "A" + ror(args[0], args[1], line);
                     case "JMPEQ":
@@ -715,8 +715,8 @@ public class Assembler {
                         return "D0" + iload(args[0], args[1], line);
                     case "ISTORE":
                         return "D1" + istore(args[0], args[1], line);
-                    case "RLOAD":
-                        return rload(args[0], args[1], line); //args[1] #[RN]
+                    case "RLOAD": //CHANGE LOG: 21
+                        return  "4" + rload(args[0], args[1], line); //args[1] #[RN]
                     case "RSTORE":
                         //modified code for RESTORE
                         return "E" + rstore(args[0], args[1], line);
@@ -772,8 +772,8 @@ public class Assembler {
      */
     private int byteCodeInTemp(String bytes, int currentLocation, int i) {
         int location;
-        
-        if (codes[i].trim().toUpperCase().contains("RLOAD")) { // RLOAD special case
+        //CHANGE LOG BEGIN: 21
+        /*if (codes[i].trim().toUpperCase().contains("RLOAD")) { // RLOAD special case
             tempMem[currentLocation] = bytes.substring(0, 2);  // Placing Bytecode in memory
             tempMem[currentLocation + 1] = bytes.substring(2, 4);
             tempMem[currentLocation + 2] = bytes.substring(4, 6);
@@ -783,7 +783,8 @@ public class Assembler {
             Location[i] = intToHex(Integer.toString(currentLocation));
             
             location = 4;
-        } else {
+        } else {*/
+        //CHANGE LOG END: 21
             tempMem[currentLocation] = bytes.substring(0, 2);// Placing Bytecode in memory
             tempMem[currentLocation + 1] = bytes.substring(2, 4);
             System.out.println("Code: " + codes[i] + "Currentlocation: " + intToHex(Integer.toString(currentLocation)));
@@ -791,7 +792,7 @@ public class Assembler {
             Location[i] = intToHex(Integer.toString(currentLocation));
             
             location = 2;
-        }
+        /*}*/
         return location;
     }
 
@@ -1051,7 +1052,8 @@ public class Assembler {
      */
     private String rload(String firstArg, String secondArg, int line) {
         // rload is special, it returns 8 hex digits
-        String result = "00000000";
+        
+        String result = "000"; //CHANGE LOG: 21
         String firstRegister = getRegister(firstArg, line);
         String secondRegister;
         String offset;
@@ -1111,7 +1113,8 @@ public class Assembler {
         String regName = tokens[1].substring(0, tokens[1].length()-1); //truncate "]"
         secondRegister = getRegister(regName, line);
         //construct op-code/machine code. "F" is a flag.
-        return "2" + firstRegister + "F" + offset + "D2" + firstRegister + secondRegister;
+        //return "2" + firstRegister + "F" + offset + "D2" + firstRegister + secondRegister;
+        return offset + firstRegister + secondRegister; //CHANGE LOG: 21
         //CHANGE LOG END: 3
     }
 
