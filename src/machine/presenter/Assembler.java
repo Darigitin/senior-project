@@ -124,7 +124,7 @@ public class Assembler {
     String Location[], Object_code[];
     String DBcode = "";
     HashMap<String, Integer> labelMap = new HashMap<>(256); //labels mapped to addrs.
-    HashMap<String, String> equivalencies = new HashMap<>(256); //CHANGE LOG: 10 - labels mapped to labels
+    HashMap<String, String> equivalencies = new HashMap<>(256); //CHANGE LOG: 10 - labels mapped to labels/Registers
     String labelAppears;
     String SIP = "00";
     int codeLines = 1;
