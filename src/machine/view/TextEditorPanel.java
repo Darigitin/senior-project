@@ -170,7 +170,7 @@ public class TextEditorPanel extends javax.swing.JPanel {
         fontSizeLabel = new javax.swing.JLabel();
         fontSizeComboBox = new javax.swing.JComboBox(SIZES);
         splitJoinButton = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
+        themeLabel = new javax.swing.JLabel();
         fontThemeComboBox = new javax.swing.JComboBox();
         textEditorPanel = new javax.swing.JPanel();
         textEditor = new machine.view.TextEditor();
@@ -224,16 +224,17 @@ public class TextEditorPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 4);
         textEditorControlsPanel.add(splitJoinButton, gridBagConstraints);
 
-        jLabel1.setText("Theme: ");
+        themeLabel.setText("Theme: ");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        textEditorControlsPanel.add(jLabel1, gridBagConstraints);
+        textEditorControlsPanel.add(themeLabel, gridBagConstraints);
 
         fontThemeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         textEditorControlsPanel.add(fontThemeComboBox, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -328,10 +329,10 @@ public class TextEditorPanel extends javax.swing.JPanel {
     public javax.swing.JComboBox fontSizeComboBox;
     private javax.swing.JLabel fontSizeLabel;
     private javax.swing.JComboBox fontThemeComboBox;
-    private javax.swing.JLabel jLabel1;
     public javax.swing.JButton splitJoinButton;
     public machine.view.TextEditor textEditor;
     public javax.swing.JPanel textEditorControlsPanel;
     public javax.swing.JPanel textEditorPanel;
+    private javax.swing.JLabel themeLabel;
     // End of variables declaration//GEN-END:variables
 }
