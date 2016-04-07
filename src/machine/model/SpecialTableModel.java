@@ -8,6 +8,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 import machine.view.MachinePanel;
+
 /**
  *
  * @author Ryan Ball

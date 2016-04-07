@@ -39,6 +39,10 @@ public class MachineView extends javax.swing.JFrame {
     Integer[] SIZES = { 8, 9, 10, 11, 12, 14, 16, 18, 20,
         22, 24, 26, 28, 36, 48, 72 }; //the sizes for the font size combo box. MB
     
+    String[] THEMES = { "Black on White", "Green on Black", "Blue on Black", "Red on Black", 
+        "White on Black", "Black on Light-Yellow"};
+    
+    
         /**
      * Creates new form MachineView
      */
@@ -730,6 +734,7 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
 
     private void fontThemeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontThemeComboBoxActionPerformed
         // TODO add your handling code here:
+        updateText();
     }//GEN-LAST:event_fontThemeComboBoxActionPerformed
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -65,6 +65,10 @@
  * 
  * 19 jl948836 - 03/26/16: Added error statements to JMPLT and JMPEQ to check for
  *                         invalid characters in the argument.
+ * 
+ * 20 gl939543 - 03/30/16: Modified DB sudoop 
+ *
+ * 21 gl939543 - 03/30/16  Add new condition to print out the DB contents in memory
  * /
 
 /*
@@ -114,6 +118,7 @@ public class Assembler {
     String[] labels;
     String[] tempMem;
     String Location[], Object_code[];
+    String DBcode = "";
     HashMap<String, Integer> labelMap = new HashMap<>(256); //labels mapped to addrs.
     HashMap<String, String> equivalencies = new HashMap<>(256); //CHANGE LOG: 10 - labels mapped to labels
     String labelAppears;
@@ -169,8 +174,10 @@ public class Assembler {
     }
     
     /**
+     * Begins pass one which parses the text storing all codes and labels into
+     * their respected arrays and then executed passtwo. 
      * 
-     * @param text 
+     * @param text Source code from editor view.
      */
     private void passOne(String text) {
         String[] lines = text.split("\n");
@@ -252,7 +259,7 @@ public class Assembler {
                         currentLocation += bssLocation(tokens, i);
                     }
                     else if (tokens[0] != null && isOperation(tokens[0])) { //label found, operation following
-                        currentLocation += operationLocation(tokens);
+                        currentLocation += operationLocation(tokens[0]);
                     }
                 } 
                 else if (tokens[0].toUpperCase().equals("BSS")) { // error, bss and no label
@@ -264,7 +271,7 @@ public class Assembler {
                 }
                 //CHANGE LOG END: 10
                 else if (isOperation(tokens[0])) { 	// operation without label
-                    currentLocation += operationLocation(tokens);
+                    currentLocation += operationLocation(tokens[0]);
                 }
             } 
             else if (labels[i] != null) { // we have a label with nothing following 
@@ -277,7 +284,8 @@ public class Assembler {
     }
 
     /**
-     * Pass Two - Handles RLOAD and handles the SIP pseudo op as well
+     * Executes pass two which handles  all pseudo ops from the codes array,
+     * assigning their arguments locations in memory.
      */
     private void passTwo() {
 
@@ -301,21 +309,22 @@ public class Assembler {
                         break;
                     case "DB":
                         // handle DB pseudo-op
-                        System.out.println("Inside passTwo, before dbTwoLocation, currentLocation = " + currentLocation);
-                        logList.add("Inside passTwo, before dbTwoLocation, currentLocation = " + currentLocation);
-                        currentLocation += dbTwoLocation(codes[i], i, currentLocation, i + 1);
+                        //System.out.println("Inside passTwo, before dbTwoLocation, currentLocation = " + currentLocation);
+                        //logList.add("Inside passTwo, before dbTwoLocation, currentLocation = " + currentLocation);
                         Location[i] = intToHex(Integer.toString(currentLocation));
-                        System.out.println("Inside passTwo, after dbTwoLocation, currentLocation = " + currentLocation);
-                        logList.add("Inside passTwo, after dbTwoLocation, currentLocation = " + currentLocation);
+                        currentLocation += dbTwoLocation(codes[i], i, currentLocation, i + 1);
+                        Object_code[i] = DBcode;
+                        //System.out.println("Inside passTwo, after dbTwoLocation, currentLocation = " + currentLocation);
+                        //logList.add("Inside passTwo, after dbTwoLocation, currentLocation = " + currentLocation);
                         break;
                     case "BSS":
                         // handle BSS pseudo-op
-                        System.out.println("In passTwo(), before bssLocation, currentLocation = " + currentLocation);
-                        logList.add("In passTwo(), before bssLocation, currentLocation = " + currentLocation);
-                        currentLocation += bssLocation(tokens, i);
+                        //System.out.println("In passTwo(), before bssLocation, currentLocation = " + currentLocation);
+                        //logList.add("In passTwo(), before bssLocation, currentLocation = " + currentLocation);
                         Location[i] = intToHex(Integer.toString(currentLocation));
-                        System.out.println("In passTwo(), after bssLocation, currentLocation = " + currentLocation);
-                        logList.add("In passTwo(), after bssLocation, currentLocation = " + currentLocation);
+                        currentLocation += bssLocation(tokens, i);
+                        //System.out.println("In passTwo(), after bssLocation, currentLocation = " + currentLocation);
+                        //logList.add("In passTwo(), after bssLocation, currentLocation = " + currentLocation);
                         break;
                     case "SIP":
                         storeSIP(tokens, i);
@@ -387,10 +396,11 @@ public class Assembler {
     }
 
     /**
-     * handle instances of found DB pseudo op in passone.
+     * Ensures that the DB pseudo op argument conforms to standards and then returns
+     * length of the DB pseudo op argument.
      *
-     * @param tokens
-     * @return number of bytes to skip
+     * @param tokens String[] of pseudo ops
+     * @return size of db pseudo op argument
      */
     private int passOneDB(String[] tokens) {
         int result;
@@ -420,10 +430,11 @@ public class Assembler {
     }
 
     /**
-     * handle instances of BSS in pass one
+     * Ensures that the BSS pseudo op argument conforms to standards and then returns
+     * length of the BSS pseudo op argument.
      *
-     * @param string
-     * @return number of bytes to skip
+     * @param value argument of BSS pseudo op
+     * @return size of BSS pseudo op argument
      */
     private int passOneBSS(String value) {
         // we know string is valid hex or int
@@ -435,11 +446,12 @@ public class Assembler {
     }
 
     /**
-     * Determines if the address specified in org's argument is valid.
+     * Determines if the address specified in ORG argument is valid hexadecimal
+     * value.
      * 
-     * @param tokens
-     * @param i
-     * @return
+     * @param tokens String[] of pseudo ops
+     * @param i location of ORG pseudo op in tokens
+     * @return valid ORG argument as a integer
      */
     private int orgLocation(String[] tokens, int i) {
         int location = 0;
@@ -453,9 +465,13 @@ public class Assembler {
 
     /**
      *
-     * @param tokens
-     * @param i
-     * @return
+     * Ensures that the tokens array is of the appropriate length and then 
+     * invokes passOneDb to find the number of bytes to skip in memory for 
+     * memory storage of DB pseudo op.
+     * 
+     * @param tokens String[] of pseudo ops
+     * @param i Location of DB pseudo op in tokens
+     * @return Number of bytes to skip in memory
      */
     private int dbOneLocation(String[] tokens, int i) {
         int location = 0;
@@ -468,10 +484,13 @@ public class Assembler {
     }
 
     /**
-     *
-     * @param tokens
-     * @param i
-     * @return
+     * Ensures that the tokens array is of the appropriate length and then 
+     * invokes passOneBSS to find the number of bytes to skip in memory for 
+     * memory storage of BSS pseudo op.
+     * 
+     * @param tokens String[] of pseudo ops
+     * @param i Location of BSS pseudo op in tokens
+     * @return Number of bytes to skip in memory
      */
     private int bssLocation(String[] tokens, int i) {
         int location = 0;
@@ -484,13 +503,15 @@ public class Assembler {
     }
 
     /**
-     *
-     * @param tokens
-     * @return
+     * Determines how many bytes in memory to move forward based on which 
+     * operation it receives, 4 for rload and 2 for all others.
+     * 
+     * @param token String operation
+     * @return Number of bytes to skip in memory
      */
-    private int operationLocation(String[] tokens) {
+    private int operationLocation(String token) {
         int location;
-        if (tokens[0].equals("RLOAD")) {
+        if (token.equals("RLOAD")) {
             location = 4;
         } else {
             location = 2;
@@ -578,6 +599,7 @@ public class Assembler {
         logList.add(dbString);
         int result = 0;
         String temp = "";
+        DBcode = "";
         dbString = dbString.substring(3, dbString.length());
 
         // find parameters while ignoring whitespace inbetween
@@ -586,34 +608,39 @@ public class Assembler {
         while (matcher.find()) {
             temp += dbString.substring(matcher.start(), matcher.end());
         }
-
         if (temp.matches("[\"]{1}[^\"]*[\"]{1}") || temp.matches("[\']{1}[^\']*[\']{1}")) {
             result = temp.length() - 1;
             for (int i = 0; i < result - 1; i++) {
                 tempMem[currentLocation + i] = intToHex(Integer.toString((int) temp.charAt(i + 1)));
+                DBcode += tempMem[currentLocation + i].toUpperCase() + " ";
             }
             result -= 1; //CHANGE LOG: 4
         }
         else if (labelMap.containsKey(temp)) {  //Changelog Begin: 11
             tempMem[currentLocation + result++] = intToHex(Integer.toString(labelMap.get(temp)));
+            DBcode += intToHex(Integer.toString(labelMap.get(temp))).toUpperCase() + " "; 
         }   //Changelog End: 11
         else if (equivalencies.containsKey(temp)){  //Changelog Begin: 12
             String ref = equivalencies.get(temp);
             tempMem[currentLocation + result++] = intToHex(Integer.toString(labelMap.get(ref)));
+            DBcode += intToHex(Integer.toString(labelMap.get(ref))).toUpperCase();
         }   //Changelog End: 12 
         else {
             String[] args = temp.split(",");
             for (String arg : args) {
-                if (isHex(arg)) {
+                if (isHex(arg)) { 
                     tempMem[currentLocation + result++] = Integer.toHexString(hexToInt(arg));
+                    DBcode += Integer.toHexString(hexToInt(arg)).toUpperCase() + " "; 
                 } 
                 else if (isInt(arg)) {
                     tempMem[currentLocation + result++] = intToHex(arg);
+                    DBcode += intToHex(arg).toUpperCase() + " "; 
                 } 
                 else if (arg.matches("[\"]{1}[^\"]*[\"]{1}|[\']{1}[^\']*[\']{1}")) {
                     int argLen = arg.length() - 1;
                     for (int j = 0; j < argLen - 1; j++) {
                         tempMem[currentLocation + result++] = intToHex(Integer.toString((int) arg.charAt(j + 1)));
+                        DBcode += intToHex(Integer.toString((int) arg.charAt(j + 1))).toUpperCase() + " "; 
                     }
                 }
                 else {
@@ -1873,6 +1900,7 @@ public class Assembler {
     */
       
     private void generateAssemblerList(){
+        String restDBcode = "";             //Declare a string DB contents in the memory
         Date date = new Date();
         SimpleDateFormat simpDate = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a");
         
@@ -1881,22 +1909,42 @@ public class Assembler {
             output.println("******** Assembler Listing **********");
             output.println("Created date: "+simpDate.format(date));
             output.println("\n");
-            output.println("Location    " + "Object Code    " + "Line   " + "Source Statement");
-            for (int i =0; i<codeList.size(); i++){
+            output.println("Location    " + "Object Code       " + "Line   " + "Source Statement");
+            for (int i = 0; i<codeList.size(); i++){
                 if ( Location[i] != null){
                     if (Object_code[i] != null){
                         if (Object_code[i].endsWith("]")){
                             Object_code[i] = Object_code[i].substring(0, Object_code[i].length()-1);
                         }
-                        output.printf("%-12s%-15s%4d%4s", Location[i], Object_code[i], codeLines, " ");
+                        if (Object_code[i].length() > 15){     
+                            String tempDBcode = Object_code[i].substring(0, 15);
+                            output.printf("%-12s%-18s%4d%4s", Location[i], tempDBcode, codeLines, " ");
+                            restDBcode  = Object_code[i].replace(tempDBcode, "");     //Remove first row of DB content
+                        }else{
+                            output.printf("%-12s%-18s%4d%4s", Location[i], Object_code[i], codeLines, " ");
+                        }                       
                     }else{
-                        output.printf("%-12s%-15s%4d%4s", Location[i], " ", codeLines, " ");
+                        output.printf("%-12s%-18s%4d%4s", Location[i], " ", codeLines, " ");
                     }
                 }else{
-                    output.printf("            " + "               " + "%4d" + "   ", codeLines);
+                    output.printf("            " + "                  " + "%4d" + "   ", codeLines);
                 }
-
                 output.println(codeList.get(i));
+                //This while loop invoks only when DB is very long
+                while(restDBcode.length() > 0){
+                    if (restDBcode.length() > 15){
+                        String tempDBcode = restDBcode.substring(0, 15);
+                        output.printf("%-12s%-18s%4s%4s", " ", tempDBcode, " ", " ");
+                        output.println();
+                        restDBcode  = restDBcode.replace(tempDBcode, "");     //Remove first row of DB content
+                    }else{
+                        //String tempDBcode = restDBcode;
+                        output.printf("%-12s%-18s%4s%4s", " ", restDBcode, " ", " ");
+                        output.println();
+                        restDBcode  = "";                                   //Clear restDBcode
+                    }
+                }//end while
+                
                 codeLines++;
             }
             output.close();    //Close the file

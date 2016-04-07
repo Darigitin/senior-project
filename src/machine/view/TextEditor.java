@@ -96,6 +96,24 @@ public class TextEditor extends JScrollPane implements Serializable {
         return doc;
     }
     
+    public void setBackGround(String backGroundColor){
+        
+        if (backGroundColor.equals("BLACK")){
+            textPane.setBackground(Color.BLACK);
+        }
+        else if (backGroundColor.equals("WHITE")){
+            textPane.setBackground(Color.WHITE);
+        }
+        else if (backGroundColor.equals("LIGHT-YELLOW")){
+            float[] hsbvals = new float[3];
+            hsbvals = Color.RGBtoHSB(246, 242, 124, hsbvals);
+            Color backGround = Color.getHSBColor(hsbvals[0], hsbvals[1], hsbvals[2]);
+            textPane.setBackground(backGround);
+        }
+    }
+    
+    
+    
     /** Sets the tab index that this object belongs to.
      * @param tabIndex */
     public void setTabIndex(int tabIndex) {

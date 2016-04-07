@@ -110,14 +110,48 @@ public class TextEditorPanel extends javax.swing.JPanel {
     public void updateText() {
         //creates and sets the font according to the options selected from the font size and name combo boxs.
         //Programmer: Mariela Barrera
-      String name = (String) fontComboBox.getSelectedItem();
+        String name = (String) fontComboBox.getSelectedItem();
+        int themeNumber = fontThemeComboBox.getSelectedIndex();
+        String textColor, backGroundColor;
+        switch (themeNumber){
+            case 2:
+                textColor = "GREEN";
+                backGroundColor = "BLACK";
+                break;
+            case 1:
+                textColor = "BLUE";
+                backGroundColor = "BLACK";
+                break;
+            case 3:
+                textColor = "RED";
+                backGroundColor = "BLACK";
+                break;
+            case 4:
+                textColor = "WHITE";
+                backGroundColor = "BLACK";
+                break;
+            case 0:
+                textColor = "BLACK";
+                backGroundColor = "WHITE";
+                break;
+            case 5:
+                textColor = "BLACK";
+                backGroundColor = "LIGHT-YELLOW";
+                break;
+            default:
+                textColor = "BLACK";
+                backGroundColor = "WHITE";
+                break;
+        }
+        
+        textEditor.setBackGround(backGroundColor);
+        
+        Integer size = (Integer) fontSizeComboBox.getSelectedItem();
 
-      Integer size = (Integer) fontSizeComboBox.getSelectedItem();
+        int style = Font.PLAIN;
 
-      int style = Font.PLAIN;
-
-      Font newfont = new Font(name, style, size);
-      textEditor.getTextPane().setFont(newfont);
+        Font newfont = new Font(name, style, size);
+        textEditor.getTextPane().setFont(newfont);
     }
     
     /**
@@ -136,6 +170,8 @@ public class TextEditorPanel extends javax.swing.JPanel {
         fontSizeLabel = new javax.swing.JLabel();
         fontSizeComboBox = new javax.swing.JComboBox(SIZES);
         splitJoinButton = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        fontThemeComboBox = new javax.swing.JComboBox();
         textEditorPanel = new javax.swing.JPanel();
         textEditor = new machine.view.TextEditor();
         errorDisplayScrollPanel = new javax.swing.JScrollPane();
@@ -187,6 +223,18 @@ public class TextEditorPanel extends javax.swing.JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 4);
         textEditorControlsPanel.add(splitJoinButton, gridBagConstraints);
+
+        jLabel1.setText("Theme: ");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        textEditorControlsPanel.add(jLabel1, gridBagConstraints);
+
+        fontThemeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        textEditorControlsPanel.add(fontThemeComboBox, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
@@ -279,6 +327,8 @@ public class TextEditorPanel extends javax.swing.JPanel {
     private javax.swing.JLabel fontLabel;
     public javax.swing.JComboBox fontSizeComboBox;
     private javax.swing.JLabel fontSizeLabel;
+    private javax.swing.JComboBox fontThemeComboBox;
+    private javax.swing.JLabel jLabel1;
     public javax.swing.JButton splitJoinButton;
     public machine.view.TextEditor textEditor;
     public javax.swing.JPanel textEditorControlsPanel;
