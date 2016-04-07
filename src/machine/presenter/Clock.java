@@ -205,7 +205,7 @@ public class Clock {
                 else if (secondOpcode == '1') { //ISTORE
                     istore(thirdNibble, fourthNibble);
                 } 
-                else if (secondOpcode == '2') { //RLOAD
+                else if (secondOpcode == '2') { //MOVE
                     move(thirdNibble,fourthNibble); //CHANGE LOG: 5
                     //rload(thirdNibble, fourthNibble);
                 }

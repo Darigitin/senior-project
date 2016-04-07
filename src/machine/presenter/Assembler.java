@@ -979,69 +979,6 @@ public class Assembler {
         secondRegister = getRegister(tokens[1].substring(0, tokens[1].length()-1), line); //CHANGE LOG: 15
         return offset + firstRegister + secondRegister;
     }
-    
-    //original code
-    /*
-    private String rstore(String firstArg, String secondArg, int line) {
-        String result = "000";
-        String firstRegister = getRegister(firstArg, line);
-        String secondRegister;
-        String offset;
-        String tokens[] = secondArg.split("\\[");
-        if (tokens.length == 2 && tokens[1].endsWith("]")) {
-            if (isSingleHex(tokens[0])) {
-                offset = tokens[0].toUpperCase().substring(2, 3);
-            } 
-            else if (tokens[0].startsWith("-") && tokens[0].length() == 2) {
-                int number = Integer.parseInt(tokens[0].toUpperCase().substring(1, 2));
-                switch (number) {
-                    case 1:
-                        offset = "F";
-                        break;
-                    case 2:
-                        offset = "E";
-                        break;
-                    case 3:
-                        offset = "D";
-                        break;
-                    case 4:
-                        offset = "C";
-                        break;
-                    case 5:
-                        offset = "B";
-                        break;
-                    case 6:
-                        offset = "A";
-                        break;
-                    case 7:
-                        offset = "9";
-                        break;
-                    case 8:
-                        offset = "8";
-                        break;
-                    default:
-                        errorList.add("Error: Invalid offset found on line " + line);
-                       
-                        return result;
-                }
-            } 
-            else if (tokens[0].length() == 1 && Integer.parseInt(tokens[0]) < 8) {
-                offset = tokens[0];
-            } 
-            else {
-                errorList.add("Error: Invalid argument on line " + line);
-            
-                return result;
-            }
-        } else {
-            errorList.add("Error: Invalid argument on line " + line);
-            
-            return result;
-        }
-        //TODO: remove 1 from legnth of tokens. Why?
-        secondRegister = getRegister(tokens[1].substring(0, tokens[1].length()), line);
-        return offset + firstRegister + secondRegister;
-    }*/
 
     /**
      *
@@ -1142,22 +1079,6 @@ public class Assembler {
         }
         return result;
     }
-    
-    //original code for istore
-    /* 
-    private String istore(String firstArg, String secondArg, int line) {
-        String result = "000";
-        firstArg = getRegister(firstArg, line);
-        if (secondArg.startsWith("[") && secondArg.endsWith("]")) {
-            secondArg = secondArg.substring(1, secondArg.length() - 1);
-            secondArg = getRegister(secondArg, line);
-            result = "1" + firstArg + secondArg;
-        } else {
-            errorList.add("Error: ISTORE operation on line " + line
-                + " has invalid arguments.");
-        }
-        return result;
-    }*/
 
     /**
      *
@@ -1493,27 +1414,6 @@ public class Assembler {
         } 
         return result;
     }
-    
-    /*
-    private String store(String firstArg, String secondArg, int line) {
-        String result = "000";
-        firstArg = getRegister(firstArg, line);
-        if (secondArg.startsWith("[") && secondArg.endsWith("]")) {
-            secondArg = secondArg.substring(1, secondArg.length() - 1);
-            if (labelMap.containsKey(secondArg)) {
-                result = firstArg + intToHex(Integer.toString(labelMap.get(secondArg)));
-            } else if (isHex(secondArg)) {
-                result = firstArg + secondArg.substring(2, 4);
-            } else if (isInt(secondArg)) {
-                result = firstArg + intToHex(secondArg);
-            } else {
-                errorList.add("Error: STORE OPERATIONS on line " + line
-                    + " has invalid arguments.");
-                
-            }
-        }
-        return result;
-    }*/
 
     /**
      * Helper method Returns a string with the corresponding register
