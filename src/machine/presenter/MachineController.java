@@ -415,4 +415,5 @@ public class MachineController {
     public void deleteActivationRecord() {
         machineView.deleteActivationRecord();
     }
+    
 }
