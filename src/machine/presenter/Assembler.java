@@ -73,6 +73,8 @@
  * 21 gl939543 - 03/30/16  Add new condition to print out the DB contents in memory
 
  * 20 jl948836 - 04/01/16: Changed Byte Code of SRET from "63 00" to "63 01"
+ *
+ * 22 jl948836 - 04/07/16: Corrected ByteCode Format of Operations
  * /
 
 /*
@@ -714,6 +716,7 @@ public class Assembler {
                     case "ILOAD":
                         return "D0" + iload(args[0], args[1], line);
                     case "ISTORE":
+                        System.out.println("ISTORE ARG1: " + args[0] + " ARG2: " + args[1]);
                         return "D1" + istore(args[0], args[1], line);
                     case "RLOAD": //CHANGE LOG: 21
                         return  "4" + rload(args[0], args[1], line); //args[1] #[RN]
@@ -1072,7 +1075,8 @@ public class Assembler {
         if (firstArg.startsWith("[") && firstArg.endsWith("]")) {
             firstArg = firstArg.substring(1, firstArg.length() - 1);
             firstArg = getRegister(firstArg, line);
-            result = secondArg + firstArg;
+            //result = secondArg + firstArg;
+            result = firstArg + secondArg; //CHANGE LOG: 22
         } else {
             errorList.add("Error: ISTORE operation on line " + line
                 + " has invalid arguments.");
@@ -1263,6 +1267,7 @@ public class Assembler {
      * @param line
      * @return Last two nibbles for assembly of the SCALL instruction
      */
+    //TODO: Ensure SCALL Like CALL, can't recieve a REG from EQU as an Argument
     private String scall(String firstArg, int line) {
         String result = "00";
         if (labelMap.containsKey(firstArg)) { // arg is a label
@@ -1369,8 +1374,9 @@ public class Assembler {
      * @param line
      * @return Last three bytes for assembly of the MOVE instruction
      */
+    //CHANGE LOG: 22
     private String move(String firstArg, String secondArg, int line) {
-        return getRegister(secondArg, line) + getRegister(firstArg, line);
+        return getRegister(firstArg, line) + getRegister(secondArg, line);
     }
 
     /**

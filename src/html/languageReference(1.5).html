@@ -35,7 +35,7 @@ date/ver: 03/26/16 1.0.0
         <div>
             <h1>WALL (WTAMU AssembLy Language) Language Reference</h1>
             <h2>Operations</h2>
-            <table>
+            <table id="operationsTable">
                 <thead>
                     <tr>
                         <th id="operations">
@@ -53,7 +53,7 @@ date/ver: 03/26/16 1.0.0
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
+                    <tr id="add">
                         <td>
                             ADD RL,RM,RN
                         </td>
@@ -70,7 +70,7 @@ date/ver: 03/26/16 1.0.0
                             reg[L] := reg[M] + reg[N]
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="and">
                         <td>
                             AND RL,RM,RN
                         </td>
@@ -87,7 +87,7 @@ date/ver: 03/26/16 1.0.0
                             reg[L] := reg[M] AND reg[N]
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="call">
                         <td>
                             CALL XY
                         </td>
@@ -112,7 +112,7 @@ date/ver: 03/26/16 1.0.0
                             reg[IP] := label (the address of the label)
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="halt">
                         <td>
                             HALT
                         </td>
@@ -128,7 +128,7 @@ date/ver: 03/26/16 1.0.0
                             Note: The last byte of the instruction is ignored.
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="iload">
                         <td>
                             ILOAD RN,[RM]
                         </td>
@@ -145,7 +145,7 @@ date/ver: 03/26/16 1.0.0
                             reg[N] := memory[reg[M]]
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="istore">
                         <td>
                             ISTORE [RM],RN
                         </td>
@@ -162,7 +162,7 @@ date/ver: 03/26/16 1.0.0
                             memory[reg[M]] := reg[N]
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="jmp">
                         <td>
                             JMP 0xXY
                         </td>
@@ -181,7 +181,7 @@ date/ver: 03/26/16 1.0.0
                             reg[IP] := XY
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="jmpeq">
                         <td>
                             JMPEQ RN=R0,XY
                         </td>
@@ -205,7 +205,7 @@ date/ver: 03/26/16 1.0.0
                             &nbsp;reg[IP] := XY
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="jmplt">
                         <td>
                             JMPLT RN&lt;R0,XY
                         </td>
@@ -231,7 +231,7 @@ date/ver: 03/26/16 1.0.0
                             &nbsp;reg[IP] := XY
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="immediateLoad">
                         <td>
                             LOAD RN,XY
                         </td>
@@ -248,7 +248,7 @@ date/ver: 03/26/16 1.0.0
                             reg[N] := XY
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="directLoad">
                         <td>
                             LOAD RN,[XY]
                         </td>
@@ -267,7 +267,7 @@ date/ver: 03/26/16 1.0.0
                             reg[N] := memory[XY]
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="move">
                         <td>
                             MOVE RN,RM
                         </td>
@@ -283,7 +283,7 @@ date/ver: 03/26/16 1.0.0
                             reg[N] := reg[M]
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="or">
                         <td>
                             OR RL,RM,RN
                         </td>
@@ -300,7 +300,7 @@ date/ver: 03/26/16 1.0.0
                             reg[L] := reg[M] OR reg[N]
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="pop">
                         <td>
                             POP RN
                         </td>
@@ -324,7 +324,7 @@ date/ver: 03/26/16 1.0.0
                             reg[SP] := reg[SP] + 1
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="push">
                         <td>
                             PUSH RN
                         </td>
@@ -348,7 +348,7 @@ date/ver: 03/26/16 1.0.0
                             memory[reg[SP]] := reg[N]
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="ret">
                         <td>
                             RET XY
                         </td>
@@ -378,7 +378,7 @@ date/ver: 03/26/16 1.0.0
                             reg[SP] := reg[SP] + 1 + XY
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="rload">
                         <td>
                             RLOAD RN,H[RM]
                         </td>
@@ -401,7 +401,7 @@ date/ver: 03/26/16 1.0.0
                             reg[N] := memory[reg[M] + H]
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="ror">
                         <td>
                             ROR RN,XY
                         </td>
@@ -421,7 +421,7 @@ date/ver: 03/26/16 1.0.0
                             reg[N] := Reg[N] ROR X<br>
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="rol">
                         <td>
                             ROL RN,X
                         </td>
@@ -441,7 +441,7 @@ date/ver: 03/26/16 1.0.0
                             reg[N] := Reg[N] ROL X
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="rstore">
                         <td>
                             RSTORE H[RM],RN
                         </td>
@@ -460,7 +460,7 @@ date/ver: 03/26/16 1.0.0
                             memory[reg[M] + H] := reg[N]
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="scall">
                         <td>
                             SCALL XY
                         </td>
@@ -488,7 +488,7 @@ date/ver: 03/26/16 1.0.0
                             reg[BP] := reg[SP]
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="sra">
                         <td>
                             SRA RN,X
                         </td>
@@ -507,7 +507,31 @@ date/ver: 03/26/16 1.0.0
                             Note: Truncates the low-order bit X number of times.<br>
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="sret">
+                        <td>
+                            SRET
+                        </td>
+                        <td>
+                            63 01
+                        </td>
+                        <td>
+                            SRET<br>
+                            Assembled => 63 01
+                        </td>
+                        <td>
+                            <ol>
+                                <li>Get Previous Base Pointer pointed to by the Stack 
+                                    Pointer
+                                </li>
+                                <li>Increment Stack Pointer</li>
+                                <li>Get Return Address pointed to by the Stack Pointer</li>
+                                <li>Move the value of the Base Pointer to the Stack 
+                                    Pointer
+                                </li>
+                            </ol>
+                        </td>
+                    </tr>
+                    <tr id="srl">
                         <td>
                             SRL RN,X
                         </td>
@@ -526,7 +550,7 @@ date/ver: 03/26/16 1.0.0
                             reg[N] := reg[N] &gt;&gt; X
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="sl">
                         <td>
                             SL RN,X
                         </td>
@@ -545,7 +569,7 @@ date/ver: 03/26/16 1.0.0
                             reg[N] := reg[N] &lt;&lt; X
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="store">
                         <td>
                             STORE [XY],RN
                         </td>
@@ -563,7 +587,7 @@ date/ver: 03/26/16 1.0.0
                             memory[XY] := reg[N]<br>
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="xor">
                         <td>
                             XOR RL,RM,RN
                         </td>
@@ -588,7 +612,7 @@ date/ver: 03/26/16 1.0.0
                 as code directly into memory. Instead, they act as a kind of marker
                 that tell the Assembler how to handle some kinds of associations and data.
             </p>
-            <table>
+            <table id="pseudo-opsTable">
                 <thead>
                     <tr>
                         <td>
@@ -603,7 +627,7 @@ date/ver: 03/26/16 1.0.0
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
+                    <tr id="bss">
                         <td>
                             BSS
                         </td>
@@ -616,7 +640,7 @@ date/ver: 03/26/16 1.0.0
                             (which is required by the syntax of the instruction).
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="db">
                         <td>
                             DB
                         </td>
@@ -636,7 +660,7 @@ date/ver: 03/26/16 1.0.0
                             label.
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="equ">
                         <td>
                             EQU
                         </td>
@@ -651,7 +675,7 @@ date/ver: 03/26/16 1.0.0
                             values, other labels, and registers.
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="org">
                         <td>
                             ORG
                         </td>

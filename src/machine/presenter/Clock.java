@@ -514,7 +514,8 @@ public class Clock {
     * @param register
     * @param pointer
     */
-    private void istore(int register, int pointer) {
+    //CHANGE LOG: 5
+    private void istore(int pointer, int register) {
            String value = controller.getRegisterValue(register);
            int address = Integer.parseInt(controller.getRegisterValue(pointer),16);
            controller.setMemoryValue(address, value);
@@ -525,7 +526,8 @@ public class Clock {
     * @param fromRegister
     * @param toRegister
     */
-    private void move(int fromRegister, int toRegister) {
+    //CHANGE LOG: 5
+    private void move(int toRegister, int fromRegister) {
         String data = controller.getRegisterValue(fromRegister);
         controller.setRegisterValue(toRegister, data);
         if (toRegister == 0x0F){
