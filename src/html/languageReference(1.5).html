@@ -272,11 +272,11 @@ date/ver: 03/26/16 1.0.0
                             MOVE RN,RM
                         </td>
                         <td>
-                            40 MN
+                            D2 NM
                         </td>
                         <td>
                             MOVE R1,R2<br>
-                            Assembled => 40 21
+                            Assembled => D2 12
                         </td>
                         <td>
                             Copies the value in Register M to Register N.<br>
@@ -383,21 +383,16 @@ date/ver: 03/26/16 1.0.0
                             RLOAD RN,H[RM]
                         </td>
                         <td>
-                            Immediate load - 2N FH<br>
-                            Relative load  - D2 NM
+                            4H NM
                         </td>
                         <td>
                             RLOAD R1,0x04[R2]<br>
-                            Assembled => 21 F4 D2 12
+                            Assembled => 44 12
                         </td>
                         <td>
                             Relative Load - loads Register N with the value from
                             memory pointed to by Register M, plus the offset H.<br>
                             Offset Range: -8 &lt;= H &lt;= 7<br>
-                            Note: This operation assembles into two op-codes. The
-                            first is an Immediate Load, to store the offset (In the
-                            Immediate Load, the third nibble "F" is a flag for the 
-                            RLOAD Instruction). The second is the relative load itself.<br>
                             reg[N] := memory[reg[M] + H]
                         </td>
                     </tr>
