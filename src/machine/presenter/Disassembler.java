@@ -13,9 +13,12 @@
 /**
  * Change Log
  * 
+ * Matt Vertefeuille -> mv935583
  * # author - date: description
- * 1 Matt Vertefeuille - 02/22/16: Bug Fix - rload now displays the 0x0 to 
+ * 1 mv935583 - 02/22/16: Bug Fix - rload now displays the 0x0 to 
  *                                 reflect Change #2 in Assembler.java
+ * 
+ * 2 mv935583 - 04/11/16: Implemented changed to add shift instructions.
 */
 
 /*
@@ -154,12 +157,8 @@ public class Disassembler {
                 case "1":
                     return "ret";
                 case "2":
-                    return "scall " + "0x" + secondByte;
-                case "3":
-                    return "sret";
-                case "4":
                     return "push " + "R" + thirdNibble;
-                case "5":
+                case "3":
                     return "pop " + "R" + thirdNibble;
                 default:
                     return "invalid";
@@ -171,7 +170,20 @@ public class Disassembler {
             case "9":
                 return "xor " + "R" + secondNibble + ",R" + thirdNibble + ",R" + fourthNibble;
             case "A":
-                return "ror " + "R" + secondNibble + ",0x" + secondByte;
+                switch(secondNibble){   //BEGIN CHANGE LOG: 2
+                    case "0":
+                        return "ror " + "R" + thirdNibble + "," + fourthNibble;
+                    case "1":
+                        return "rol " + "R" + thirdNibble + "," + fourthNibble;
+                    case "2":
+                        return "sra " + "R" + thirdNibble + "," + fourthNibble;
+                    case "3":
+                        return "srl " + "R" + thirdNibble + "," + fourthNibble;
+                    case "4":
+                        return "sl " + "R" + thirdNibble + "," + fourthNibble;
+                    default:
+                        return "invalid";
+                }   //END CHANGE LOG: 2
             case "B":
                 if (secondNibble.equals("0")) {
                     return "jmp 0x" + secondByte;

@@ -37,7 +37,7 @@ public class DocumentationPanel extends javax.swing.JPanel {
     public void addLanguageReference() {
         languageRefEditorPane.setContentType("text/html");
         //InputStream inputStream =  SystemView.class.getResourceAsStream("/html/machineLanguageReference.html");
-        InputStream inputStream =  DocumentationPanel.class.getResourceAsStream("/html/machineLanguageReference.html");
+        InputStream inputStream =  DocumentationPanel.class.getResourceAsStream("/html/languageReference(1.5).html");
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         StringBuilder sb = new StringBuilder();
         String line;
@@ -65,7 +65,7 @@ public class DocumentationPanel extends javax.swing.JPanel {
     
     public void addSyntaxReference() {
         syntaxEditorPane.setContentType("text/html");
-        InputStream inputStream =  DocumentationPanel.class.getResourceAsStream("/html/machineSyntax.html");
+        InputStream inputStream =  DocumentationPanel.class.getResourceAsStream("/html/machineSyntax(1.5).html");
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         StringBuilder sb = new StringBuilder();
         String line;
