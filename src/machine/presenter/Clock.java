@@ -21,6 +21,10 @@
  *                        of by the clock
  * 
  * 4 jl948836 - 04/01/16: Fixed the SCALL and SRET functions.
+ * 
+ * 5 jl948836 - 04/01/16: Corrected format of ByteCode for iload and move
+ * 
+ * 6 jl948836 - 04/01/16:
  */
 
 /* Change Log
@@ -136,7 +140,7 @@ public class Clock {
                 directStore(secondNibble, secondByte);
                 execute();
                 break;
-            case '4': //CHANGE LOG: 5
+            case '4': //CHANGE LOG: 6
                 //move(thirdNibble,fourthNibble);
                 rload(secondNibble, thirdNibble, fourthNibble);
                 execute();
@@ -366,7 +370,7 @@ public class Clock {
     private void scall() {
         call();
         push(0x0D);
-        move(0x0E,0x0D);
+        move(0x0D,0x0E);
     }
     //CHANGE LOG END: 4
 
@@ -377,7 +381,7 @@ public class Clock {
     private void sret(int spAdd) {
         pop(0x0D); //Reset Frame of Reference
         ret(spAdd); //Return
-        move(0x0D,0x0E); //Clean arguments off the Stack
+        move(0x0E,0x0D); //Clean arguments off the Stack
     }
     //CHANGE LOG END: 4
 

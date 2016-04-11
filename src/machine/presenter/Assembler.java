@@ -75,6 +75,12 @@
  * 20 jl948836 - 04/01/16: Changed Byte Code of SRET from "63 00" to "63 01"
  *
  * 22 jl948836 - 04/07/16: Corrected ByteCode Format of Operations
+ * 
+ * 23 jl948836 - 04/07/16: Swapped ByteCode of move and rload. rload is now 4
+ *                         and move is D2. rload is now a 2 byte instruction.
+ * 
+ * 24 jl948836 - 04/10/16: Got rid of operationLocation(). No longer necessary
+ *                         due to rload being the same size as all other instructions.
  * /
 
 /*
@@ -237,6 +243,7 @@ public class Assembler {
                     currentLocation = orgLocation(tokens, i);
                     labelMap.put(labels[i], currentLocation); 
                 }
+                //CHANGE LOG: 23
                 /*else if ((tokens[0].toUpperCase().equals("RLOAD")) && (labels[i] == null)){ //Rload without a label
                     currentLocation += 4; 
                 } */  
@@ -250,6 +257,7 @@ public class Assembler {
                     System.out.println("In passOne, after dbOneLocation, currentLocation = " + currentLocation);
                     logList.add("In passOne, after dbOneLocation, currentLocation = " + currentLocation);
                 }   
+                //CHANGE LOG: 23
                 /*else if ((labels[i] != null) && (tokens[0].toUpperCase().equals("RLOAD"))){ //RLOAD after a label
                     labelMap.put(labels[i], currentLocation);
                     currentLocation +=4;
@@ -265,7 +273,9 @@ public class Assembler {
                         currentLocation += bssLocation(tokens, i);
                     }
                     else if (tokens[0] != null && isOperation(tokens[0])) { //label found, operation following
-                        currentLocation += operationLocation(tokens[0]);
+                        //currentLocation += operationLocation(tokens[0]);
+                        //CHANGE LOG: 24
+                        currentLocation += 2;
                     }
                 } 
                 else if (tokens[0].toUpperCase().equals("BSS")) { // error, bss and no label
@@ -277,7 +287,9 @@ public class Assembler {
                 }
                 //CHANGE LOG END: 10
                 else if (isOperation(tokens[0])) { 	// operation without label
-                    currentLocation += operationLocation(tokens[0]);
+                    //currentLocation += operationLocation(tokens[0]);
+                    //CHANGE LOG: 24
+                    currentLocation += 2;
                 }
             } 
             else if (labels[i] != null) { // we have a label with nothing following 
