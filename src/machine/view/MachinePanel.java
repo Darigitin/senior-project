@@ -293,6 +293,7 @@ public class MachinePanel extends javax.swing.JPanel {
         stackPanelScrollPane = new javax.swing.JScrollPane();
         stackRecordPanel = new machine.view.StackPanel();
 
+        setMinimumSize(new java.awt.Dimension(600, 500));
         setLayout(new java.awt.GridBagLayout());
 
         ramTable.setModel(new RAMTableModel(this));

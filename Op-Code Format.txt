@@ -1,0 +1,112 @@
+ADD:
+    Argument: RL,RM,RN
+    ByteCode: 5L MN
+
+AND:
+    Argument: RL,RM,RN
+    ByteCode: 8L MN
+
+CALL:
+    Argument: XY
+    ByteCode: 60 XY
+
+HALT:
+    ByteCode: C0 00
+
+ILOAD:
+    Argument: RM,[RN]
+    ByteCode: D0 MN
+
+ISTORE:
+    Argument: [RM],RN
+    ByteCode: D1 MN
+
+JMP:
+    Argument: XY
+    ByteCode: B0 XY
+
+JMPEQ:
+    Argument: RN=R0,XY
+    ByteCode: BN XY
+
+JMPLT:
+    Argument: RN<R0,XY
+    ByteCode: FN XY
+
+LOAD:
+    Argument: RN,XY
+    ByteCode: 1N XY
+
+LOAD:
+    Argument: RN,[XY]
+    ByteCode: 2N XY
+
+MOVE:
+    Argument: RM,RN
+    ByteCode: D2 MN
+
+OR:
+    Argument: RL,RM,RN
+    ByteCode: 7L MN
+
+POP:
+    Argument: RN
+    ByteCode: 65 N0
+
+PUSH:
+    Argument: RN
+    ByteCode: 64 N0
+
+RET:
+    Argument: XY
+    ByteCode: 61 XY
+
+##############################
+RLOAD:
+    Argument: RM,H[RN]
+    ByteCode: 4H MN
+##############################
+
+ROR:
+    Argument: RN,X
+    ByteCode: A0 NX
+
+ROL:
+    Argument: RN,X
+    ByteCode: A1 NX
+
+#############################
+RSTORE:
+    Argument: H[RM],RN
+    ByteCode: EH MN
+#############################
+
+SCALL:
+    Argument: XY
+    ByteCode: 62 XY
+
+SRA:
+    Argument: RN,X
+    ByteCode: A2 NX
+
+SRET:
+    Argument: None
+    ByteCODE: 63 01
+
+SRL:
+    Argument: RN,X
+    ByteCode: A3 NX
+
+SL:
+    Argument: RN,X
+    ByteCode: A4 NX
+
+#################################
+STORE:
+    Argument: [XY],RN
+    ByteCode: 3N XY
+#################################
+
+XOR:
+    Argument: RL,RM,RN
+    ByteCode: 9L MN
