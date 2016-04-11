@@ -800,7 +800,7 @@ public class Assembler {
     }
 
     /**
-     *
+     * Op-Code 1
      * @param firstArg
      * @param secondArg
      * @param line
@@ -831,7 +831,7 @@ public class Assembler {
     }
 
     /**
-     *
+     * Op-Code 2
      * @param firstArg
      * @param secondArg
      * @param line
@@ -862,7 +862,7 @@ public class Assembler {
     }
 
     /**
-     *
+     * Op-Code F
      * @param firstArg
      * @param secondArg
      * @param line
@@ -910,7 +910,7 @@ public class Assembler {
     }
 
     /**
-     *
+     * Op-Code E
      * @param firstArg
      * @param secondArg
      * @param line
@@ -984,7 +984,7 @@ public class Assembler {
     }
 
     /**
-     *
+     * Op-Code 4
      * @param firstArg
      * @param secondArg
      * @param line
@@ -1059,7 +1059,7 @@ public class Assembler {
     }
 
     /**
-     *
+     * Op-Code D1
      * @param firstArg
      * @param secondArg
      * @param line
@@ -1085,7 +1085,7 @@ public class Assembler {
     }
 
     /**
-     *
+     * Op-Code D0
      * @param firstArg
      * @param secondArg
      * @param line
@@ -1106,7 +1106,7 @@ public class Assembler {
     }
 
     /**
-     *
+     * Op-Code B0
      * @param firstArg
      * @param line
      * @return Last two nibbles for assembly of the JMP instruction
@@ -1135,7 +1135,7 @@ public class Assembler {
     }
 
     /**
-     *
+     * Op-Code B
      * @param firstArg
      * @param secondArg
      * @param line
@@ -1181,7 +1181,7 @@ public class Assembler {
     }
 
     /**
-     *
+     * Op-Code A0
      * @param firstArg
      * @param secondArg
      * @param line
@@ -1204,7 +1204,7 @@ public class Assembler {
     }
 
     /**
-     *
+     * Op-Code 9
      * @param firstArg
      * @param secondArg
      * @param thirdArg
@@ -1216,7 +1216,7 @@ public class Assembler {
     }
 
     /**
-     *
+     * Op-Code 8
      * @param firstArg
      * @param secondArg
      * @param thirdArg
@@ -1228,7 +1228,7 @@ public class Assembler {
     }
 
     /**
-     *
+     * Op-Code 7
      * @param firstArg
      * @param secondArg
      * @param thirdArg
@@ -1240,7 +1240,7 @@ public class Assembler {
     }
 
     /**
-     *
+     * Op-Code 65
      * @param firstArg
      * @param line
      * @return Last three bytes for assembly of the POP instruction
@@ -1251,7 +1251,7 @@ public class Assembler {
     }
 
     /**
-     *
+     * Op-Code 64
      * @param firstArg
      * @param line
      * @return Last two nibbles for assembly of the PUSH instruction
@@ -1262,7 +1262,7 @@ public class Assembler {
     }
 
     /**
-     *
+     * Op-Code 62
      * @param firstArg
      * @param line
      * @return Last two nibbles for assembly of the SCALL instruction
@@ -1292,6 +1292,7 @@ public class Assembler {
     }
 
     /**
+     * Op-Code 60
      * @param firstArg
      * @param line
      * @return Last two nibbles for assembly of the CALL instruction
@@ -1327,6 +1328,7 @@ public class Assembler {
     }
     
     /**
+     * Op-Code 61
      * @param firstArg
      * @param line
      * @return Last two nibbles for assembly of the RET instruction
@@ -1355,7 +1357,7 @@ public class Assembler {
     }
 
     /**
-     *
+     * Op-Code 5
      * @param firstArg
      * @param secondArg
      * @param thirdArg
@@ -1368,7 +1370,7 @@ public class Assembler {
     }
 
     /**
-     *
+     * Op-Code D2
      * @param firstArg
      * @param secondArg
      * @param line
