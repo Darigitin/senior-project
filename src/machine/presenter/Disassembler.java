@@ -157,8 +157,12 @@ public class Disassembler {
                 case "1":
                     return "ret";
                 case "2":
-                    return "push " + "R" + thirdNibble;
+                    return "scall " + "0x" + secondByte;
                 case "3":
+                    return "sret";
+                case "4":
+                    return "push " + "R" + thirdNibble;
+                case "5":
                     return "pop " + "R" + thirdNibble;
                 default:
                     return "invalid";
