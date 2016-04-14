@@ -44,7 +44,7 @@ public class MachineController {
     private final Clock clock = new Clock(this);
     private ArrayList<String> lastAssembledProg = new ArrayList<>();
     private boolean isRunning = false;
-    private static String[] MemoryAddressRegister = new String[2];     //declear MAR
+    private static final String[] MemoryAddressRegister = new String[2];     //declear MAR
     Assembler assembler = new Assembler(this);
 
     /**
@@ -415,4 +415,5 @@ public class MachineController {
     public void deleteActivationRecord() {
         machineView.deleteActivationRecord();
     }
+    
 }

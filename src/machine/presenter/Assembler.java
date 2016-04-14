@@ -63,16 +63,30 @@
  *                         are resolved
  * 
  * 18 jl948836 - 03/26/16: Added Check to CALL to determine that EQU isn't a Register
- *                         RD and RE in RSTORE opcode.
+ *                         RD and RE in RSTORE opcode
  * 
  * 19 jl948836 - 03/26/16: Added error statements to JMPLT and JMPEQ to check for
- *                         invalid characters in the argument.
+ *                         invalid characters in the argument
  * 
  * 20 gl939543 - 03/30/16: Modified DB sudoop 
  *
  * 21 gl939543 - 03/30/16  Add new condition to print out the DB contents in memory
 
+ * 22 jl948836 - 04/01/16: Changed Byte Code of SRET from "63 00" to "63 01"
+ * 
+ * 22 mv935583 - 04/11/16: Implemented changed to add shift instructions
+ * 
  * 20 jl948836 - 04/01/16: Changed Byte Code of SRET from "63 00" to "63 01"
+ *
+ * 22 jl948836 - 04/07/16: Corrected ByteCode Format of Operations
+
+ * 22 jl948836 - 04/07/16: Corrected ByteCode Format of Operations
+ * 
+ * 23 jl948836 - 04/07/16: Swapped ByteCode of move and rload. rload is now 4
+ *                         and move is D2. rload is now a 2 byte instruction.
+ * 
+ * 24 jl948836 - 04/10/16: Got rid of operationLocation(). No longer necessary
+ *                         due to rload being the same size as all other instructions.
  * /
 
 /*
@@ -114,9 +128,9 @@ public class Assembler {
     private final static String[] PSEUDOOPS = {"SIP", "ORG", "BSS", "DB", "EQU"}; //CHANGE LOG: 10
     private final static String[] OPERATIONS = 
         {"LOAD", "STORE", "MOVE", "ADD", "CALL", "RET",
-         "SCALL", "SRET", "PUSH", "POP", "OR", "AND", "XOR",
+         "PUSH", "POP", "OR", "AND", "XOR",
          "ROR", "JMPEQ", "JMP", "HALT", "ILOAD", "ISTORE",
-         "RLOAD", "RSTORE", "JMPLT"}; 
+         "RLOAD", "RSTORE", "JMPLT", "ROL", "SRA", "SRL", "SL"}; //CHANGE LOG: 22
     BufferedWriter logfile;
     String[] codes; 
     String[] labels;
@@ -231,14 +245,15 @@ public class Assembler {
             tokens = codes[i].split("\\s+"); //(?=([^\"]*\"[^\"]*\")*[^\"]*$)
             //System.out.println("After \\s+ ------->" + Arrays.toString(tokens));
             if (tokens.length > 0) { // A line with pseudo-op or operation
-                if (tokens[0].toUpperCase().equals("ORG")) { // handle ORG pseudo-op
+                if (tokens[0].toUpperCase().equals(PSEUDOOPS[1])) { // handle ORG pseudo-op
                     currentLocation = orgLocation(tokens, i);
                     labelMap.put(labels[i], currentLocation); 
                 }
+                //CHANGE LOG: 23
                 /*else if ((tokens[0].toUpperCase().equals("RLOAD")) && (labels[i] == null)){ //Rload without a label
                     currentLocation += 4; 
                 } */  
-                else if (tokens[0].toUpperCase().equals("DB")) { 	// handle DB pseudo op
+                else if (tokens[0].toUpperCase().equals(PSEUDOOPS[3])) { 	// handle DB pseudo op
                     labelMap.put(labels[i], currentLocation); 
                     //TODO: Get rid of superfluous statemens
                     System.out.println("In passOne, before dbOneLocation, currentLocation = " + currentLocation);
@@ -248,34 +263,39 @@ public class Assembler {
                     System.out.println("In passOne, after dbOneLocation, currentLocation = " + currentLocation);
                     logList.add("In passOne, after dbOneLocation, currentLocation = " + currentLocation);
                 }   
+                //CHANGE LOG: 23
                 /*else if ((labels[i] != null) && (tokens[0].toUpperCase().equals("RLOAD"))){ //RLOAD after a label
                     labelMap.put(labels[i], currentLocation);
                     currentLocation +=4;
                 } */  
                 //CHANGE LOG BEGIN: 10
-                else if ((labels[i] != null) && (tokens[0].toUpperCase().equals("EQU"))) {                    
+                else if ((labels[i] != null) && (tokens[0].toUpperCase().equals(PSEUDOOPS[4]))) {                    
                     equ(tokens,i);
                 }
                 //CHANGE LOG END: 10
                 else if (labels[i] != null) { 	// we have a label on this line with operation following
                     labelMap.put(labels[i], currentLocation);	
-                    if (tokens[0].toUpperCase().equals("BSS")) { 	// handle BSS pseudo op
+                    if (tokens[0].toUpperCase().equals(PSEUDOOPS[2])) { 	// handle BSS pseudo op
                         currentLocation += bssLocation(tokens, i);
                     }
                     else if (tokens[0] != null && isOperation(tokens[0])) { //label found, operation following
-                        currentLocation += operationLocation(tokens[0]);
+                        //currentLocation += operationLocation(tokens[0]);
+                        //CHANGE LOG: 24
+                        currentLocation += 2;
                     }
                 } 
-                else if (tokens[0].toUpperCase().equals("BSS")) { // error, bss and no label
+                else if (tokens[0].toUpperCase().equals(PSEUDOOPS[2])) { // error, bss and no label
                     errorList.add("Error: BSS pseudo op on line " + (i + 1) + " is missing a label.");    
                 } 
                 //CHANGE LOG BEGIN: 10
-                else if (tokens[0].toUpperCase().equals("EQU")) {
+                else if (tokens[0].toUpperCase().equals(PSEUDOOPS[4])) {
                     errorList.add("Error: EQU pseudo op on line " + (i + 1) + " is missing a label.");
                 }
                 //CHANGE LOG END: 10
                 else if (isOperation(tokens[0])) { 	// operation without label
-                    currentLocation += operationLocation(tokens[0]);
+                    //currentLocation += operationLocation(tokens[0]);
+                    //CHANGE LOG: 24
+                    currentLocation += 2;
                 }
             } 
             else if (labels[i] != null) { // we have a label with nothing following 
@@ -355,7 +375,7 @@ public class Assembler {
                 // do nothing.
             } 
             //CHANGE LOG BEGIN: 17
-            else if (labels[i] != null && (tokens[0].toUpperCase().matches("EQU"))){
+            else if (labels[i] != null && (tokens[0].toUpperCase().matches(PSEUDOOPS[4]))){
                 //If forward reference hasn't been resolved and not a register
                 if (!labelMap.containsKey(equivalencies.get(labels[i])) && !equivalencies.get(labels[i]).matches("R[0-9A-F]|RSP|RBP")){ 
                     errorList.add("Error: Forward Reference undefined - " + labels[i]);
@@ -515,7 +535,7 @@ public class Assembler {
      */
     private int operationLocation(String token) {
         int location;
-        if (token.equals("RLOAD")) {
+        if (token.equals(OPERATIONS[17])) {
             location = 4;
         } else {
             location = 2;
@@ -708,12 +728,21 @@ public class Assembler {
                     case "MOVE":
                         return "D2" + move(args[0], args[1], line);
                     case "ROR":
-                        return "A" + ror(args[0], args[1], line);
+                        return "A0" + ror(args[0], args[1], line);  //BEGIN CHANGE LOG: 22
+                    case "ROL":
+                        return "A1" + rol(args[0], args[1], line);
+                    case "SRA":
+                        return "A2" + sra(args[0], args[1], line);
+                    case "SRL":
+                        return "A3" + srl(args[0], args[1], line);
+                    case "SL":
+                        return "A4" + sl(args[0], args[1], line);   //END CHANGE LOG: 22
                     case "JMPEQ":
                         return "B" + jmpeq(args[0], args[1], line);
                     case "ILOAD":
                         return "D0" + iload(args[0], args[1], line);
                     case "ISTORE":
+                        System.out.println("ISTORE ARG1: " + args[0] + " ARG2: " + args[1]);
                         return "D1" + istore(args[0], args[1], line);
                     case "RLOAD": //CHANGE LOG: 21
                         return  "4" + rload(args[0], args[1], line); //args[1] #[RN]
@@ -751,7 +780,7 @@ public class Assembler {
                 case "RET":
                     return "6101"; //CHANGE LOG: 14
                 case "SRET":
-                    return "6301"; //CHANGE LOG: 20
+                    return "6301";
                 case "HALT":
                     return "C000";
                 case "NOOP":
@@ -1072,7 +1101,8 @@ public class Assembler {
         if (firstArg.startsWith("[") && firstArg.endsWith("]")) {
             firstArg = firstArg.substring(1, firstArg.length() - 1);
             firstArg = getRegister(firstArg, line);
-            result = secondArg + firstArg;
+            //result = secondArg + firstArg;
+            result = firstArg + secondArg; //CHANGE LOG: 22
         } else {
             errorList.add("Error: ISTORE operation on line " + line
                 + " has invalid arguments.");
@@ -1185,20 +1215,179 @@ public class Assembler {
      */
     private String ror(String firstArg, String secondArg, int line) {
         String result = "000";
+        int secondArgAsDec; //BEGIN CHANGE LOG: 22
         firstArg = getRegister(firstArg, line);
-        if (isHex(secondArg)) {
-            result = firstArg + secondArg.substring(2, 4);
-        } 
-        else if (isInt(secondArg)) {
-            result = firstArg + intToHex(secondArg);
-        } 
+        if (secondArg.length() == 1 || secondArg.length() == 4){
+            if (isHex(secondArg)) {
+                secondArgAsDec = Integer.parseInt(secondArg.substring(3, 4), 16);
+                if (0 <= secondArgAsDec && secondArgAsDec < 9) 
+                    result = firstArg + secondArg.substring(3, 4);
+                else
+                    errorList.add("Error: ROR operation on line " + line
+                        + " has invalid arguments.");
+            } 
+            else if (isInt(secondArg)) {
+                secondArgAsDec = Integer.parseInt(secondArg, 10);
+                if (0 <= secondArgAsDec && secondArgAsDec < 9){
+                    result = firstArg + secondArg;
+                    System.out.println(result);
+                }
+                else
+                    errorList.add("Error: ROR operation on line " + line
+                        + " has invalid arguments.");
+            } 
+            else {
+                errorList.add("Error: ROR operations on line " + line
+                    + " has invalid arguments.");
+            }
+        }
         else {
             errorList.add("Error: ROR operations on line " + line
                 + " has invalid arguments.");
         }
         return result;
     }
-
+    
+    private String rol(String firstArg, String secondArg, int line) {
+        String result = "000";
+        int secondArgAsDec;
+        firstArg = getRegister(firstArg, line);
+        if (secondArg.length() == 1 || secondArg.length() == 4){
+            if (isHex(secondArg)) {
+                secondArgAsDec = Integer.parseInt(secondArg.substring(3, 4), 16);
+                if (0 <= secondArgAsDec && secondArgAsDec < 9) 
+                    result = firstArg + secondArg.substring(3, 4);
+                else
+                    errorList.add("Error: ROL operation on line " + line
+                        + " has invalid arguments.");
+            } 
+            else if (isInt(secondArg)) {
+                secondArgAsDec = Integer.parseInt(secondArg, 10);
+                if (0 <= secondArgAsDec && secondArgAsDec < 9){
+                    result = firstArg + secondArg;
+                    System.out.println(result);
+                }
+                else
+                    errorList.add("Error: ROL operation on line " + line
+                        + " has invalid arguments.");
+            } 
+            else {
+                errorList.add("Error: ROL operations on line " + line
+                    + " has invalid arguments.");
+            }
+        }
+        else {
+            errorList.add("Error: ROL operations on line " + line
+                + " has invalid arguments.");
+        }
+        return result;
+    }
+    
+    private String sra(String firstArg, String secondArg, int line) {
+        String result = "000";
+        int secondArgAsDec;
+        firstArg = getRegister(firstArg, line);
+        if (secondArg.length() == 1 || secondArg.length() == 4){
+            if (isHex(secondArg)) {
+                secondArgAsDec = Integer.parseInt(secondArg.substring(3, 4), 16);
+                if (0 <= secondArgAsDec && secondArgAsDec < 9) 
+                    result = firstArg + secondArg.substring(3, 4);
+                else
+                    errorList.add("Error: SRA operation on line " + line
+                        + " has invalid arguments.");
+            } 
+            else if (isInt(secondArg)) {
+                secondArgAsDec = Integer.parseInt(secondArg, 10);
+                if (0 <= secondArgAsDec && secondArgAsDec < 9){
+                    result = firstArg + secondArg;
+                    System.out.println(result);
+                }
+                else
+                    errorList.add("Error: SRA operation on line " + line
+                        + " has invalid arguments.");
+            } 
+            else {
+                errorList.add("Error: SRA operations on line " + line
+                    + " has invalid arguments.");
+            }
+        }
+        else {
+            errorList.add("Error: SRA operations on line " + line
+                + " has invalid arguments.");
+        }
+        return result;
+    }
+    
+    private String srl(String firstArg, String secondArg, int line) {
+        String result = "000";
+        int secondArgAsDec;
+        firstArg = getRegister(firstArg, line);
+        if (secondArg.length() == 1 || secondArg.length() == 4){
+            if (isHex(secondArg)) {
+                secondArgAsDec = Integer.parseInt(secondArg.substring(3, 4), 16);
+                if (0 <= secondArgAsDec && secondArgAsDec < 9) 
+                    result = firstArg + secondArg.substring(3, 4);
+                else
+                    errorList.add("Error: SRL operation on line " + line
+                        + " has invalid arguments.");
+            } 
+            else if (isInt(secondArg)) {
+                secondArgAsDec = Integer.parseInt(secondArg, 10);
+                if (0 <= secondArgAsDec && secondArgAsDec < 9){
+                    result = firstArg + secondArg;
+                    System.out.println(result);
+                }
+                else
+                    errorList.add("Error: SRL operation on line " + line
+                        + " has invalid arguments.");
+            } 
+            else {
+                errorList.add("Error: SRL operations on line " + line
+                    + " has invalid arguments.");
+            }
+        }
+        else {
+            errorList.add("Error: SRL operations on line " + line
+                + " has invalid arguments.");
+        }
+        return result;
+    }
+    
+    private String sl(String firstArg, String secondArg, int line) {
+        String result = "000";
+        int secondArgAsDec;
+        firstArg = getRegister(firstArg, line);
+        if (secondArg.length() == 1 || secondArg.length() == 4){
+            if (isHex(secondArg)) {
+                secondArgAsDec = Integer.parseInt(secondArg.substring(3, 4), 16);
+                if (0 <= secondArgAsDec && secondArgAsDec < 9) 
+                    result = firstArg + secondArg.substring(3, 4);
+                else
+                    errorList.add("Error: SL operation on line " + line
+                        + " has invalid arguments.");
+            } 
+            else if (isInt(secondArg)) {
+                secondArgAsDec = Integer.parseInt(secondArg, 10);
+                if (0 <= secondArgAsDec && secondArgAsDec < 9){
+                    result = firstArg + secondArg;
+                    System.out.println(result);
+                }
+                else
+                    errorList.add("Error: SL operation on line " + line
+                        + " has invalid arguments.");
+            } 
+            else {
+                errorList.add("Error: SL operations on line " + line
+                    + " has invalid arguments.");
+            }
+        }
+        else {
+            errorList.add("Error: SL operations on line " + line
+                + " has invalid arguments.");
+        }
+        return result;
+    }   //END CHANGE LOG: 22
+    
     /**
      *
      * @param firstArg
@@ -1263,6 +1452,7 @@ public class Assembler {
      * @param line
      * @return Last two nibbles for assembly of the SCALL instruction
      */
+    //TODO: Ensure SCALL Like CALL, can't recieve a REG from EQU as an Argument
     private String scall(String firstArg, int line) {
         String result = "00";
         if (labelMap.containsKey(firstArg)) { // arg is a label
@@ -1369,8 +1559,9 @@ public class Assembler {
      * @param line
      * @return Last three bytes for assembly of the MOVE instruction
      */
+    //CHANGE LOG: 22
     private String move(String firstArg, String secondArg, int line) {
-        return getRegister(secondArg, line) + getRegister(firstArg, line);
+        return getRegister(firstArg, line) + getRegister(secondArg, line);
     }
 
     /**

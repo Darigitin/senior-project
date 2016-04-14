@@ -6,7 +6,6 @@
 package machine.view;
 
 import java.awt.EventQueue;
-import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.util.ArrayList;
 import javax.swing.JButton;
@@ -17,11 +16,26 @@ import javax.swing.text.JTextComponent;
  *
  * @author jl948836
  */
+
+/** 
+ * Change Log
+ * 
+ * mv935583 -> Matthew Vertefeuille
+ * # author   - date:     description
+ * 1 mv935583   04/07/16: Implemented theme selector backend for GUI
+ * 
+ * 2 mv935583 - 04/11/16: Finalized backend for theme selected on GUI, also 
+ *                        uncoupled the font name, size, and theme actions so
+ *                        each one behaves independently.
+ */
+@SuppressWarnings("serial")
 public class TextEditorPanel extends javax.swing.JPanel {
 
     private String[] fontNames = null;
     Integer[] SIZES = { 8, 9, 10, 11, 12, 14, 16, 18, 20,
         22, 24, 26, 28, 36, 48, 72 }; //the sizes for the font size combo box. MB
+    String[] THEMES = { "Black on White", "Green on Black", "Blue on Black", "Red on Black", 
+        "White on Black", "Black on Light-Yellow"}; //CHANGE LOG: 1
     private MachineView machineView;
     private TextEditorFrame editorWindow;
     
@@ -107,52 +121,6 @@ public class TextEditorPanel extends javax.swing.JPanel {
         return fontNames;
     }
     
-    public void updateText() {
-        //creates and sets the font according to the options selected from the font size and name combo boxs.
-        //Programmer: Mariela Barrera
-        String name = (String) fontComboBox.getSelectedItem();
-        int themeNumber = fontThemeComboBox.getSelectedIndex();
-        String textColor, backGroundColor;
-        switch (themeNumber){
-            case 2:
-                textColor = "GREEN";
-                backGroundColor = "BLACK";
-                break;
-            case 1:
-                textColor = "BLUE";
-                backGroundColor = "BLACK";
-                break;
-            case 3:
-                textColor = "RED";
-                backGroundColor = "BLACK";
-                break;
-            case 4:
-                textColor = "WHITE";
-                backGroundColor = "BLACK";
-                break;
-            case 0:
-                textColor = "BLACK";
-                backGroundColor = "WHITE";
-                break;
-            case 5:
-                textColor = "BLACK";
-                backGroundColor = "LIGHT-YELLOW";
-                break;
-            default:
-                textColor = "BLACK";
-                backGroundColor = "WHITE";
-                break;
-        }
-        
-        textEditor.setBackGround(backGroundColor);
-        
-        Integer size = (Integer) fontSizeComboBox.getSelectedItem();
-
-        int style = Font.PLAIN;
-
-        Font newfont = new Font(name, style, size);
-        textEditor.getTextPane().setFont(newfont);
-    }
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -230,7 +198,12 @@ public class TextEditorPanel extends javax.swing.JPanel {
         gridBagConstraints.gridy = 1;
         textEditorControlsPanel.add(themeLabel, gridBagConstraints);
 
-        fontThemeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        fontThemeComboBox.setModel(new javax.swing.DefaultComboBoxModel(THEMES));
+        fontThemeComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fontThemeComboBoxActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
@@ -282,11 +255,13 @@ public class TextEditorPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void fontComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontComboBoxActionPerformed
-        updateText();
+        String name = (String) fontComboBox.getSelectedItem();  //BEGIN CHANGE LOG: 2
+        textEditor.setFontName(name);
     }//GEN-LAST:event_fontComboBoxActionPerformed
 
     private void fontSizeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontSizeComboBoxActionPerformed
-        updateText();
+        int size = (int) fontSizeComboBox.getSelectedItem();
+        textEditor.setFontSize(size);   //END CHANGE LOG: 2
     }//GEN-LAST:event_fontSizeComboBoxActionPerformed
 
     private void splitJoinButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_splitJoinButtonActionPerformed
@@ -320,6 +295,43 @@ public class TextEditorPanel extends javax.swing.JPanel {
         });
     }//GEN-LAST:event_splitJoinButtonActionPerformed
 
+    private void fontThemeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontThemeComboBoxActionPerformed
+        int themeNumber = fontThemeComboBox.getSelectedIndex(); //BEGIN CHANGE LOG: 2
+        String textColor, backGroundColor;
+        switch (themeNumber){
+            case 1:
+                textColor = "GREEN";
+                backGroundColor = "BLACK";
+                break;
+            case 2:
+                textColor = "BLUE";
+                backGroundColor = "BLACK";
+                break;
+            case 3:
+                textColor = "RED";
+                backGroundColor = "BLACK";
+                break;
+            case 4:
+                textColor = "WHITE";
+                backGroundColor = "BLACK";
+                break;
+            case 0:
+                textColor = "BLACK";
+                backGroundColor = "WHITE";
+                break;
+            case 5:
+                textColor = "BLACK";
+                backGroundColor = "LIGHT-YELLOW";
+                break;
+            default:
+                textColor = "BLACK";
+                backGroundColor = "WHITE";
+                break;
+        }
+                
+        textEditor.setTextColor(textColor);
+        textEditor.setBackGround(backGroundColor);  //END CHANGE LOG: 2
+    }//GEN-LAST:event_fontThemeComboBoxActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public javax.swing.JTextArea errorDisplay;
