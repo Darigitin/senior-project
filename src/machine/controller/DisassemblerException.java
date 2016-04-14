@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package machine.presenter;
+package machine.controller;
 
 @SuppressWarnings("serial")
 public class DisassemblerException extends Exception {

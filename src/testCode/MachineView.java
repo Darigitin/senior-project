@@ -21,7 +21,7 @@ import machine.model.CellEditor;
 import machine.model.CellRenderer;
 import machine.model.ColumnHeaderRenderer;
 import machine.model.RowHeaderRenderer;
-import machine.presenter.MachineController;
+import machine.controller.MachineController;
 import machine.model.RAMTableModel;
 import machine.model.SpecialTableModel;
 import machine.model.RegisterTableModel;

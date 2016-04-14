@@ -35,7 +35,7 @@
     1. Modified the fetch phase
 */
 
-package machine.presenter;
+package machine.controller;
 
 import java.util.Timer;
 import java.util.TimerTask;

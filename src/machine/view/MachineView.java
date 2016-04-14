@@ -25,7 +25,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
-import machine.presenter.MachineController;
+import machine.controller.MachineController;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 
