@@ -5,7 +5,6 @@
  */
 package machine.model;
 
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -55,6 +54,7 @@ public class RegisterTableModel extends AbstractTableModel{
     
     @Override
     public boolean isCellEditable(int row, int col) {
+        System.out.println(col!=0);
         return col != 0;
     }
  

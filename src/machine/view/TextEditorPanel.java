@@ -1,0 +1,338 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package machine.view;
+
+import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.GraphicsEnvironment;
+import java.util.ArrayList;
+import javax.swing.JButton;
+import javax.swing.JTextArea;
+import javax.swing.text.JTextComponent;
+
+/**
+ *
+ * @author jl948836
+ */
+public class TextEditorPanel extends javax.swing.JPanel {
+
+    private String[] fontNames = null;
+    Integer[] SIZES = { 8, 9, 10, 11, 12, 14, 16, 18, 20,
+        22, 24, 26, 28, 36, 48, 72 }; //the sizes for the font size combo box. MB
+    private MachineView machineView;
+    private TextEditorFrame editorWindow;
+    
+    /**
+     * Creates new form TextEditorPanel
+     */
+    public TextEditorPanel() {
+        initComponents();
+    }
+    
+    /**
+     * Creates the Text Editor for a single Frame/Window
+     * 
+     * @param machineView 
+     */
+    public TextEditorPanel(MachineView machineView) {
+        this.machineView = machineView;
+        initComponents();
+    }
+    
+    /**
+     * Creates the Text Editor for multiple Frames/Windows
+     * 
+     * @param machineView
+     * @param editorWindow 
+     */
+    public TextEditorPanel(MachineView machineView, TextEditorFrame editorWindow) {
+        this.machineView = machineView;
+        this.editorWindow = editorWindow;
+        initComponents();
+    }
+
+    public JTextArea getErrorPane(){
+        return errorDisplay;
+    }
+    
+    /**
+     * Displays the error List after the user presses the Assemble button
+     * @param errorList
+     */
+    public void setErrorText(ArrayList<String> errorList) {
+            String errorText = "";
+            for (String error : errorList){
+                    errorText += error + "\n";
+            }
+            errorDisplay.setText(errorText);
+    }
+    
+    public JTextComponent getEditorPane() {
+        return textEditor.getTextPane();
+    }
+    
+    public String getEditorText() {
+        return textEditor.getText();
+    }
+    
+    public TextEditorFrame getTextEditorFrame() {
+        return editorWindow;
+    }
+    
+    public TextEditor getTextEditor() {
+        return textEditor;
+    }
+    
+    public JButton getSplitJoinButton() {
+        return splitJoinButton;
+    }
+    
+    protected String[] getFontNames()
+    // Will get the all the avalilable texts from the system.
+    // Programmer: Mariela Barrera
+    {
+        if (fontNames == null)
+        {
+            GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+                        //GraphicsConfiguration.
+            fontNames = env.getAvailableFontFamilyNames();
+                        //System.out.println(Arrays.toString(fontNames));
+                        //System.out.println("************************************Screen Resolution TEST*******************************************");
+                        //System.out.println(env.getMaximumWindowBounds());
+                        //System.out.println(env.getDefaultScreenDevice());
+        }
+        return fontNames;
+    }
+    
+    public void updateText() {
+        //creates and sets the font according to the options selected from the font size and name combo boxs.
+        //Programmer: Mariela Barrera
+        String name = (String) fontComboBox.getSelectedItem();
+        int themeNumber = fontThemeComboBox.getSelectedIndex();
+        String textColor, backGroundColor;
+        switch (themeNumber){
+            case 2:
+                textColor = "GREEN";
+                backGroundColor = "BLACK";
+                break;
+            case 1:
+                textColor = "BLUE";
+                backGroundColor = "BLACK";
+                break;
+            case 3:
+                textColor = "RED";
+                backGroundColor = "BLACK";
+                break;
+            case 4:
+                textColor = "WHITE";
+                backGroundColor = "BLACK";
+                break;
+            case 0:
+                textColor = "BLACK";
+                backGroundColor = "WHITE";
+                break;
+            case 5:
+                textColor = "BLACK";
+                backGroundColor = "LIGHT-YELLOW";
+                break;
+            default:
+                textColor = "BLACK";
+                backGroundColor = "WHITE";
+                break;
+        }
+        
+        textEditor.setBackGround(backGroundColor);
+        
+        Integer size = (Integer) fontSizeComboBox.getSelectedItem();
+
+        int style = Font.PLAIN;
+
+        Font newfont = new Font(name, style, size);
+        textEditor.getTextPane().setFont(newfont);
+    }
+    
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
+
+        textEditorControlsPanel = new javax.swing.JPanel();
+        fontLabel = new javax.swing.JLabel();
+        fontComboBox = new javax.swing.JComboBox(getFontNames());
+        fontSizeLabel = new javax.swing.JLabel();
+        fontSizeComboBox = new javax.swing.JComboBox(SIZES);
+        splitJoinButton = new javax.swing.JButton();
+        themeLabel = new javax.swing.JLabel();
+        fontThemeComboBox = new javax.swing.JComboBox();
+        textEditorPanel = new javax.swing.JPanel();
+        textEditor = new machine.view.TextEditor();
+        errorDisplayScrollPanel = new javax.swing.JScrollPane();
+        errorDisplay = new javax.swing.JTextArea();
+
+        setLayout(new java.awt.GridBagLayout());
+
+        textEditorControlsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true), "Text Editor Controls"));
+        textEditorControlsPanel.setLayout(new java.awt.GridBagLayout());
+
+        fontLabel.setText("Font:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
+        textEditorControlsPanel.add(fontLabel, gridBagConstraints);
+
+        fontComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fontComboBoxActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
+        textEditorControlsPanel.add(fontComboBox, gridBagConstraints);
+
+        fontSizeLabel.setText("Font Size:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
+        textEditorControlsPanel.add(fontSizeLabel, gridBagConstraints);
+
+        fontSizeComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fontSizeComboBoxActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
+        textEditorControlsPanel.add(fontSizeComboBox, gridBagConstraints);
+
+        splitJoinButton.setText("Split Editor");
+        splitJoinButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                splitJoinButtonActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 4);
+        textEditorControlsPanel.add(splitJoinButton, gridBagConstraints);
+
+        themeLabel.setText("Theme: ");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        textEditorControlsPanel.add(themeLabel, gridBagConstraints);
+
+        fontThemeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        textEditorControlsPanel.add(fontThemeComboBox, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 0.1;
+        add(textEditorControlsPanel, gridBagConstraints);
+
+        textEditorPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true), "Text Editor"));
+
+        javax.swing.GroupLayout textEditorPanelLayout = new javax.swing.GroupLayout(textEditorPanel);
+        textEditorPanel.setLayout(textEditorPanelLayout);
+        textEditorPanelLayout.setHorizontalGroup(
+            textEditorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(textEditor, javax.swing.GroupLayout.DEFAULT_SIZE, 432, Short.MAX_VALUE)
+        );
+        textEditorPanelLayout.setVerticalGroup(
+            textEditorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(textEditor, javax.swing.GroupLayout.DEFAULT_SIZE, 115, Short.MAX_VALUE)
+        );
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 0.7;
+        add(textEditorPanel, gridBagConstraints);
+
+        errorDisplayScrollPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true), "Errors"));
+
+        errorDisplay.setEditable(false);
+        errorDisplay.setColumns(20);
+        errorDisplay.setForeground(new java.awt.Color(250, 0, 0));
+        errorDisplay.setRows(5);
+        errorDisplayScrollPanel.setViewportView(errorDisplay);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 0.2;
+        add(errorDisplayScrollPanel, gridBagConstraints);
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void fontComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontComboBoxActionPerformed
+        updateText();
+    }//GEN-LAST:event_fontComboBoxActionPerformed
+
+    private void fontSizeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontSizeComboBoxActionPerformed
+        updateText();
+    }//GEN-LAST:event_fontSizeComboBoxActionPerformed
+
+    private void splitJoinButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_splitJoinButtonActionPerformed
+        final String codeInEditor = getEditorText();
+        
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                if (splitJoinButton.getText().equals("Split Editor")) {
+                    editorWindow = new TextEditorFrame(machineView);
+                    editorWindow.getEditorPane().setText(codeInEditor);
+                    machineView.getTextEditorPanel().setVisible(false);
+                    editorWindow.getErrorPane().setVisible(false);
+                    machineView.setTitle("WALL - Machine Window");
+                    editorWindow.setTitle("WALL - Text Editor Window");
+                    machineView.pack();
+                    editorWindow.pack();
+                    editorWindow.setLocationRelativeTo(machineView);
+                    editorWindow.setVisible(true);
+                }
+                else { //Join Editor
+                    splitJoinButton.setText("Split Editor");
+                    editorWindow.dispose();
+                    machineView.setTitle("WALL - Machine Simulator");
+                    machineView.getTextEditorPanel().getEditorPane().setText(codeInEditor);
+                    machineView.getTextEditorPanel().setVisible(true);
+                    machineView.pack();
+                    
+                }
+            }
+        });
+    }//GEN-LAST:event_splitJoinButtonActionPerformed
+
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    public javax.swing.JTextArea errorDisplay;
+    public javax.swing.JScrollPane errorDisplayScrollPanel;
+    public javax.swing.JComboBox fontComboBox;
+    private javax.swing.JLabel fontLabel;
+    public javax.swing.JComboBox fontSizeComboBox;
+    private javax.swing.JLabel fontSizeLabel;
+    private javax.swing.JComboBox fontThemeComboBox;
+    public javax.swing.JButton splitJoinButton;
+    public machine.view.TextEditor textEditor;
+    public javax.swing.JPanel textEditorControlsPanel;
+    public javax.swing.JPanel textEditorPanel;
+    private javax.swing.JLabel themeLabel;
+    // End of variables declaration//GEN-END:variables
+}

@@ -1,5 +1,6 @@
 package system.view;
 
+import machine.model.SyntaxHighlighter;
 import java.awt.Color;
 import java.awt.Font;
 import java.io.Serializable;
@@ -30,6 +31,8 @@ public class TextEditor extends JScrollPane implements Serializable {
     
     public static final Color ERROR_COLOR = new Color(255,50,50);
     public static final Color EXECUTION_COLOR = new Color(0,220,0);
+    public static final int CODE_TAB_INDEX = 0;
+    public static final Font DEFAULT_FONT = new Font("Tahoma", Font.PLAIN, 14);
     
     private final JScrollBar verticalBar;
     private JMenuItem saveMenuItem;

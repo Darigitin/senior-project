@@ -6,7 +6,9 @@
  *          text, splitting everything into labels, operations, and comments. 
  *          Pass two takes this information.
  *
- * @author:
+ * @author: Jordan Lescallette
+ * @author: Matthew Vertefeuille
+ * @author: Guojun Liu
  *
  * date/ver: 
  */
@@ -61,6 +63,7 @@
  *                         are resolved
  * 
  * 18 jl948836 - 03/26/16: Added Check to CALL to determine that EQU isn't a Register
+ *                         RD and RE in RSTORE opcode.
  * 
  * 19 jl948836 - 03/26/16: Added error statements to JMPLT and JMPEQ to check for
  *                         invalid characters in the argument.
@@ -68,6 +71,8 @@
  * 20 gl939543 - 03/30/16: Modified DB sudoop 
  *
  * 21 gl939543 - 03/30/16  Add new condition to print out the DB contents in memory
+
+ * 20 jl948836 - 04/01/16: Changed Byte Code of SRET from "63 00" to "63 01"
  * /
 
 /*
@@ -119,10 +124,9 @@ public class Assembler {
     String Location[], Object_code[];
     String DBcode = "";
     HashMap<String, Integer> labelMap = new HashMap<>(256); //labels mapped to addrs.
-    HashMap<String, String> equivalencies = new HashMap<>(256); //CHANGE LOG: 10 - labels mapped to labels
+    HashMap<String, String> equivalencies = new HashMap<>(256); //CHANGE LOG: 10 - labels mapped to labels/Registers
     String labelAppears;
     String SIP = "00";
-    int errorCount = 0;
     int codeLines = 1;
     int labelAppearsLine;
     
@@ -174,8 +178,10 @@ public class Assembler {
     }
     
     /**
+     * Begins pass one which parses the text storing all codes and labels into
+     * their respected arrays and then executed passtwo. 
      * 
-     * @param text 
+     * @param text Source code from editor view.
      */
     private void passOne(String text) {
         String[] lines = text.split("\n");
@@ -227,13 +233,13 @@ public class Assembler {
             if (tokens.length > 0) { // A line with pseudo-op or operation
                 if (tokens[0].toUpperCase().equals("ORG")) { // handle ORG pseudo-op
                     currentLocation = orgLocation(tokens, i);
-                    mapLabel(i, currentLocation); // map label to org
+                    labelMap.put(labels[i], currentLocation); 
                 }
-                else if ((tokens[0].toUpperCase().equals("RLOAD")) && (labels[i] == null)){ //Rload without a label
+                /*else if ((tokens[0].toUpperCase().equals("RLOAD")) && (labels[i] == null)){ //Rload without a label
                     currentLocation += 4; 
-                }   
+                } */  
                 else if (tokens[0].toUpperCase().equals("DB")) { 	// handle DB pseudo op
-                    mapLabel(i, currentLocation); // map label before updating current location...
+                    labelMap.put(labels[i], currentLocation); 
                     //TODO: Get rid of superfluous statemens
                     System.out.println("In passOne, before dbOneLocation, currentLocation = " + currentLocation);
                     logList.add("In passOne, before dbOneLocation, currentLocation = " + currentLocation);
@@ -242,22 +248,22 @@ public class Assembler {
                     System.out.println("In passOne, after dbOneLocation, currentLocation = " + currentLocation);
                     logList.add("In passOne, after dbOneLocation, currentLocation = " + currentLocation);
                 }   
-                else if ((labels[i] != null) && (tokens[0].toUpperCase().equals("RLOAD"))){ //RLOAD after a label
-                    mapLabel(i, currentLocation);
+                /*else if ((labels[i] != null) && (tokens[0].toUpperCase().equals("RLOAD"))){ //RLOAD after a label
+                    labelMap.put(labels[i], currentLocation);
                     currentLocation +=4;
-                }   
+                } */  
                 //CHANGE LOG BEGIN: 10
                 else if ((labels[i] != null) && (tokens[0].toUpperCase().equals("EQU"))) {                    
                     equ(tokens,i);
                 }
                 //CHANGE LOG END: 10
                 else if (labels[i] != null) { 	// we have a label on this line with operation following
-                    mapLabel(i, currentLocation);	// map currentLocation to the label
+                    labelMap.put(labels[i], currentLocation);	
                     if (tokens[0].toUpperCase().equals("BSS")) { 	// handle BSS pseudo op
                         currentLocation += bssLocation(tokens, i);
                     }
                     else if (tokens[0] != null && isOperation(tokens[0])) { //label found, operation following
-                        currentLocation += operationLocation(tokens);
+                        currentLocation += operationLocation(tokens[0]);
                     }
                 } 
                 else if (tokens[0].toUpperCase().equals("BSS")) { // error, bss and no label
@@ -269,11 +275,11 @@ public class Assembler {
                 }
                 //CHANGE LOG END: 10
                 else if (isOperation(tokens[0])) { 	// operation without label
-                    currentLocation += operationLocation(tokens);
+                    currentLocation += operationLocation(tokens[0]);
                 }
             } 
             else if (labels[i] != null) { // we have a label with nothing following 
-                mapLabel(i, currentLocation);	// map currentLocation to the label
+                labelMap.put(labels[i], currentLocation);	
             }
         }
         
@@ -282,7 +288,8 @@ public class Assembler {
     }
 
     /**
-     * Pass Two - Handles RLOAD and handles the SIP pseudo op as well
+     * Executes pass two which handles  all pseudo ops from the codes array,
+     * assigning their arguments locations in memory.
      */
     private void passTwo() {
 
@@ -393,10 +400,11 @@ public class Assembler {
     }
 
     /**
-     * handle instances of found DB pseudo op in passone.
+     * Ensures that the DB pseudo op argument conforms to standards and then returns
+     * length of the DB pseudo op argument.
      *
-     * @param tokens
-     * @return number of bytes to skip
+     * @param tokens String[] of pseudo ops
+     * @return size of db pseudo op argument
      */
     private int passOneDB(String[] tokens) {
         int result;
@@ -426,10 +434,11 @@ public class Assembler {
     }
 
     /**
-     * handle instances of BSS in pass one
+     * Ensures that the BSS pseudo op argument conforms to standards and then returns
+     * length of the BSS pseudo op argument.
      *
-     * @param string
-     * @return number of bytes to skip
+     * @param value argument of BSS pseudo op
+     * @return size of BSS pseudo op argument
      */
     private int passOneBSS(String value) {
         // we know string is valid hex or int
@@ -441,11 +450,12 @@ public class Assembler {
     }
 
     /**
-     * Determines if the address specified in org's argument is valid.
+     * Determines if the address specified in ORG argument is valid hexadecimal
+     * value.
      * 
-     * @param tokens
-     * @param i
-     * @return
+     * @param tokens String[] of pseudo ops
+     * @param i location of ORG pseudo op in tokens
+     * @return valid ORG argument as a integer
      */
     private int orgLocation(String[] tokens, int i) {
         int location = 0;
@@ -459,9 +469,13 @@ public class Assembler {
 
     /**
      *
-     * @param tokens
-     * @param i
-     * @return
+     * Ensures that the tokens array is of the appropriate length and then 
+     * invokes passOneDb to find the number of bytes to skip in memory for 
+     * memory storage of DB pseudo op.
+     * 
+     * @param tokens String[] of pseudo ops
+     * @param i Location of DB pseudo op in tokens
+     * @return Number of bytes to skip in memory
      */
     private int dbOneLocation(String[] tokens, int i) {
         int location = 0;
@@ -474,10 +488,13 @@ public class Assembler {
     }
 
     /**
-     *
-     * @param tokens
-     * @param i
-     * @return
+     * Ensures that the tokens array is of the appropriate length and then 
+     * invokes passOneBSS to find the number of bytes to skip in memory for 
+     * memory storage of BSS pseudo op.
+     * 
+     * @param tokens String[] of pseudo ops
+     * @param i Location of BSS pseudo op in tokens
+     * @return Number of bytes to skip in memory
      */
     private int bssLocation(String[] tokens, int i) {
         int location = 0;
@@ -490,13 +507,15 @@ public class Assembler {
     }
 
     /**
-     *
-     * @param tokens
-     * @return
+     * Determines how many bytes in memory to move forward based on which 
+     * operation it receives, 4 for rload and 2 for all others.
+     * 
+     * @param token String operation
+     * @return Number of bytes to skip in memory
      */
-    private int operationLocation(String[] tokens) {
+    private int operationLocation(String token) {
         int location;
-        if (tokens[0].equals("RLOAD")) {
+        if (token.equals("RLOAD")) {
             location = 4;
         } else {
             location = 2;
@@ -513,10 +532,10 @@ public class Assembler {
     private void equ(String[] tokens, int i){
         if (tokens.length == 2){ //EQU and Argument
             if (isHex(tokens[1])) { //Hex for Argument
-                mapLabel(i, hexToInt(tokens[1]));
+                labelMap.put(labels[i], hexToInt(tokens[1]));
             }
             else if (isInt(tokens[1])){ //Int for Argument
-                mapLabel(i, Integer.parseInt(tokens[1]));
+                labelMap.put(labels[i], Integer.parseInt(tokens[1]));
             }
             else { //Label for Argument
                 equivalencies.put(labels[i], tokens[1]);
@@ -530,15 +549,6 @@ public class Assembler {
         }
     }
     //CHANGE LOG END: 10
-
-    /**
-     *
-     * @param i
-     * @param currentLocation
-     */
-    private void mapLabel(int i, int currentLocation) {
-        labelMap.put(labels[i], currentLocation);
-    }
 
     /**
      *
@@ -666,7 +676,7 @@ public class Assembler {
                     case "CALL":
                         return "60" + call(args[0], line);
                     case "SCALL":
-                        return "6" + scall(args[0], line);
+                        return "62" + scall(args[0], line);
                     case "PUSH":
                         return "64" + push(args[0], line);
                     case "POP":
@@ -696,7 +706,7 @@ public class Assembler {
                     case "STORE":
                         return "3" + store(args[0], args[1], line);
                     case "MOVE":
-                        return "40" + move(args[0], args[1], line);
+                        return "D2" + move(args[0], args[1], line);
                     case "ROR":
                         return "A" + ror(args[0], args[1], line);
                     case "JMPEQ":
@@ -705,8 +715,8 @@ public class Assembler {
                         return "D0" + iload(args[0], args[1], line);
                     case "ISTORE":
                         return "D1" + istore(args[0], args[1], line);
-                    case "RLOAD":
-                        return rload(args[0], args[1], line); //args[1] #[RN]
+                    case "RLOAD": //CHANGE LOG: 21
+                        return  "4" + rload(args[0], args[1], line); //args[1] #[RN]
                     case "RSTORE":
                         //modified code for RESTORE
                         return "E" + rstore(args[0], args[1], line);
@@ -741,7 +751,7 @@ public class Assembler {
                 case "RET":
                     return "6101"; //CHANGE LOG: 14
                 case "SRET":
-                    return "6300";
+                    return "6301"; //CHANGE LOG: 20
                 case "HALT":
                     return "C000";
                 case "NOOP":
@@ -762,8 +772,8 @@ public class Assembler {
      */
     private int byteCodeInTemp(String bytes, int currentLocation, int i) {
         int location;
-        
-        if (codes[i].trim().toUpperCase().contains("RLOAD")) { // RLOAD special case
+        //CHANGE LOG BEGIN: 21
+        /*if (codes[i].trim().toUpperCase().contains("RLOAD")) { // RLOAD special case
             tempMem[currentLocation] = bytes.substring(0, 2);  // Placing Bytecode in memory
             tempMem[currentLocation + 1] = bytes.substring(2, 4);
             tempMem[currentLocation + 2] = bytes.substring(4, 6);
@@ -773,7 +783,8 @@ public class Assembler {
             Location[i] = intToHex(Integer.toString(currentLocation));
             
             location = 4;
-        } else {
+        } else {*/
+        //CHANGE LOG END: 21
             tempMem[currentLocation] = bytes.substring(0, 2);// Placing Bytecode in memory
             tempMem[currentLocation + 1] = bytes.substring(2, 4);
             System.out.println("Code: " + codes[i] + "Currentlocation: " + intToHex(Integer.toString(currentLocation)));
@@ -781,7 +792,7 @@ public class Assembler {
             Location[i] = intToHex(Integer.toString(currentLocation));
             
             location = 2;
-        }
+        /*}*/
         return location;
     }
 
@@ -968,69 +979,6 @@ public class Assembler {
         secondRegister = getRegister(tokens[1].substring(0, tokens[1].length()-1), line); //CHANGE LOG: 15
         return offset + firstRegister + secondRegister;
     }
-    
-    //original code
-    /*
-    private String rstore(String firstArg, String secondArg, int line) {
-        String result = "000";
-        String firstRegister = getRegister(firstArg, line);
-        String secondRegister;
-        String offset;
-        String tokens[] = secondArg.split("\\[");
-        if (tokens.length == 2 && tokens[1].endsWith("]")) {
-            if (isSingleHex(tokens[0])) {
-                offset = tokens[0].toUpperCase().substring(2, 3);
-            } 
-            else if (tokens[0].startsWith("-") && tokens[0].length() == 2) {
-                int number = Integer.parseInt(tokens[0].toUpperCase().substring(1, 2));
-                switch (number) {
-                    case 1:
-                        offset = "F";
-                        break;
-                    case 2:
-                        offset = "E";
-                        break;
-                    case 3:
-                        offset = "D";
-                        break;
-                    case 4:
-                        offset = "C";
-                        break;
-                    case 5:
-                        offset = "B";
-                        break;
-                    case 6:
-                        offset = "A";
-                        break;
-                    case 7:
-                        offset = "9";
-                        break;
-                    case 8:
-                        offset = "8";
-                        break;
-                    default:
-                        errorList.add("Error: Invalid offset found on line " + line);
-                       
-                        return result;
-                }
-            } 
-            else if (tokens[0].length() == 1 && Integer.parseInt(tokens[0]) < 8) {
-                offset = tokens[0];
-            } 
-            else {
-                errorList.add("Error: Invalid argument on line " + line);
-            
-                return result;
-            }
-        } else {
-            errorList.add("Error: Invalid argument on line " + line);
-            
-            return result;
-        }
-        //TODO: remove 1 from legnth of tokens. Why?
-        secondRegister = getRegister(tokens[1].substring(0, tokens[1].length()), line);
-        return offset + firstRegister + secondRegister;
-    }*/
 
     /**
      *
@@ -1041,7 +989,8 @@ public class Assembler {
      */
     private String rload(String firstArg, String secondArg, int line) {
         // rload is special, it returns 8 hex digits
-        String result = "00000000";
+        
+        String result = "000"; //CHANGE LOG: 21
         String firstRegister = getRegister(firstArg, line);
         String secondRegister;
         String offset;
@@ -1101,7 +1050,8 @@ public class Assembler {
         String regName = tokens[1].substring(0, tokens[1].length()-1); //truncate "]"
         secondRegister = getRegister(regName, line);
         //construct op-code/machine code. "F" is a flag.
-        return "2" + firstRegister + "F" + offset + "D2" + firstRegister + secondRegister;
+        //return "2" + firstRegister + "F" + offset + "D2" + firstRegister + secondRegister;
+        return offset + firstRegister + secondRegister; //CHANGE LOG: 21
         //CHANGE LOG END: 3
     }
 
@@ -1129,22 +1079,6 @@ public class Assembler {
         }
         return result;
     }
-    
-    //original code for istore
-    /* 
-    private String istore(String firstArg, String secondArg, int line) {
-        String result = "000";
-        firstArg = getRegister(firstArg, line);
-        if (secondArg.startsWith("[") && secondArg.endsWith("]")) {
-            secondArg = secondArg.substring(1, secondArg.length() - 1);
-            secondArg = getRegister(secondArg, line);
-            result = "1" + firstArg + secondArg;
-        } else {
-            errorList.add("Error: ISTORE operation on line " + line
-                + " has invalid arguments.");
-        }
-        return result;
-    }*/
 
     /**
      *
@@ -1327,24 +1261,24 @@ public class Assembler {
      *
      * @param firstArg
      * @param line
-     * @return Last three bytes for assembly of the SCALL instruction
+     * @return Last two nibbles for assembly of the SCALL instruction
      */
     private String scall(String firstArg, int line) {
-        String result = "000";
+        String result = "00";
         if (labelMap.containsKey(firstArg)) { // arg is a label
-            result = "2" + intToHex(Integer.toString(labelMap.get(firstArg)));
+            result = intToHex(Integer.toString(labelMap.get(firstArg)));
         }
         //CHANGE LOG BEGIN: 10
         else if (equivalencies.containsKey(firstArg)){
             String ref = equivalencies.get(firstArg);
-            result = "2" + intToHex(Integer.toString(labelMap.get(ref)));
+            result = intToHex(Integer.toString(labelMap.get(ref)));
         }
         //CHANGE LOG END: 10
         else if (isInt(firstArg)) { // arg is decimal
-            result = "2" + intToHex(firstArg);
+            result = intToHex(firstArg);
         } 
         else if (isHex(firstArg)) { // arg is hex
-            result = "2" + firstArg.substring(2, 4);
+            result = firstArg.substring(2, 4);
         } 
         else {
             errorList.add("Error: Invalid destination for SCALL on line " + line);    
@@ -1386,7 +1320,7 @@ public class Assembler {
         }
         return result;
     }
-
+    
     /**
      * @param firstArg
      * @param line
@@ -1480,27 +1414,6 @@ public class Assembler {
         } 
         return result;
     }
-    
-    /*
-    private String store(String firstArg, String secondArg, int line) {
-        String result = "000";
-        firstArg = getRegister(firstArg, line);
-        if (secondArg.startsWith("[") && secondArg.endsWith("]")) {
-            secondArg = secondArg.substring(1, secondArg.length() - 1);
-            if (labelMap.containsKey(secondArg)) {
-                result = firstArg + intToHex(Integer.toString(labelMap.get(secondArg)));
-            } else if (isHex(secondArg)) {
-                result = firstArg + secondArg.substring(2, 4);
-            } else if (isInt(secondArg)) {
-                result = firstArg + intToHex(secondArg);
-            } else {
-                errorList.add("Error: STORE OPERATIONS on line " + line
-                    + " has invalid arguments.");
-                
-            }
-        }
-        return result;
-    }*/
 
     /**
      * Helper method Returns a string with the corresponding register

@@ -19,6 +19,8 @@
  * 
  * 3 jl948836 - 03/24/16: The additional 1 is now generated at byte code, instead
  *                        of by the clock
+ * 
+ * 4 jl948836 - 04/01/16: Fixed the SCALL and SRET functions.
  */
 
 /* Change Log
@@ -134,8 +136,9 @@ public class Clock {
                 directStore(secondNibble, secondByte);
                 execute();
                 break;
-            case '4': 
-                move(thirdNibble,fourthNibble);
+            case '4': //CHANGE LOG: 5
+                //move(thirdNibble,fourthNibble);
+                rload(secondNibble, thirdNibble, fourthNibble);
                 execute();
                 break;
             case '5': 
@@ -202,8 +205,9 @@ public class Clock {
                 else if (secondOpcode == '1') { //ISTORE
                     istore(thirdNibble, fourthNibble);
                 } 
-                else if (secondOpcode == '2') { //RLOAD
-                    rload(thirdNibble, fourthNibble);
+                else if (secondOpcode == '2') { //MOVE
+                    move(thirdNibble,fourthNibble); //CHANGE LOG: 5
+                    //rload(thirdNibble, fourthNibble);
                 }
                 execute();
                 break;
@@ -277,7 +281,7 @@ public class Clock {
     private void immediateLoad(int register, int memIndex, int rloadFlag) {
         String memory = Integer.toHexString(memIndex);
         controller.setRegisterValue(register, memory);
-        if (register == 0x0F && rloadFlag != 15){
+        if (register == 0x0F){ // && rloadFlag != 15){
             printRegisterF();
         }
     }
@@ -294,14 +298,21 @@ public class Clock {
     }
 
     /**
-    * Opcode 4 - MOVE
-    * @param fromRegister
-    * @param toRegister
+    * Opcode 4 - RLOAD
+    * @param register
+    * @param pointer
     */
-    private void move(int fromRegister, int toRegister) {
-        String data = controller.getRegisterValue(fromRegister);
-        controller.setRegisterValue(toRegister, data);
-        if (toRegister == 0x0F){
+    private void rload(int offset, int register, int pointer) {
+        //String offset = controller.getRegisterValue(register);
+        //int realOffset = Character.digit(offset.charAt(1), 16);
+        if (offset > 7) {
+            offset -= 16;
+        }
+        int address = Integer.parseInt(controller.getRegisterValue(pointer), 16);
+        int offsetAddress = address + offset;
+        String data = controller.getMemoryValue(offsetAddress);
+        controller.setRegisterValue(register, data);
+        if (register == 0x0F){
             printRegisterF();
         }
     }
@@ -351,20 +362,24 @@ public class Clock {
     /**
     * Opcode 62 - SCALL
     */
+    //CHANGE LOG BEGIN: 4
     private void scall() {
-        push(0x0C);
         call();
         push(0x0D);
         move(0x0E,0x0D);
     }
+    //CHANGE LOG END: 4
 
     /**
     * Opcode 63 - SRETURN
     */
+    //CHANGE LOG BEGIN: 4
     private void sret(int spAdd) {
-        move(0x0D,0x0E);
-        ret(spAdd);
+        pop(0x0D); //Reset Frame of Reference
+        ret(spAdd); //Return
+        move(0x0D,0x0E); //Clean arguments off the Stack
     }
+    //CHANGE LOG END: 4
 
     /**
     * Opcode 64 - PUSH
@@ -506,21 +521,14 @@ public class Clock {
     }
 
     /**
-    * Opcode D2 - RLOAD
-    * @param register
-    * @param pointer
+    * Opcode D2 - MOVE
+    * @param fromRegister
+    * @param toRegister
     */
-    private void rload(int register, int pointer) {
-        String offset = controller.getRegisterValue(register);
-        int realOffset = Character.digit(offset.charAt(1), 16);
-        if (realOffset > 7) {
-            realOffset -= 16;
-        }
-        int address = Integer.parseInt(controller.getRegisterValue(pointer), 16);
-        int offsetAddress = address + realOffset;
-        String data = controller.getMemoryValue(offsetAddress);
-        controller.setRegisterValue(register, data);
-        if (register == 0x0F){
+    private void move(int fromRegister, int toRegister) {
+        String data = controller.getRegisterValue(fromRegister);
+        controller.setRegisterValue(toRegister, data);
+        if (toRegister == 0x0F){
             printRegisterF();
         }
     }
@@ -647,31 +655,31 @@ public class Clock {
         if (update) {
             // send codes off to disassembler
             String consoleText;
-            if (codes[0].equals("D2")) { // handle rload specially
-                String loadByte1 = "";
-                String loadByte2 = "";
-                if ( (IP > 5) && (IP < 249) ) { 
-                    loadByte1 = controller.getMemoryValue(IP - 8);
-                    loadByte2 = controller.getMemoryValue(IP - 7);
-                    relativeIP++;
-                } 
-                else if (IP > 249) {
-                    loadByte1 = controller.getMemoryValue(240);
-                    loadByte2 = controller.getMemoryValue(241);
-                    relativeIP++;
-                }
-                
-                String[] fixedCodes = new String[16];
-                System.arraycopy(codes, 0, fixedCodes, 2, 14);
-                /*for (int i = 0; i < 14; i++) {
-                        fixedCodes[i+2] = codes[i];
-                }*/
-                fixedCodes[0] = loadByte1;
-                fixedCodes[1] = loadByte2;
-                consoleText = disassembler.getConsoleDisassemble(fixedCodes, relativeIP);
-            } else {
+//            if (codes[0].equals("D2")) { // handle rload specially
+//                String loadByte1 = "";
+//                String loadByte2 = "";
+//                if ( (IP > 5) && (IP < 249) ) { 
+//                    loadByte1 = controller.getMemoryValue(IP - 8);
+//                    loadByte2 = controller.getMemoryValue(IP - 7);
+//                    relativeIP++;
+//                } 
+//                else if (IP > 249) {
+//                    loadByte1 = controller.getMemoryValue(240);
+//                    loadByte2 = controller.getMemoryValue(241);
+//                    relativeIP++;
+//                }
+//                
+//                String[] fixedCodes = new String[16];
+//                System.arraycopy(codes, 0, fixedCodes, 2, 14);
+//                /*for (int i = 0; i < 14; i++) {
+//                        fixedCodes[i+2] = codes[i];
+//                }*/
+//                fixedCodes[0] = loadByte1;
+//                fixedCodes[1] = loadByte2;
+//                consoleText = disassembler.getConsoleDisassemble(fixedCodes, relativeIP);
+//            } else {
                 consoleText = disassembler.getConsoleDisassemble(codes, relativeIP);
-            }
+            //}
             controller.setDisassText(consoleText);
         }	
     }

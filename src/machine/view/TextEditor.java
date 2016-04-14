@@ -1,8 +1,7 @@
 package machine.view;
 
-import system.view.SystemView;
 import system.view.CompoundUndoManager;
-import system.view.SyntaxHighlighter;
+import machine.model.SyntaxHighlighter;
 import system.view.TextLineNumber;
 import java.awt.Color;
 import java.awt.Font;
@@ -48,6 +47,8 @@ public class TextEditor extends JScrollPane implements Serializable {
     
     private int highlightStart = 0;
     private int highlightLength = 0;
+    public static final int CODE_TAB_INDEX = 0;
+    public static final Font DEFAULT_FONT = new Font("Tahoma", Font.PLAIN, 14);
     
     public TextEditor() {
         
@@ -62,7 +63,7 @@ public class TextEditor extends JScrollPane implements Serializable {
         super.setRowHeaderView( tln );
         
         tln.setUpdateFont(true);
-        textPane.setFont(SystemView.DEFAULT_FONT);
+        textPane.setFont(DEFAULT_FONT);
         
         undo = new CompoundUndoManager(textPane);
     }
@@ -95,6 +96,24 @@ public class TextEditor extends JScrollPane implements Serializable {
         return doc;
     }
     
+    public void setBackGround(String backGroundColor){
+        
+        if (backGroundColor.equals("BLACK")){
+            textPane.setBackground(Color.BLACK);
+        }
+        else if (backGroundColor.equals("WHITE")){
+            textPane.setBackground(Color.WHITE);
+        }
+        else if (backGroundColor.equals("LIGHT-YELLOW")){
+            float[] hsbvals = new float[3];
+            hsbvals = Color.RGBtoHSB(246, 242, 124, hsbvals);
+            Color backGround = Color.getHSBColor(hsbvals[0], hsbvals[1], hsbvals[2]);
+            textPane.setBackground(backGround);
+        }
+    }
+    
+    
+    
     /** Sets the tab index that this object belongs to.
      * @param tabIndex */
     public void setTabIndex(int tabIndex) {
@@ -110,7 +129,7 @@ public class TextEditor extends JScrollPane implements Serializable {
     public void setTextPaneFont(Font font) {
         textPane.setFont(font);
         
-        if (tabIndex == SystemView.CODE_TAB_INDEX) {
+        if (tabIndex == CODE_TAB_INDEX) {
                 new SyntaxHighlighter(textPane, false, 0, doc.getLength()).execute();
         }
         else {
@@ -174,7 +193,7 @@ public class TextEditor extends JScrollPane implements Serializable {
         public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
             str = str.replaceAll("\t", "    ");
             super.insertString(offs, str, a);
-            if (tabIndex == SystemView.CODE_TAB_INDEX) {    //Changelog Begin: 1
+            if (tabIndex == CODE_TAB_INDEX) {    //Changelog Begin: 1
                 new SyntaxHighlighter(textPane, false, offs, str.length()).execute();
             }
             else {
@@ -189,7 +208,7 @@ public class TextEditor extends JScrollPane implements Serializable {
         public void remove(int offset, int length) throws BadLocationException {
             
             super.remove(offset, length);
-            if (tabIndex == SystemView.CODE_TAB_INDEX) {    //Changelog Begin: 1
+            if (tabIndex == CODE_TAB_INDEX) {    //Changelog Begin: 1
                 new SyntaxHighlighter(textPane, false, offset, 0).execute();
             }
             else {

@@ -1,5 +1,12 @@
 # WTAMU Computer Science Programming Utility #
 
+V1.4
+Rebuilt GUI to allow for element resizing matching GUI window
+Added assembly listing, file is located inside of same location as where the .jar is ran
+Added support for EQU pseudo opcode
+Added support for using labels inside of db pseudo opcode
+Added syntax highlighting to text editor
+
 V1.2 Updates
 Store syntax corrected
 Store parser now throws error when brackets are missing
