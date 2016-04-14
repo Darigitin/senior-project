@@ -27,7 +27,7 @@
     2. Create three new methods new CPU cycle
 */
 
-package machine.presenter;
+package machine.controller;
 
 import java.util.ArrayList;
 //import machine.view.MachineView;
