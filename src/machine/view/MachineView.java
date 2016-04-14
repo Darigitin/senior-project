@@ -348,17 +348,6 @@ public class MachineView extends javax.swing.JFrame {
         }
     }
     
-    public void updateText() {
-        if (textEditorPanel.isVisible()) {
-            textEditorPanel.updateText();
-        }
-        else {
-            textEditorPanel.getTextEditorFrame().updateText();
-        }
-    }
-    
-    
-    
     private void customInitComponents(){
         
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -731,11 +720,6 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
             }
         }
     }//GEN-LAST:event_saveSourceMenuItemActionPerformed
-
-    private void fontThemeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontThemeComboBoxActionPerformed
-        // TODO add your handling code here:
-        updateText();
-    }//GEN-LAST:event_fontThemeComboBoxActionPerformed
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton assembleButton;

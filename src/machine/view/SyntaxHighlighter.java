@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package machine.model;
+package machine.view;
 
 import java.awt.Color;
 import java.util.logging.Level;
@@ -17,7 +17,6 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 import javax.swing.JTextPane;
-import machine.view.TextEditor;
 
 /**
  *
@@ -31,7 +30,8 @@ import machine.view.TextEditor;
  * # author   - date:     description
  * 01 mv935583 - 03/18/16: Converted karel syntax highlighting in order to 
  *                         properly catch all needed highlighting in the WAL
- *                         instead.
+ *                         instead
+ * 02 mv935583 - 04/07/16: Implemented default text color based on selected theme.
  */
 public class SyntaxHighlighter extends SwingWorker<Void,Object> {
     
@@ -40,13 +40,17 @@ public class SyntaxHighlighter extends SwingWorker<Void,Object> {
     private final boolean commentsOnly;
     private final int docOffset;
     private final int length;
+    private final Color textColor;  //CHANGE LOG: 2
+    private Color[] colorArray = new Color[4];
     
-    public SyntaxHighlighter(JTextPane textPane, boolean commentsOnly, int offset, int length) {
+    public SyntaxHighlighter(JTextPane textPane, boolean commentsOnly, int offset, int length, Color[] colorArray) { //BEGIN CHANGE LOG:2
         this.doc = textPane.getStyledDocument();
         this.fontSize = textPane.getFont().getSize();
         this.commentsOnly = commentsOnly;
         this.docOffset = offset;
         this.length = length;
+        this.textColor = colorArray[0]; //END CHANGE LOG: 2
+        this.colorArray = colorArray;
     }
 
     @Override
@@ -85,7 +89,7 @@ public class SyntaxHighlighter extends SwingWorker<Void,Object> {
                     doc.setCharacterAttributes(start, end - start, textStyle, false);
                 }
                 else {
-                    textStyle = style.addAttribute(textStyle,StyleConstants.Foreground, Color.black);
+                    textStyle = style.addAttribute(textStyle,StyleConstants.Foreground, textColor); //CHANGE LOG: 1
                     doc.setCharacterAttributes(start, end - start, textStyle, false);
                 }
             }
@@ -113,18 +117,17 @@ public class SyntaxHighlighter extends SwingWorker<Void,Object> {
                     
                     String word = text.substring(start,end);
                     String toUpperCase = word.toUpperCase();    //Changelog Begin: 1
-
                     if(isReservedWord(toUpperCase)){
-                            textStyle = style.addAttribute(textStyle,StyleConstants.Foreground, Color.blue);
-                            doc.setCharacterAttributes(start, end - start, textStyle, false);
+                        textStyle = style.addAttribute(textStyle,StyleConstants.Foreground, colorArray[1]);
+                        doc.setCharacterAttributes(start, end - start, textStyle, false);
                     }
                     else if (isPrimitive(toUpperCase)) {
-                                textStyle = style.addAttribute(textStyle,StyleConstants.Foreground, Color.red);
-                                doc.setCharacterAttributes(start, end - start, textStyle, false);
+                        textStyle = style.addAttribute(textStyle,StyleConstants.Foreground, colorArray[2]);
+                        doc.setCharacterAttributes(start, end - start, textStyle, false);
                     }
                     // match integer literals
                     else if (isInt(toUpperCase) || isHex(toUpperCase)) {
-                        textStyle = style.addAttribute(textStyle,StyleConstants.Foreground, Color.cyan);
+                        textStyle = style.addAttribute(textStyle,StyleConstants.Foreground, colorArray[3]);
                         doc.setCharacterAttributes(start, end - start, textStyle, false);
                     }   //Changelog End: 1
                     // match comment lines
@@ -133,7 +136,7 @@ public class SyntaxHighlighter extends SwingWorker<Void,Object> {
                         doc.setCharacterAttributes(start, end - start, textStyle, false);
                     }
                     else {
-                        textStyle = style.addAttribute(textStyle,StyleConstants.Foreground, Color.black);
+                        textStyle = style.addAttribute(textStyle,StyleConstants.Foreground, textColor); //CHANGE LOG: 1
                         doc.setCharacterAttributes(start, end - start, textStyle, false);
                     }  
                     }
@@ -166,9 +169,9 @@ public class SyntaxHighlighter extends SwingWorker<Void,Object> {
     private boolean isReservedWord(String str){ //Changelog Begin: 1
         final String[] reservedWords = {"SIP", "ORG", "BSS", 
             "DB", "EQU", "LOAD", "STORE", "MOVE", "ADD", "CALL", "RET", 
-            "SCALL", "SRET", "PUSH", "POP", "OR", "AND", "XOR", 
+            "PUSH", "POP", "OR", "AND", "XOR", 
             "ROR", "JMPEQ", "JMP", "HALT", "ILOAD", "ISTORE",
-            "RLOAD", "RSTORE", "JMPLT"};
+            "RLOAD", "RSTORE", "JMPLT", "ROL", "SRA", "SRL", "SL"};
         for (String reservedWord : reservedWords) {
             if (reservedWord.equals(str)) {
                 return true;

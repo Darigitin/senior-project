@@ -25,6 +25,9 @@
  * 5 jl948836 - 04/01/16: Corrected format of ByteCode for iload and move
  * 
  * 6 jl948836 - 04/01/16:
+ * 4 jl948836 - 04/01/16: Fixed the SCALL and SRET functions
+ * 
+ * 5 mv935583 - 04/11/16: Implemented changed to add shift instructions.
  */
 
 /* Change Log
@@ -150,29 +153,37 @@ public class Clock {
                 execute();
                 break;
             case '6': 
-                if (secondOpcode == '0') { // regular call
+                switch (secondOpcode) {
+                case '0':
+                    // regular call
                     call();
                     execute(secondByte);
-                }
-                else if (secondOpcode == '1') { // regular return
+                    break;
+                case '1':
+                    // regular return
                     ret(secondByte);
                     execute(controller.getInstructionPointer());
-                }
-                else if (secondOpcode == '2') { // special call
+                    break;
+                case '2':
                     scall();
                     execute(secondByte);
-                }
-                else if (secondOpcode == '3') { // special return
+                    break;
+                case '3':
                     sret(secondByte);
                     execute(controller.getInstructionPointer());
-                }
-                else if(secondOpcode == '4'){ // push
+                    break;
+                case '4':
+                    // push
                     push(thirdNibble);
                     execute();
-                }
-                else if (secondOpcode == '5'){ // pop 
+                    break;
+                case '5':
+                    // pop
                     pop(thirdNibble);
                     execute();
+                    break;
+                default:
+                    break;
                 }
                 break;
             case '7': 
@@ -188,9 +199,31 @@ public class Clock {
                 execute();
                 break;
             case 'A':
-                ror(secondNibble,secondByte);
-                execute();
-                break;
+                switch (secondOpcode) { //BEGIN CHANGE LOG: 5
+                    case '0':
+                        ror(thirdNibble, fourthNibble);
+                        execute();
+                        break;
+                    case '1':
+                        rol(thirdNibble, fourthNibble);
+                        execute();
+                        break;
+                    case '2':
+                        sra(thirdNibble, fourthNibble);
+                        execute();
+                        break;
+                    case '3':
+                        srl(thirdNibble, fourthNibble);
+                        execute();
+                        break;
+                    case '4':
+                        sl(thirdNibble, fourthNibble);
+                        execute();
+                        break;
+                    default:
+                        break;
+                }
+                break;  //END CHANGE LOG: 5
             case 'B':
                 if (jump(secondNibble)) {
                         execute(secondByte); //jmp
@@ -482,6 +515,58 @@ public class Clock {
             printRegisterF();
         }
     }
+    
+    private void rol(int register, int times){  //BEGIN CHANGE LOG: 5
+        int bitPattern = Integer.parseInt(controller.getRegisterValue(register), 16);
+        int carry;
+        int shifted;
+        for (int i = 0; i < times; i++){
+            carry = bitPattern >> 7;
+            shifted = bitPattern << 1;
+            bitPattern = (carry | shifted) & 0xFF;
+        }
+        controller.setRegisterValue(register, Integer.toHexString(bitPattern));
+        if (register == 0x0F){
+            printRegisterF();
+        }
+    }
+    
+    private void sra(int register, int times){
+        int bitPattern = Integer.parseInt(controller.getRegisterValue(register), 16);
+        for (int i = 0; i < times; i++){
+            int leadingBit = bitPattern & 0x80;
+            bitPattern = bitPattern >> 1;
+            bitPattern = (leadingBit | bitPattern) & 0xFF;
+        }
+        controller.setRegisterValue(register, Integer.toHexString(bitPattern));
+        if (register == 0x0F){
+            printRegisterF();
+        }
+    }
+    
+    private void srl(int register, int times){
+        int bitPattern = Integer.parseInt(controller.getRegisterValue(register), 16);
+        for (int i = 0; i < times; i++){
+            bitPattern = bitPattern >>> 1;
+            bitPattern = bitPattern & 0xFF;
+        }
+        controller.setRegisterValue(register, Integer.toHexString(bitPattern));
+        if (register == 0x0F){
+            printRegisterF();
+        }
+    }
+    
+    private void sl(int register, int times){
+        int bitPattern = Integer.parseInt(controller.getRegisterValue(register), 16);
+        for (int i = 0; i < times; i++){
+            bitPattern = bitPattern << 1;
+            bitPattern = bitPattern & 0xFF;
+        }
+        controller.setRegisterValue(register, Integer.toHexString(bitPattern));
+        if (register == 0x0F){
+            printRegisterF();
+        }
+    }   //END CHANGE LOG: 5
 
     /**
     * Opcode B - JMPEQ and JMP
