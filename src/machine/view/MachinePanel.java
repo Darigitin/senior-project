@@ -17,6 +17,7 @@
 package machine.view;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
@@ -235,6 +236,11 @@ public class MachinePanel extends javax.swing.JPanel {
         return disassembledConsole;
     }
     
+    public void visualStack(int row, int column) {
+        Object value = registerTable.getValueAt(row, column);
+        System.out.println("Register Talbe value" + value.toString());
+    }
+    
     private void customInitComponents(){
         ColumnHeaderRenderer colRenderer = new ColumnHeaderRenderer();
         RowHeaderRenderer rowRenderer = new RowHeaderRenderer();
@@ -245,6 +251,7 @@ public class MachinePanel extends javax.swing.JPanel {
         
         ramTable.getTableHeader().setDefaultRenderer(colRenderer);
         ramTable.getColumnModel().getColumn(0).setCellRenderer(rowRenderer);
+        
         for (int col = 1; col < 17; col++) {
             column = ramTable.getColumnModel().getColumn(col);
             column.setCellRenderer(cellRenderer);
