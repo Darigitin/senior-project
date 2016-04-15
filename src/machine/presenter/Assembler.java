@@ -269,7 +269,7 @@ public class Assembler {
                     currentLocation +=4;
                 } */  
                 //CHANGE LOG BEGIN: 10
-                else if ((labels[i] != null) && (tokens[0].toUpperCase().equals(PSEUDOOPS[4]))) {                    
+                else if ((labels[i] != null) && (tokens[0].toUpperCase().equals(PSEUDOOPS[4]))) { //EQU                
                     equ(tokens,i);
                 }
                 //CHANGE LOG END: 10
@@ -440,11 +440,11 @@ public class Assembler {
         }
         // is the argument a string?
         if (temp.matches("[\"]{1}.*[\"]{1}") || temp.matches("[\']{1}.*[\']{1}")) {
-            System.out.println("**********************************************************");
-            System.out.println("dbString is: " + temp + " The size is: " + temp.length());
+            //System.out.println("**********************************************************");
+            //System.out.println("dbString is: " + temp + " The size is: " + temp.length());
             //-2 for both the beginning and ending " char. See passTwo
             result = temp.length() - 2; //CHANGE LOG: 2
-            System.out.println("In passOneDB, length of string is: " + result);
+            //System.out.println("In passOneDB, length of string is: " + result);
             logList.add("In passOneDB, length of string is: " + result);
         } else { // not a string, split on ,
             String[] args = temp.split(",");

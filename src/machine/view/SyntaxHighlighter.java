@@ -169,7 +169,7 @@ public class SyntaxHighlighter extends SwingWorker<Void,Object> {
     private boolean isReservedWord(String str){ //Changelog Begin: 1
         final String[] reservedWords = {"SIP", "ORG", "BSS", 
             "DB", "EQU", "LOAD", "STORE", "MOVE", "ADD", "CALL", "RET", 
-            "PUSH", "POP", "OR", "AND", "XOR", 
+            "SCALL", "SRET","PUSH", "POP", "OR", "AND", "XOR", 
             "ROR", "JMPEQ", "JMP", "HALT", "ILOAD", "ISTORE",
             "RLOAD", "RSTORE", "JMPLT", "ROL", "SRA", "SRL", "SL"};
         for (String reservedWord : reservedWords) {

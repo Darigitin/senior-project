@@ -86,7 +86,7 @@ public class Disassembler {
         input = bytecode;
         ArrayList<String> output = new ArrayList<>();
         String code = "";
-        boolean foundRload = false;
+        //boolean foundRload = false;
         for (int i = 0; i < bytecode.length; i += 2) {
             //if (bytecode[i].equals("D2")) {
             //    output.remove(output.size()-1);
@@ -102,7 +102,7 @@ public class Disassembler {
                 } else {
                     output.add(outText + "\t<<");
                 }
-                foundRload = false;
+                //foundRload = false;
             } else {
                 output.add(disassemble(bytecode[i], bytecode[i + 1], i));
             }
