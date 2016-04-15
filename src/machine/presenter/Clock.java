@@ -120,6 +120,7 @@ public class Clock {
         char firstOpcode = Character.toUpperCase(operation.charAt(0));
         // second nibble of opcode
         char secondOpcode = Character.toUpperCase(operation.charAt(1));
+        // second Byte of opcode
         char firstOperand = Character.toUpperCase(operand.charAt(0));
         char secondOperand = Character.toUpperCase(operand.charAt(1));
         int secondNibble = Character.digit(secondOpcode,16);

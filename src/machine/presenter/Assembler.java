@@ -128,7 +128,7 @@ public class Assembler {
     private final static String[] PSEUDOOPS = {"SIP", "ORG", "BSS", "DB", "EQU"}; //CHANGE LOG: 10
     private final static String[] OPERATIONS = 
         {"LOAD", "STORE", "MOVE", "ADD", "CALL", "RET",
-         "PUSH", "POP", "OR", "AND", "XOR",
+         "SCALL", "SRET","PUSH", "POP", "OR", "AND", "XOR",
          "ROR", "JMPEQ", "JMP", "HALT", "ILOAD", "ISTORE",
          "RLOAD", "RSTORE", "JMPLT", "ROL", "SRA", "SRL", "SL"}; //CHANGE LOG: 22
     BufferedWriter logfile;
