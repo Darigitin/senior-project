@@ -79,6 +79,7 @@
  * 20 jl948836 - 04/01/16: Changed Byte Code of SRET from "63 00" to "63 01"
  *
  * 22 jl948836 - 04/07/16: Corrected ByteCode Format of Operations
+<<<<<<< HEAD
 
  * 22 jl948836 - 04/07/16: Corrected ByteCode Format of Operations
  * 
@@ -87,6 +88,11 @@
  * 
  * 24 jl948836 - 04/10/16: Got rid of operationLocation(). No longer necessary
  *                         due to rload being the same size as all other instructions.
+=======
+ * 
+ * 23 jl948836 - 04/10/16: Re-ordered the Instruction ByteCode methods to be in
+ *                         ascending order of their ByteCodes.
+>>>>>>> assemblerRefactor
  * /
 
 /*
@@ -826,7 +832,7 @@ public class Assembler {
     }
 
     /**
-     *
+     * Op-Code 1
      * @param firstArg
      * @param secondArg
      * @param line
@@ -857,7 +863,7 @@ public class Assembler {
     }
 
     /**
-     *
+     * Op-Code 2
      * @param firstArg
      * @param secondArg
      * @param line
@@ -888,129 +894,49 @@ public class Assembler {
     }
 
     /**
-     *
+     * Op-Code 3
      * @param firstArg
      * @param secondArg
-     * @param line
-     * @return Last three bytes for assembly of the JMPLT instruction
+     * @return Last three bytes for assembly of the STORE instruction
      */
-    private String jmplt(String firstArg, String secondArg, int line) { //change "JMPLE" to "JMPLT"
+    //modified store  --- the store command is: STORE [XY], RN
+    //store the value in register N in the memory cell at address XY
+    private String store(String firstArg, String secondArg, int line) {
         String result = "000";
-        //CHANGE LOG BEGIN: 10
-        if (firstArg.contains("<")){
-            String first[] = firstArg.split("<");
-            if (isComparisonReg(first[1])){ 
-                firstArg = getRegister(first[0], line);
-                if (labelMap.containsKey(secondArg)) { // arg is a label
-                    result = firstArg + intToHex(Integer.toString(labelMap.get(secondArg)));
+        secondArg = getRegister(secondArg, line);
+        if (firstArg.startsWith("[") == false || firstArg.endsWith("]") == false){
+            errorList.add("Error: STORE operations on line " + line
+                    + " has invalid arguments.");
+        }
+        else{
+            if (firstArg.startsWith("[") && firstArg.endsWith("]")) {
+                firstArg = firstArg.substring(1, firstArg.length() - 1);
+                if (labelMap.containsKey(firstArg)) {
+                    result = secondArg + intToHex(Integer.toString(labelMap.get(firstArg)));
                 }
-                else if (equivalencies.containsKey(secondArg)){
-                    String ref = equivalencies.get(secondArg);
+                //CHANGE LOG BEGIN: 10
+                else if (equivalencies.containsKey(firstArg)){
+                    String ref = equivalencies.get(firstArg);
                     result = firstArg + intToHex(Integer.toString(labelMap.get(ref)));
                 }
-                else if (isInt(secondArg)) { // arg is decimal
-                    result = firstArg + intToHex(secondArg);
-                } 
-                else if (isHex(secondArg)) { // arg is hex
-                    result = firstArg + secondArg.substring(2, 4);
+                //CHANGE LOG END: 10
+                else if (isHex(firstArg)) {
+                    result = secondArg + firstArg.substring(2, 4);
+                }
+                else if (isInt(firstArg)) {
+                    result = secondArg + intToHex(firstArg);
                 }
                 else {
-                    //change "JMPLE" to "JMPLT"
-                    errorList.add("Error: Invalid destination for JMPLT on line " + line);
+                    errorList.add("Error: STORE operations on line " + line
+                        + " has invalid arguments.");               
                 }
             }
-            else {
-                errorList.add("Error: Invalid Comparison Register or Operation Symbol for JMPLT on line " + line); //CHANGE LOG: 19
-            }
-        }
-        //CHANGE LOG END: 10
-        /*if (firstArg.toUpperCase().contains("<R0")) { //change "<=R0" to "<R0"
-            String first[] = firstArg.split("<"); //change "<=" to "<"
-            
-        }*/ 
-        else {
-            //change "JMPLE" to "JMPLT"
-            errorList.add("Error: Missing equal sign for JMPLT on line " + line);
-        }
+        } 
         return result;
     }
-
-    /**
-     *
-     * @param firstArg
-     * @param secondArg
-     * @param line
-     * @return Last three bytes for the assembly of the RSTORE instruction.
-     */
     
-    private String rstore(String firstArg, String secondArg, int line) {
-        String result = "000";
-        String firstRegister = getRegister(secondArg, line);
-        String secondRegister;
-        String offset;
-        String tokens[];
-        if ((firstArg.startsWith("[", 1) || firstArg.startsWith("[", 2))
-                && firstArg.endsWith("]")) {
-            tokens = firstArg.split("\\[");
-            System.out.println("The second arg of RSTORE is: " + tokens[0] + " " + tokens[1]);
-            if (tokens.length == 2 && tokens[1].endsWith("]")) {
-                if (isSingleHex(tokens[0])) {
-                    offset = tokens[0].toUpperCase().substring(2, 3);
-                } else if (tokens[0].startsWith("-") && tokens[0].length() == 2) {
-                    int number = Integer.parseInt(tokens[0].toUpperCase().substring(1, 2));
-                    switch (number) {
-                        case 1:
-                            offset = "F";
-                            break;
-                        case 2:
-                            offset = "E";
-                            break;
-                        case 3:
-                            offset = "D";
-                            break;
-                        case 4:
-                            offset = "C";
-                            break;
-                        case 5:
-                            offset = "B";
-                            break;
-                        case 6:
-                            offset = "A";
-                            break;
-                        case 7:
-                            offset = "9";
-                            break;
-                        case 8:
-                            offset = "8";
-                            break;
-                        default:
-                            errorList.add("Error: Invalid offset found on line " + line);
-                       
-                            return result;
-                    }
-                } else if (tokens[0].length() == 1 && Integer.parseInt(tokens[0]) < 8) {
-                    offset = tokens[0];
-                } else {
-                    errorList.add("Error: Invalid argument on line " + line);
-            
-                    return result;
-                }
-            } else {
-                errorList.add("Error: Invalid argument on line " + line);
-            
-                return result;
-            }
-        }else{
-            errorList.add("Error: Invalid argument on line " + line);
-            return result;
-        }   
-        
-        secondRegister = getRegister(tokens[1].substring(0, tokens[1].length()-1), line); //CHANGE LOG: 15
-        return offset + firstRegister + secondRegister;
-    }
-
     /**
-     *
+     * Op-Code 4
      * @param firstArg
      * @param secondArg
      * @param line
@@ -1083,56 +1009,389 @@ public class Assembler {
         return offset + firstRegister + secondRegister; //CHANGE LOG: 21
         //CHANGE LOG END: 3
     }
-
-    /**
-     *
-     * @param firstArg
-     * @param secondArg
-     * @param line
-     * @return Last three bytes for assembly of the ISTORE instruction
-     */
     
-    //modified ISTORE: ISTORE [RM], RN
-    //store the value in register N into the memory cell referenced by the 
-    //address in register M
-    private String istore(String firstArg, String secondArg, int line) {
+    /**
+     * Op-Code 5
+     * @param firstArg
+     * @param secondArg
+     * @param thirdArg
+     * @param line
+     * @return Last two nibbles for assembly of the ADD instruction
+     */
+    private String add(String firstArg, String secondArg, String thirdArg, int line) {
+        //TODO: add error reporting inside getRegister
+        return getRegister(firstArg, line) + getRegister(secondArg, line) + getRegister(thirdArg, line);
+    }
+    
+    /**
+     * Op-Code 60
+     * @param firstArg
+     * @param line
+     * @return Last two nibbles for assembly of the CALL instruction
+     */
+    private String call(String firstArg, int line) {
         String result = "00";
-        secondArg = getRegister(secondArg, line);
-        if (firstArg.startsWith("[") && firstArg.endsWith("]")) {
-            firstArg = firstArg.substring(1, firstArg.length() - 1);
-            firstArg = getRegister(firstArg, line);
-            //result = secondArg + firstArg;
-            result = firstArg + secondArg; //CHANGE LOG: 22
-        } else {
-            errorList.add("Error: ISTORE operation on line " + line
-                + " has invalid arguments.");
+        if (labelMap.containsKey(firstArg)) { // arg is a label
+            result = intToHex(Integer.toString(labelMap.get(firstArg)));
+        } 
+        //CHANGE LOG BEGIN: 10
+        else if (equivalencies.containsKey(firstArg)){
+            String ref = equivalencies.get(firstArg);
+            //CHANGE LOG BEGIN: 18
+            if (!ref.toUpperCase().matches("R[0-9A-F]|RSP|RBP")){ //Not a register
+                result = intToHex(Integer.toString(labelMap.get(ref)));
+            }
+            else {
+                errorList.add("Error: Invalid Destination for CALL on line " + line);
+            }
+            //CHANGE LOG END: 16
+        }
+        //CHANGE LOG END: 10
+        else if (isInt(firstArg)) { // arg is decimal
+            result = intToHex(firstArg);
+        } 
+        else if (isHex(firstArg)) { // arg is hex
+            result = firstArg.substring(2, 4);
+        } 
+        else {
+            errorList.add("Error: Invalid destination for CALL on line " + line); 
         }
         return result;
     }
+    
+    /**
+     * Op-Code 61
+     * @param firstArg
+     * @param line
+     * @return Last two nibbles for assembly of the RET instruction
+     */
+    private String ret(String firstArg, int line) {
+        String result = "01"; //CHANGE LOG: 9
+        if (isInt(firstArg)) {
+            result = Integer.toString(Integer.parseInt(firstArg) + 1); //CHANGE LOG: 13
+            result = intToHex(result); //CHANGE LOG: 9
+        } 
+        else if (isHex(firstArg)) {
+            result = Integer.toString(hexToInt(firstArg) + 1); //CHANGE LOG: 13
+            result = result.substring(2, 4); //CHANGE LOG: 9
+        }
+        //CHANGE LOG BEGIN: 10
+        else if (equivalencies.containsKey(firstArg)){
+            String ref = equivalencies.get(firstArg);
+            result = intToHex(Integer.toString(labelMap.get(ref) + 1)); //CHANGE LOG: 13
+        }
+        //CHANGE LOG END: 10
+        else {
+            errorList.add("Error: Invalid number for RET on line " + line);
+        }
+        System.out.println("return argument: " + result);
+        return result;
+    }
+    
+    /**
+     * Op-Code 62
+     * @param firstArg
+     * @param line
+     * @return Last two nibbles for assembly of the SCALL instruction
+     */
+    //TODO: Ensure SCALL Like CALL, can't recieve a REG from EQU as an Argument
+    private String scall(String firstArg, int line) {
+        String result = "00";
+        if (labelMap.containsKey(firstArg)) { // arg is a label
+            result = intToHex(Integer.toString(labelMap.get(firstArg)));
+        }
+        //CHANGE LOG BEGIN: 10
+        else if (equivalencies.containsKey(firstArg)){
+            String ref = equivalencies.get(firstArg);
+            result = intToHex(Integer.toString(labelMap.get(ref)));
+        }
+        //CHANGE LOG END: 10
+        else if (isInt(firstArg)) { // arg is decimal
+            result = intToHex(firstArg);
+        } 
+        else if (isHex(firstArg)) { // arg is hex
+            result = firstArg.substring(2, 4);
+        }
+        else {
+            errorList.add("Error: Invalid destination for SCALL on line " + line);    
+        }
+        return result;
+    }
+    
+    /**
+     * Op-Code 63
+     * Template for completeness. Function does nothing.
+     */
+    private void sret(){
+        
+    }
+    
+    /**
+     * Op-Code 64
+     * @param firstArg
+     * @param line
+     * @return Last two nibbles for assembly of the PUSH instruction
+     */
+    private String push(String firstArg, int line) {
+        String result = getRegister(firstArg, line) + "0";
+        return result;
+    }
+    
+    /**
+     * Op-Code 65
+     * @param firstArg
+     * @param line
+     * @return Last three bytes for assembly of the POP instruction
+     */
+    private String pop(String firstArg, int line) {
+        String result = getRegister(firstArg, line) + "0";
+        return result;
+    }
+    
+    /**
+     * Op-Code 7
+     * @param firstArg
+     * @param secondArg
+     * @param thirdArg
+     * @param line
+     * @return Last three bytes for assembly of the OR instruction
+     */
+    private String or(String firstArg, String secondArg, String thirdArg, int line) {
+        return getRegister(firstArg, line) + getRegister(secondArg, line) + getRegister(thirdArg, line);
+    }
+    
+    /**
+     * Op-Code 8
+     * @param firstArg
+     * @param secondArg
+     * @param thirdArg
+     * @param line
+     * @return Last three bytes for assembly of the AND instruction
+     */
+    private String and(String firstArg, String secondArg, String thirdArg, int line) {
+        return getRegister(firstArg, line) + getRegister(secondArg, line) + getRegister(thirdArg, line);
+    }
 
     /**
-     *
+     * Op-Code 9
+     * @param firstArg
+     * @param secondArg
+     * @param thirdArg
+     * @param line
+     * @return Last three bytes for assembly of the XOR instruction
+     */
+    private String xor(String firstArg, String secondArg, String thirdArg, int line) {
+        return getRegister(firstArg, line) + getRegister(secondArg, line) + getRegister(thirdArg, line);
+    }
+    
+    /**
+     * Op-Code A0
      * @param firstArg
      * @param secondArg
      * @param line
-     * @return Last two nibbles for assembly of the ILOAD instruction
+     * @return Last three bytes for assembly of the ROR instruction
      */
-    private String iload(String firstArg, String secondArg, int line) {
+    private String ror(String firstArg, String secondArg, int line) {
         String result = "00";
+        int secondArgAsDec; //BEGIN CHANGE LOG: 22
         firstArg = getRegister(firstArg, line);
-        if (secondArg.startsWith("[") && secondArg.endsWith("]")) {
-            secondArg = secondArg.substring(1, secondArg.length() - 1);
-            secondArg = getRegister(secondArg, line);
-            result = firstArg + secondArg;
-        } else {
-            errorList.add("Error: ILOAD operation on line " + line
+        if (secondArg.length() == 1 || secondArg.length() == 4){
+            if (isHex(secondArg)) {
+                secondArgAsDec = Integer.parseInt(secondArg.substring(3, 4), 16);
+                if (0 <= secondArgAsDec && secondArgAsDec < 9) 
+                    result = firstArg + secondArg.substring(3, 4);
+                else
+                    errorList.add("Error: ROR operation on line " + line
+                        + " has invalid arguments.");
+            } 
+            else if (isInt(secondArg)) {
+                secondArgAsDec = Integer.parseInt(secondArg, 10);
+                if (0 <= secondArgAsDec && secondArgAsDec < 9){
+                    result = firstArg + secondArg;
+                    System.out.println(result);
+                }
+                else
+                    errorList.add("Error: ROR operation on line " + line
+                        + " has invalid arguments.");
+            } 
+            else {
+                errorList.add("Error: ROR operations on line " + line
+                    + " has invalid arguments.");
+            }
+        }
+        return result;
+    }
+    
+    /**
+     * Op-Code A1
+     * @param firstArg
+     * @param secondArg
+     * @param line
+     * @return Last three bytes for assembly of the ROR instruction
+     */
+    private String rol(String firstArg, String secondArg, int line) {
+        String result = "00";
+        int secondArgAsDec;
+        firstArg = getRegister(firstArg, line);
+        if (secondArg.length() == 1 || secondArg.length() == 4){
+            if (isHex(secondArg)) {
+                secondArgAsDec = Integer.parseInt(secondArg.substring(3, 4), 16);
+                if (0 <= secondArgAsDec && secondArgAsDec < 9) 
+                    result = firstArg + secondArg.substring(3, 4);
+                else
+                    errorList.add("Error: ROL operation on line " + line
+                        + " has invalid arguments.");
+            } 
+            else if (isInt(secondArg)) {
+                secondArgAsDec = Integer.parseInt(secondArg, 10);
+                if (0 <= secondArgAsDec && secondArgAsDec < 9){
+                    result = firstArg + secondArg;
+                    System.out.println(result);
+                }
+                else
+                    errorList.add("Error: ROL operation on line " + line
+                        + " has invalid arguments.");
+            } 
+            else {
+                errorList.add("Error: ROL operations on line " + line
+                    + " has invalid arguments.");
+            }
+        }
+        else {
+            errorList.add("Error: ROL operations on line " + line
                 + " has invalid arguments.");
         }
         return result;
     }
+    
+    /**
+     * Op-Code A2
+     * @param firstArg
+     * @param secondArg
+     * @param line
+     * @return Last three bytes for assembly of the ROR instruction
+     */
+    private String sra(String firstArg, String secondArg, int line) {
+        String result = "00";
+        int secondArgAsDec;
+        firstArg = getRegister(firstArg, line);
+        if (secondArg.length() == 1 || secondArg.length() == 4){
+            if (isHex(secondArg)) {
+                secondArgAsDec = Integer.parseInt(secondArg.substring(3, 4), 16);
+                if (0 <= secondArgAsDec && secondArgAsDec < 9) 
+                    result = firstArg + secondArg.substring(3, 4);
+                else
+                    errorList.add("Error: SRA operation on line " + line
+                        + " has invalid arguments.");
+            } 
+            else if (isInt(secondArg)) {
+                secondArgAsDec = Integer.parseInt(secondArg, 10);
+                if (0 <= secondArgAsDec && secondArgAsDec < 9){
+                    result = firstArg + secondArg;
+                    System.out.println(result);
+                }
+                else
+                    errorList.add("Error: SRA operation on line " + line
+                        + " has invalid arguments.");
+            } 
+            else {
+                errorList.add("Error: SRA operations on line " + line
+                    + " has invalid arguments.");
+            }
+        }
+        else {
+            errorList.add("Error: SRA operations on line " + line
+                + " has invalid arguments.");
+        }
+        return result;
+    }
+    
+    /**
+     * Op-Code A3
+     * @param firstArg
+     * @param secondArg
+     * @param line
+     * @return Last three bytes for assembly of the ROR instruction
+     */
+    private String srl(String firstArg, String secondArg, int line) {
+        String result = "00";
+        int secondArgAsDec;
+        firstArg = getRegister(firstArg, line);
+        if (secondArg.length() == 1 || secondArg.length() == 4){
+            if (isHex(secondArg)) {
+                secondArgAsDec = Integer.parseInt(secondArg.substring(3, 4), 16);
+                if (0 <= secondArgAsDec && secondArgAsDec < 9) 
+                    result = firstArg + secondArg.substring(3, 4);
+                else
+                    errorList.add("Error: SRL operation on line " + line
+                        + " has invalid arguments.");
+            } 
+            else if (isInt(secondArg)) {
+                secondArgAsDec = Integer.parseInt(secondArg, 10);
+                if (0 <= secondArgAsDec && secondArgAsDec < 9){
+                    result = firstArg + secondArg;
+                    System.out.println(result);
+                }
+                else
+                    errorList.add("Error: SRL operation on line " + line
+                        + " has invalid arguments.");
+            } 
+            else {
+                errorList.add("Error: SRL operations on line " + line
+                    + " has invalid arguments.");
+            }
+        }
+        else {
+            errorList.add("Error: SRL operations on line " + line
+                + " has invalid arguments.");
+        }
+        return result;
+    }
+    
+    /**
+     * Op-Code A4
+     * @param firstArg
+     * @param secondArg
+     * @param line
+     * @return Last three bytes for assembly of the ROR instruction
+     */
+    private String sl(String firstArg, String secondArg, int line) {
+        String result = "00";
+        int secondArgAsDec;
+        firstArg = getRegister(firstArg, line);
+        if (secondArg.length() == 1 || secondArg.length() == 4){
+            if (isHex(secondArg)) {
+                secondArgAsDec = Integer.parseInt(secondArg.substring(3, 4), 16);
+                if (0 <= secondArgAsDec && secondArgAsDec < 9) 
+                    result = firstArg + secondArg.substring(3, 4);
+                else
+                    errorList.add("Error: SL operation on line " + line
+                        + " has invalid arguments.");
+            } 
+            else if (isInt(secondArg)) {
+                secondArgAsDec = Integer.parseInt(secondArg, 10);
+                if (0 <= secondArgAsDec && secondArgAsDec < 9){
+                    result = firstArg + secondArg;
+                    System.out.println(result);
+                }
+                else
+                    errorList.add("Error: SL operation on line " + line
+                        + " has invalid arguments.");
+            } 
+            else {
+                errorList.add("Error: SL operations on line " + line
+                    + " has invalid arguments.");
+            }
+        }
+        else {
+            errorList.add("Error: SL operations on line " + line
+                + " has invalid arguments.");
+        }
+        return result;
+    }   //END CHANGE LOG: 22
 
     /**
-     *
+     * Op-Code B0
      * @param firstArg
      * @param line
      * @return Last two nibbles for assembly of the JMP instruction
@@ -1161,7 +1420,7 @@ public class Assembler {
     }
 
     /**
-     *
+     * Op-Code B
      * @param firstArg
      * @param secondArg
      * @param line
@@ -1205,355 +1464,64 @@ public class Assembler {
         }
         return result;
     }
-
+    
     /**
-     *
+     * Op-Code C0 00
+     * This function does nothing. It only exists for completeness.
+     */
+    private void halt(){
+        
+    }
+    
+    /**
+     * Op-Code D0
      * @param firstArg
      * @param secondArg
      * @param line
-     * @return Last three bytes for assembly of the ROR instruction
+     * @return Last two nibbles for assembly of the ILOAD instruction
      */
-    private String ror(String firstArg, String secondArg, int line) {
-        String result = "000";
-        int secondArgAsDec; //BEGIN CHANGE LOG: 22
-        firstArg = getRegister(firstArg, line);
-        if (secondArg.length() == 1 || secondArg.length() == 4){
-            if (isHex(secondArg)) {
-                secondArgAsDec = Integer.parseInt(secondArg.substring(3, 4), 16);
-                if (0 <= secondArgAsDec && secondArgAsDec < 9) 
-                    result = firstArg + secondArg.substring(3, 4);
-                else
-                    errorList.add("Error: ROR operation on line " + line
-                        + " has invalid arguments.");
-            } 
-            else if (isInt(secondArg)) {
-                secondArgAsDec = Integer.parseInt(secondArg, 10);
-                if (0 <= secondArgAsDec && secondArgAsDec < 9){
-                    result = firstArg + secondArg;
-                    System.out.println(result);
-                }
-                else
-                    errorList.add("Error: ROR operation on line " + line
-                        + " has invalid arguments.");
-            } 
-            else {
-                errorList.add("Error: ROR operations on line " + line
-                    + " has invalid arguments.");
-            }
-        }
-        else {
-            errorList.add("Error: ROR operations on line " + line
-                + " has invalid arguments.");
-        }
-        return result;
-    }
-    
-    private String rol(String firstArg, String secondArg, int line) {
-        String result = "000";
-        int secondArgAsDec;
-        firstArg = getRegister(firstArg, line);
-        if (secondArg.length() == 1 || secondArg.length() == 4){
-            if (isHex(secondArg)) {
-                secondArgAsDec = Integer.parseInt(secondArg.substring(3, 4), 16);
-                if (0 <= secondArgAsDec && secondArgAsDec < 9) 
-                    result = firstArg + secondArg.substring(3, 4);
-                else
-                    errorList.add("Error: ROL operation on line " + line
-                        + " has invalid arguments.");
-            } 
-            else if (isInt(secondArg)) {
-                secondArgAsDec = Integer.parseInt(secondArg, 10);
-                if (0 <= secondArgAsDec && secondArgAsDec < 9){
-                    result = firstArg + secondArg;
-                    System.out.println(result);
-                }
-                else
-                    errorList.add("Error: ROL operation on line " + line
-                        + " has invalid arguments.");
-            } 
-            else {
-                errorList.add("Error: ROL operations on line " + line
-                    + " has invalid arguments.");
-            }
-        }
-        else {
-            errorList.add("Error: ROL operations on line " + line
-                + " has invalid arguments.");
-        }
-        return result;
-    }
-    
-    private String sra(String firstArg, String secondArg, int line) {
-        String result = "000";
-        int secondArgAsDec;
-        firstArg = getRegister(firstArg, line);
-        if (secondArg.length() == 1 || secondArg.length() == 4){
-            if (isHex(secondArg)) {
-                secondArgAsDec = Integer.parseInt(secondArg.substring(3, 4), 16);
-                if (0 <= secondArgAsDec && secondArgAsDec < 9) 
-                    result = firstArg + secondArg.substring(3, 4);
-                else
-                    errorList.add("Error: SRA operation on line " + line
-                        + " has invalid arguments.");
-            } 
-            else if (isInt(secondArg)) {
-                secondArgAsDec = Integer.parseInt(secondArg, 10);
-                if (0 <= secondArgAsDec && secondArgAsDec < 9){
-                    result = firstArg + secondArg;
-                    System.out.println(result);
-                }
-                else
-                    errorList.add("Error: SRA operation on line " + line
-                        + " has invalid arguments.");
-            } 
-            else {
-                errorList.add("Error: SRA operations on line " + line
-                    + " has invalid arguments.");
-            }
-        }
-        else {
-            errorList.add("Error: SRA operations on line " + line
-                + " has invalid arguments.");
-        }
-        return result;
-    }
-    
-    private String srl(String firstArg, String secondArg, int line) {
-        String result = "000";
-        int secondArgAsDec;
-        firstArg = getRegister(firstArg, line);
-        if (secondArg.length() == 1 || secondArg.length() == 4){
-            if (isHex(secondArg)) {
-                secondArgAsDec = Integer.parseInt(secondArg.substring(3, 4), 16);
-                if (0 <= secondArgAsDec && secondArgAsDec < 9) 
-                    result = firstArg + secondArg.substring(3, 4);
-                else
-                    errorList.add("Error: SRL operation on line " + line
-                        + " has invalid arguments.");
-            } 
-            else if (isInt(secondArg)) {
-                secondArgAsDec = Integer.parseInt(secondArg, 10);
-                if (0 <= secondArgAsDec && secondArgAsDec < 9){
-                    result = firstArg + secondArg;
-                    System.out.println(result);
-                }
-                else
-                    errorList.add("Error: SRL operation on line " + line
-                        + " has invalid arguments.");
-            } 
-            else {
-                errorList.add("Error: SRL operations on line " + line
-                    + " has invalid arguments.");
-            }
-        }
-        else {
-            errorList.add("Error: SRL operations on line " + line
-                + " has invalid arguments.");
-        }
-        return result;
-    }
-    
-    private String sl(String firstArg, String secondArg, int line) {
-        String result = "000";
-        int secondArgAsDec;
-        firstArg = getRegister(firstArg, line);
-        if (secondArg.length() == 1 || secondArg.length() == 4){
-            if (isHex(secondArg)) {
-                secondArgAsDec = Integer.parseInt(secondArg.substring(3, 4), 16);
-                if (0 <= secondArgAsDec && secondArgAsDec < 9) 
-                    result = firstArg + secondArg.substring(3, 4);
-                else
-                    errorList.add("Error: SL operation on line " + line
-                        + " has invalid arguments.");
-            } 
-            else if (isInt(secondArg)) {
-                secondArgAsDec = Integer.parseInt(secondArg, 10);
-                if (0 <= secondArgAsDec && secondArgAsDec < 9){
-                    result = firstArg + secondArg;
-                    System.out.println(result);
-                }
-                else
-                    errorList.add("Error: SL operation on line " + line
-                        + " has invalid arguments.");
-            } 
-            else {
-                errorList.add("Error: SL operations on line " + line
-                    + " has invalid arguments.");
-            }
-        }
-        else {
-            errorList.add("Error: SL operations on line " + line
-                + " has invalid arguments.");
-        }
-        return result;
-    }   //END CHANGE LOG: 22
-    
-    /**
-     *
-     * @param firstArg
-     * @param secondArg
-     * @param thirdArg
-     * @param line
-     * @return Last three bytes for assembly of the XOR instruction
-     */
-    private String xor(String firstArg, String secondArg, String thirdArg, int line) {
-        return getRegister(firstArg, line) + getRegister(secondArg, line) + getRegister(thirdArg, line);
-    }
-
-    /**
-     *
-     * @param firstArg
-     * @param secondArg
-     * @param thirdArg
-     * @param line
-     * @return Last three bytes for assembly of the AND instruction
-     */
-    private String and(String firstArg, String secondArg, String thirdArg, int line) {
-        return getRegister(firstArg, line) + getRegister(secondArg, line) + getRegister(thirdArg, line);
-    }
-
-    /**
-     *
-     * @param firstArg
-     * @param secondArg
-     * @param thirdArg
-     * @param line
-     * @return Last three bytes for assembly of the OR instruction
-     */
-    private String or(String firstArg, String secondArg, String thirdArg, int line) {
-        return getRegister(firstArg, line) + getRegister(secondArg, line) + getRegister(thirdArg, line);
-    }
-
-    /**
-     *
-     * @param firstArg
-     * @param line
-     * @return Last three bytes for assembly of the POP instruction
-     */
-    private String pop(String firstArg, int line) {
-        String result = getRegister(firstArg, line) + "0";
-        return result;
-    }
-
-    /**
-     *
-     * @param firstArg
-     * @param line
-     * @return Last two nibbles for assembly of the PUSH instruction
-     */
-    private String push(String firstArg, int line) {
-        String result = getRegister(firstArg, line) + "0";
-        return result;
-    }
-
-    /**
-     *
-     * @param firstArg
-     * @param line
-     * @return Last two nibbles for assembly of the SCALL instruction
-     */
-    //TODO: Ensure SCALL Like CALL, can't recieve a REG from EQU as an Argument
-    private String scall(String firstArg, int line) {
+    private String iload(String firstArg, String secondArg, int line) {
         String result = "00";
-        if (labelMap.containsKey(firstArg)) { // arg is a label
-            result = intToHex(Integer.toString(labelMap.get(firstArg)));
-        }
-        //CHANGE LOG BEGIN: 10
-        else if (equivalencies.containsKey(firstArg)){
-            String ref = equivalencies.get(firstArg);
-            result = intToHex(Integer.toString(labelMap.get(ref)));
-        }
-        //CHANGE LOG END: 10
-        else if (isInt(firstArg)) { // arg is decimal
-            result = intToHex(firstArg);
-        } 
-        else if (isHex(firstArg)) { // arg is hex
-            result = firstArg.substring(2, 4);
-        } 
-        else {
-            errorList.add("Error: Invalid destination for SCALL on line " + line);    
-        }
-        return result;
-    }
-
-    /**
-     * @param firstArg
-     * @param line
-     * @return Last two nibbles for assembly of the CALL instruction
-     */
-    private String call(String firstArg, int line) {
-        String result = "00";
-        if (labelMap.containsKey(firstArg)) { // arg is a label
-            result = intToHex(Integer.toString(labelMap.get(firstArg)));
-        } 
-        //CHANGE LOG BEGIN: 10
-        else if (equivalencies.containsKey(firstArg)){
-            String ref = equivalencies.get(firstArg);
-            //CHANGE LOG BEGIN: 18
-            if (!ref.toUpperCase().matches("R[0-9A-F]|RSP|RBP")){ //Not a register
-                result = intToHex(Integer.toString(labelMap.get(ref)));
-            }
-            else {
-                errorList.add("Error: Invalid Destination for CALL on line " + line);
-            }
-            //CHANGE LOG END: 16
-        }
-        //CHANGE LOG END: 10
-        else if (isInt(firstArg)) { // arg is decimal
-            result = intToHex(firstArg);
-        } 
-        else if (isHex(firstArg)) { // arg is hex
-            result = firstArg.substring(2, 4);
-        } 
-        else {
-            errorList.add("Error: Invalid destination for CALL on line " + line); 
+        firstArg = getRegister(firstArg, line);
+        if (secondArg.startsWith("[") && secondArg.endsWith("]")) {
+            secondArg = secondArg.substring(1, secondArg.length() - 1);
+            secondArg = getRegister(secondArg, line);
+            result = firstArg + secondArg;
+        } else {
+            errorList.add("Error: ILOAD operation on line " + line
+                + " has invalid arguments.");
         }
         return result;
     }
     
     /**
+     * Op-Code D1
      * @param firstArg
+     * @param secondArg
      * @param line
-     * @return Last two nibbles for assembly of the RET instruction
+     * @return Last three bytes for assembly of the ISTORE instruction
      */
-    private String ret(String firstArg, int line) {
-        String result = "01"; //CHANGE LOG: 9
-        if (isInt(firstArg)) {
-            result = Integer.toString(Integer.parseInt(firstArg) + 1); //CHANGE LOG: 13
-            result = intToHex(result); //CHANGE LOG: 9
-        } 
-        else if (isHex(firstArg)) {
-            result = Integer.toString(hexToInt(firstArg) + 1); //CHANGE LOG: 13
-            result = result.substring(2, 4); //CHANGE LOG: 9
+    
+    //modified ISTORE: ISTORE [RM], RN
+    //store the value in register N into the memory cell referenced by the 
+    //address in register M
+    private String istore(String firstArg, String secondArg, int line) {
+        String result = "00";
+        secondArg = getRegister(secondArg, line);
+        if (firstArg.startsWith("[") && firstArg.endsWith("]")) {
+            firstArg = firstArg.substring(1, firstArg.length() - 1);
+            firstArg = getRegister(firstArg, line);
+            //result = secondArg + firstArg;
+            result = firstArg + secondArg; //CHANGE LOG: 22
+        } else {
+            errorList.add("Error: ISTORE operation on line " + line
+                + " has invalid arguments.");
         }
-        //CHANGE LOG BEGIN: 10
-        else if (equivalencies.containsKey(firstArg)){
-            String ref = equivalencies.get(firstArg);
-            result = intToHex(Integer.toString(labelMap.get(ref) + 1)); //CHANGE LOG: 13
-        }
-        //CHANGE LOG END: 10
-        else {
-            errorList.add("Error: Invalid number for RET on line " + line);
-        }
-        System.out.println("return argument: " + result);
         return result;
     }
 
     /**
-     *
-     * @param firstArg
-     * @param secondArg
-     * @param thirdArg
-     * @param line
-     * @return Last two nibbles for assembly of the ADD instruction
-     */
-    private String add(String firstArg, String secondArg, String thirdArg, int line) {
-        //TODO: add error reporting inside getRegister
-        return getRegister(firstArg, line) + getRegister(secondArg, line) + getRegister(thirdArg, line);
-    }
-
-    /**
-     *
+     * Op-Code D2
      * @param firstArg
      * @param secondArg
      * @param line
@@ -1563,46 +1531,126 @@ public class Assembler {
     private String move(String firstArg, String secondArg, int line) {
         return getRegister(firstArg, line) + getRegister(secondArg, line);
     }
-
+    
     /**
-     *
+     * Op-Code E
      * @param firstArg
      * @param secondArg
-     * @return Last three bytes for assembly of the STORE instruction
+     * @param line
+     * @return Last three bytes for the assembly of the RSTORE instruction.
      */
-    //modified store  --- the store command is: STORE [XY], RN
-    //store the value in register N in the memory cell at address XY
-    private String store(String firstArg, String secondArg, int line) {
+    
+    private String rstore(String firstArg, String secondArg, int line) {
         String result = "000";
-        secondArg = getRegister(secondArg, line);
-        if (firstArg.startsWith("[") == false || firstArg.endsWith("]") == false){
-            errorList.add("Error: STORE operations on line " + line
-                    + " has invalid arguments.");
-        }
-        else{
-            if (firstArg.startsWith("[") && firstArg.endsWith("]")) {
-                firstArg = firstArg.substring(1, firstArg.length() - 1);
-                if (labelMap.containsKey(firstArg)) {
-                    result = secondArg + intToHex(Integer.toString(labelMap.get(firstArg)));
+        String firstRegister = getRegister(secondArg, line);
+        String secondRegister;
+        String offset;
+        String tokens[];
+        if ((firstArg.startsWith("[", 1) || firstArg.startsWith("[", 2))
+                && firstArg.endsWith("]")) {
+            tokens = firstArg.split("\\[");
+            System.out.println("The second arg of RSTORE is: " + tokens[0] + " " + tokens[1]);
+            if (tokens.length == 2 && tokens[1].endsWith("]")) {
+                if (isSingleHex(tokens[0])) {
+                    offset = tokens[0].toUpperCase().substring(2, 3);
+                } else if (tokens[0].startsWith("-") && tokens[0].length() == 2) {
+                    int number = Integer.parseInt(tokens[0].toUpperCase().substring(1, 2));
+                    switch (number) {
+                        case 1:
+                            offset = "F";
+                            break;
+                        case 2:
+                            offset = "E";
+                            break;
+                        case 3:
+                            offset = "D";
+                            break;
+                        case 4:
+                            offset = "C";
+                            break;
+                        case 5:
+                            offset = "B";
+                            break;
+                        case 6:
+                            offset = "A";
+                            break;
+                        case 7:
+                            offset = "9";
+                            break;
+                        case 8:
+                            offset = "8";
+                            break;
+                        default:
+                            errorList.add("Error: Invalid offset found on line " + line);
+                       
+                            return result;
+                    }
+                } else if (tokens[0].length() == 1 && Integer.parseInt(tokens[0]) < 8) {
+                    offset = tokens[0];
+                } else {
+                    errorList.add("Error: Invalid argument on line " + line);
+            
+                    return result;
                 }
-                //CHANGE LOG BEGIN: 10
-                else if (equivalencies.containsKey(firstArg)){
-                    String ref = equivalencies.get(firstArg);
+            } else {
+                errorList.add("Error: Invalid argument on line " + line);
+            
+                return result;
+            }
+        }else{
+            errorList.add("Error: Invalid argument on line " + line);
+            return result;
+        }   
+        
+        secondRegister = getRegister(tokens[1].substring(0, tokens[1].length()-1), line); //CHANGE LOG: 15
+        return offset + firstRegister + secondRegister;
+    }
+    
+    /**
+     * Op-Code F
+     * @param firstArg
+     * @param secondArg
+     * @param line
+     * @return Last three bytes for assembly of the JMPLT instruction
+     */
+    private String jmplt(String firstArg, String secondArg, int line) { //change "JMPLE" to "JMPLT"
+        String result = "000";
+        //CHANGE LOG BEGIN: 10
+        if (firstArg.contains("<")){
+            String first[] = firstArg.split("<");
+            if (isComparisonReg(first[1])){ 
+                firstArg = getRegister(first[0], line);
+                if (labelMap.containsKey(secondArg)) { // arg is a label
+                    result = firstArg + intToHex(Integer.toString(labelMap.get(secondArg)));
+                }
+                else if (equivalencies.containsKey(secondArg)){
+                    String ref = equivalencies.get(secondArg);
                     result = firstArg + intToHex(Integer.toString(labelMap.get(ref)));
                 }
-                //CHANGE LOG END: 10
-                else if (isHex(firstArg)) {
-                    result = secondArg + firstArg.substring(2, 4);
-                }
-                else if (isInt(firstArg)) {
-                    result = secondArg + intToHex(firstArg);
+                else if (isInt(secondArg)) { // arg is decimal
+                    result = firstArg + intToHex(secondArg);
+                } 
+                else if (isHex(secondArg)) { // arg is hex
+                    result = firstArg + secondArg.substring(2, 4);
                 }
                 else {
-                    errorList.add("Error: STORE operations on line " + line
-                        + " has invalid arguments.");               
+                    //change "JMPLE" to "JMPLT"
+                    errorList.add("Error: Invalid destination for JMPLT on line " + line);
                 }
             }
-        } 
+            else {
+                errorList.add("Error: Invalid Comparison Register or Operation Symbol for JMPLT on line " + line); //CHANGE LOG: 19
+            }
+        }
+        //CHANGE LOG END: 10
+        /*if (firstArg.toUpperCase().contains("<R0")) { //change "<=R0" to "<R0"
+            String first[] = firstArg.split("<"); //change "<=" to "<"
+            
+        }*/ 
+        else {
+            //change "JMPLE" to "JMPLT"
+            errorList.add("Error: Missing equal sign for JMPLT on line " + line);
+        }
         return result;
     }
 
