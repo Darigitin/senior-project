@@ -88,11 +88,15 @@
  * 
  * 24 jl948836 - 04/10/16: Got rid of operationLocation(). No longer necessary
  *                         due to rload being the same size as all other instructions.
-=======
  * 
- * 23 jl948836 - 04/10/16: Re-ordered the Instruction ByteCode methods to be in
+ * 29 jl948836 - 04/10/16: Re-ordered the Instruction ByteCode methods to be in
  *                         ascending order of their ByteCodes.
->>>>>>> assemblerRefactor
+ * 
+ * 30 jl948836 - 04/15/16: Created aluOperations() to replace ADD, AND, OR, and XOR
+ *                         functions.
+ * 
+ * 31 jl948836 - 04/15/16: Created regAddFormat() to replace LOAD1 and LOAD2, as well
+ *                         as chunks of JMPEQ, JMPLT, and STORE.
  * /
 
 /*
@@ -721,14 +725,18 @@ public class Assembler {
                 
                 if (op.toUpperCase().equals("LOAD") && args[1].startsWith("[")
                     && args[1].endsWith("]")) { // Direct Load
-                    return "1" + load1(args[0], args[1], line);
+                    //CHANGE LOG: 31
+                    return "1" + regAddFormat("1", args[0], args[1].substring(1, args[1].length()-1), line);
+                    //return "1" + load1(args[0], args[1], line);
                 } 
                 //Broke if else statment at load, so that the rest could
                 //be made into a switch statment.
                 switch (op.toUpperCase()) {
                     case "LOAD":
                         // Immediate Load
-                        return "2" + load2(args[0], args[1], line);
+                        //CHANGE LOG: 31
+                        return "2" + regAddFormat("2", args[0], args[1], line);
+                        //return "2" + load2(args[0], args[1], line);
                     case "STORE":
                         return "3" + store(args[0], args[1], line);
                     case "MOVE":
@@ -766,16 +774,22 @@ public class Assembler {
                 opcode = "Operation: " + op + " args: " + args[0] + " " + args[1] + " " + args[2];
                 System.out.println(opcode);
                 defList.add(opcode);
-              
+                //CHANGE LOG BEGIN: 30
+//                if (op.matches("5|7|8|9")) {
+//                    return op + aluOperations(args[0], args[1], args[3], line);
+//                }
+                //CHANGE LOG END: 30
                 switch (op.toUpperCase()) {
+                    //CHANGE LOG BEGIN: 30
                     case "ADD":
-                        return "5" + add(args[0], args[1], args[2], line);
+                        return "5" + aluOperations(args[0], args[1], args[2], line);
                     case "OR":
-                        return "7" + or(args[0], args[1], args[2], line);
+                        return "7" + aluOperations(args[0], args[1], args[2], line);
                     case "AND":
-                        return "8" + and(args[0], args[1], args[2], line);
+                        return "8" + aluOperations(args[0], args[1], args[2], line);
                     case "XOR":
-                        return "9" + xor(args[0], args[1], args[2], line);
+                        return "9" + aluOperations(args[0], args[1], args[2], line);                        
+                    //CHANGE LOG END: 30
                 }
             }
         } else if (tokens.length == 1) { 	// No arguments
@@ -831,6 +845,44 @@ public class Assembler {
         return location;
     }
 
+    /**
+     * Generates the last three nibbles of the STORE, JMPEQ, JMPLT, direct LOAD
+     * and immediate LOAD instructions. Dereferences labels and EQU labels to
+     * obtain the address. 
+     * Follows the Op-Nibble Dest SrcAddr format.
+     * @param opCode - 1, 2, 3, B, F
+     * @param firstArg - Register
+     * @param secondArg - Address
+     * @param line - Line number of the Op-Code
+     * @return - Bottom three nibbles of the Op-Code
+     */
+    //CHANGE LOG BEING: 31
+    private String regAddFormat(String opCode, String firstArg, String secondArg, int line) {
+        String result = "000";
+        String register = getRegister(firstArg, line);
+        String address = secondArg;
+        if (labelMap.containsKey(address)) {
+            result = register + intToHex(Integer.toString(labelMap.get(address)));
+        }
+        else if (equivalencies.containsKey(address)) {
+            String ref = equivalencies.get(address);
+            result = register + intToHex(Integer.toString(labelMap.get(ref)));
+        }
+        else if (isHex(address)) {
+            result = register + address.substring(2, 4);
+        } 
+        else if (isInt(address)) {
+            result = register + intToHex(address);
+        } 
+        else {
+            errorList.add("Error: " + opCode + " operation on line " + line + 
+                    " has invalid arguments.");
+        }
+        
+        return result;
+    }
+    //CHANGE LOG END: 30
+    
     /**
      * Op-Code 1
      * @param firstArg
@@ -903,7 +955,7 @@ public class Assembler {
     //store the value in register N in the memory cell at address XY
     private String store(String firstArg, String secondArg, int line) {
         String result = "000";
-        secondArg = getRegister(secondArg, line);
+        //secondArg = getRegister(secondArg, line);
         if (firstArg.startsWith("[") == false || firstArg.endsWith("]") == false){
             errorList.add("Error: STORE operations on line " + line
                     + " has invalid arguments.");
@@ -911,25 +963,27 @@ public class Assembler {
         else{
             if (firstArg.startsWith("[") && firstArg.endsWith("]")) {
                 firstArg = firstArg.substring(1, firstArg.length() - 1);
-                if (labelMap.containsKey(firstArg)) {
-                    result = secondArg + intToHex(Integer.toString(labelMap.get(firstArg)));
-                }
-                //CHANGE LOG BEGIN: 10
-                else if (equivalencies.containsKey(firstArg)){
-                    String ref = equivalencies.get(firstArg);
-                    result = firstArg + intToHex(Integer.toString(labelMap.get(ref)));
-                }
-                //CHANGE LOG END: 10
-                else if (isHex(firstArg)) {
-                    result = secondArg + firstArg.substring(2, 4);
-                }
-                else if (isInt(firstArg)) {
-                    result = secondArg + intToHex(firstArg);
-                }
-                else {
-                    errorList.add("Error: STORE operations on line " + line
-                        + " has invalid arguments.");               
-                }
+                //CHANGE LOG: 31
+                result = regAddFormat("3", secondArg, firstArg, line);
+//                if (labelMap.containsKey(firstArg)) {
+//                    result = secondArg + intToHex(Integer.toString(labelMap.get(firstArg)));
+//                }
+//                //CHANGE LOG BEGIN: 10
+//                else if (equivalencies.containsKey(firstArg)){
+//                    String ref = equivalencies.get(firstArg);
+//                    result = firstArg + intToHex(Integer.toString(labelMap.get(ref)));
+//                }
+//                //CHANGE LOG END: 10
+//                else if (isHex(firstArg)) {
+//                    result = secondArg + firstArg.substring(2, 4);
+//                }
+//                else if (isInt(firstArg)) {
+//                    result = secondArg + intToHex(firstArg);
+//                }
+//                else {
+//                    errorList.add("Error: STORE operations on line " + line
+//                        + " has invalid arguments.");               
+//                }
             }
         } 
         return result;
@@ -1009,6 +1063,22 @@ public class Assembler {
         return offset + firstRegister + secondRegister; //CHANGE LOG: 21
         //CHANGE LOG END: 3
     }
+    
+    /**
+     * Generates the bottom three nibbles of the ADD(5), AND(8), OR(7), and XOR(9)
+     * Op-Codes.
+     * Follows the Op-Nibble Dest SrcReg1 SrcReg2 format.
+     * @param firstArg - Destination Register
+     * @param secondArg - Source Register 1
+     * @param thirdArg - Source Register 2
+     * @param line - Line number of the operation
+     * @return - Bottom three nibbles of the Op-Code
+     */
+    //CHANGE LOG BEGIN: 30
+    private String aluOperations(String firstArg, String secondArg, String thirdArg, int line) {
+        return getRegister(firstArg, line) + getRegister(secondArg, line) + getRegister(thirdArg, line);
+    }
+    //CHANGE LOG END: 30
     
     /**
      * Op-Code 5
@@ -1432,23 +1502,25 @@ public class Assembler {
         if (firstArg.contains("=")){
             String first[] = firstArg.split("=");
             if (isComparisonReg(first[1])){
-                firstArg = getRegister(first[0], line);
-                if (labelMap.containsKey(secondArg)) { // arg is a label
-                    result = firstArg + intToHex(Integer.toString(labelMap.get(secondArg)));
-                }
-                else if (equivalencies.containsKey(secondArg)){
-                    String ref = equivalencies.get(secondArg);
-                    result = firstArg + intToHex(Integer.toString(labelMap.get(ref)));
-                }
-                else if (isInt(secondArg)) { // arg is decimal
-                    result = firstArg + intToHex(secondArg);
-                } 
-                else if (isHex(secondArg)) { // arg is hex
-                    result = firstArg + secondArg.substring(2, 4);
-                } 
-                else {
-                    errorList.add("Error: Invalid destination for JMPEQ on line " + line);
-                }
+                //firstArg = getRegister(first[0], line);
+                //CHANGE LOG: 31
+                result = regAddFormat("B", first[0], secondArg, line);
+//                if (labelMap.containsKey(secondArg)) { // arg is a label
+//                    result = firstArg + intToHex(Integer.toString(labelMap.get(secondArg)));
+//                }
+//                else if (equivalencies.containsKey(secondArg)){
+//                    String ref = equivalencies.get(secondArg);
+//                    result = firstArg + intToHex(Integer.toString(labelMap.get(ref)));
+//                }
+//                else if (isInt(secondArg)) { // arg is decimal
+//                    result = firstArg + intToHex(secondArg);
+//                } 
+//                else if (isHex(secondArg)) { // arg is hex
+//                    result = firstArg + secondArg.substring(2, 4);
+//                } 
+//                else {
+//                    errorList.add("Error: Invalid destination for JMPEQ on line " + line);
+//                }
             }
             else {
                 errorList.add("Error: Invalid Comparison Register or Operation Symbol for JMPEQ on line " + line); //CHANGE LOG: 19
@@ -1619,24 +1691,26 @@ public class Assembler {
         if (firstArg.contains("<")){
             String first[] = firstArg.split("<");
             if (isComparisonReg(first[1])){ 
-                firstArg = getRegister(first[0], line);
-                if (labelMap.containsKey(secondArg)) { // arg is a label
-                    result = firstArg + intToHex(Integer.toString(labelMap.get(secondArg)));
-                }
-                else if (equivalencies.containsKey(secondArg)){
-                    String ref = equivalencies.get(secondArg);
-                    result = firstArg + intToHex(Integer.toString(labelMap.get(ref)));
-                }
-                else if (isInt(secondArg)) { // arg is decimal
-                    result = firstArg + intToHex(secondArg);
-                } 
-                else if (isHex(secondArg)) { // arg is hex
-                    result = firstArg + secondArg.substring(2, 4);
-                }
-                else {
-                    //change "JMPLE" to "JMPLT"
-                    errorList.add("Error: Invalid destination for JMPLT on line " + line);
-                }
+                //firstArg = getRegister(first[0], line);
+                //CHANGE LOG: 31
+                result = regAddFormat("F", first[0], secondArg, line);
+//                if (labelMap.containsKey(secondArg)) { // arg is a label
+//                    result = firstArg + intToHex(Integer.toString(labelMap.get(secondArg)));
+//                }
+//                else if (equivalencies.containsKey(secondArg)){
+//                    String ref = equivalencies.get(secondArg);
+//                    result = firstArg + intToHex(Integer.toString(labelMap.get(ref)));
+//                }
+//                else if (isInt(secondArg)) { // arg is decimal
+//                    result = firstArg + intToHex(secondArg);
+//                } 
+//                else if (isHex(secondArg)) { // arg is hex
+//                    result = firstArg + secondArg.substring(2, 4);
+//                }
+//                else {
+//                    //change "JMPLE" to "JMPLT"
+//                    errorList.add("Error: Invalid destination for JMPLT on line " + line);
+//                }
             }
             else {
                 errorList.add("Error: Invalid Comparison Register or Operation Symbol for JMPLT on line " + line); //CHANGE LOG: 19
