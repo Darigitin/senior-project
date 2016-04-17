@@ -5,7 +5,6 @@ import system.view.TextLineNumber;
 import java.awt.Color;
 import java.awt.Font;
 import java.io.Serializable;
-import java.util.Arrays;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
