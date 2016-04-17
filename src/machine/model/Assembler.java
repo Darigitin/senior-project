@@ -148,39 +148,37 @@ public class Assembler {
          "RLOAD", "RSTORE", "JMPLT", "ROL", "SRA", "SRL", "SL"}; //CHANGE LOG: 22
         private static final Map<String, String> OPERATIONMAP;
     static {
-        OPERATIONMAP = new HashMap<String, String>();
-        OPERATIONMAP.put("LOAD", "2");
+        OPERATIONMAP = new HashMap<>();
+        OPERATIONMAP.put("LOAD", "2"); //Direct Load load RN,[XY]
         OPERATIONMAP.put("STORE", "3");
-        OPERATIONMAP.put("MOVE", "D");
+        OPERATIONMAP.put("MOVE", "D2");
         OPERATIONMAP.put("ADD", "5");
-        OPERATIONMAP.put("CALL", "6");
-        OPERATIONMAP.put("RET", "6");
-        OPERATIONMAP.put("PUSH", "6");
-        OPERATIONMAP.put("POP", "6");
+        OPERATIONMAP.put("CALL", "60");
+        OPERATIONMAP.put("RET", "61");
+        OPERATIONMAP.put("PUSH", "64");
+        OPERATIONMAP.put("POP", "65");
         OPERATIONMAP.put("OR", "7");
         OPERATIONMAP.put("AND", "8");
         OPERATIONMAP.put("XOR", "9");
-        OPERATIONMAP.put("ROR", "A");
+        OPERATIONMAP.put("ROR", "A0");
         OPERATIONMAP.put("JMPEQ", "B");
-        OPERATIONMAP.put("JMP", "B");
-        OPERATIONMAP.put("HALT", "C");
-        OPERATIONMAP.put("ILOAD", "D");
-        OPERATIONMAP.put("ISTORE", "D");
+        OPERATIONMAP.put("JMP", "B0");
+        OPERATIONMAP.put("HALT", "C000");
+        OPERATIONMAP.put("ILOAD", "D0");
+        OPERATIONMAP.put("ISTORE", "D1");
         OPERATIONMAP.put("RLOAD", "4");
-        OPERATIONMAP.put("RSTORE", "4");
+        OPERATIONMAP.put("RSTORE", "E");
         OPERATIONMAP.put("JMPLT", "F");
-        OPERATIONMAP.put("ROL", "A");
-        OPERATIONMAP.put("SRA", "A");
-        OPERATIONMAP.put("SRL", "A");
-        OPERATIONMAP.put("SL", "A");
-        OPERATIONMAP.put("SRET", "6");
-        OPERATIONMAP.put("SCALL", "6");
+        OPERATIONMAP.put("ROL", "A1");
+        OPERATIONMAP.put("SRA", "A2");
+        OPERATIONMAP.put("SRL", "A3");
+        OPERATIONMAP.put("SL", "A4");
+        OPERATIONMAP.put("SRET", "63");
+        OPERATIONMAP.put("SCALL", "62");
         
     }
     BufferedWriter logfile;
-    String[] codes; 
-    String[] labels;
-    String[] tempMem;
+    String[] codes, labels, tempMem; 
     String Location[], Object_code[];
     String DBcode = "";
     HashMap<String, Integer> labelMap = new HashMap<>(256); //labels mapped to addrs.
