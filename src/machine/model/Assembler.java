@@ -112,11 +112,8 @@
 
 package machine.model;
 
-import java.awt.Desktop;
 import java.io.BufferedWriter;
 import java.io.*;
-import java.io.File;
-import java.io.FileWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -532,8 +529,8 @@ public class Assembler {
     }
 
     /**
-     * Determines how many bytes in memory to move forward based on which 
-     * operation it receives, 4 for rload and 2 for all others.
+     * Determines how many bytes in memory to dRegFormat forward based on which 
+ operation it receives, 4 for rload and 2 for all others.
      * 
      * @param token String operation
      * @return Number of bytes to skip in memory
@@ -698,17 +695,17 @@ public class Assembler {
                     
                     //CHANGE LOG BEGIN: 16, 33
                     case "CALL":
-                        return "60" + iValFormat("60", args[0], line); //call(args[0], line);
+                        return "60" + imValFormat("60", args[0], line); //call(args[0], line);
                     case "RET":
-                        return "61" + iValFormat("61", args[0], line); //ret(args[0], line);
+                        return "61" + imValFormat("61", args[0], line); //ret(args[0], line);
                     case "SCALL":
-                        return "62" + iValFormat("62", args[0], line); //scall(args[0], line);
+                        return "62" + imValFormat("62", args[0], line); //scall(args[0], line);
                     case "PUSH":
                         return "64" + sRegFormat(args[0], line); //push(args[0], line);
                     case "POP":
                         return "65" + sRegFormat(args[0], line); //pop(args[0], line);
                     case "JMP":
-                        return "B0" + iValFormat("B0", args[0], line); //jump(args[0], line);
+                        return "B0" + imValFormat("B0", args[0], line); //jump(args[0], line);
                     //CHANGE LOG END: 16, 33
                 }
             } 
@@ -733,18 +730,18 @@ public class Assembler {
                     case "STORE":
                         return "3" + store(args[0], args[1], line);
                     case "MOVE":
-                        return "D2" + move(args[0], args[1], line);
+                        return "D2" + dRegFormat(args[0], args[1], line);
                     //CHANGE LOG BEGIN: 32
                     case "ROR":
-                        return "A0" + bitManipFormat("A0", args[0], args[1], line);  //BEGIN CHANGE LOG: 22
+                        return "A0" + regRedImFormat("A0", args[0], args[1], line);  //BEGIN CHANGE LOG: 22
                     case "ROL":
-                        return "A1" + bitManipFormat("A1", args[0], args[1], line);
+                        return "A1" + regRedImFormat("A1", args[0], args[1], line);
                     case "SRA":
-                        return "A2" + bitManipFormat("A2", args[0], args[1], line);
+                        return "A2" + regRedImFormat("A2", args[0], args[1], line);
                     case "SRL":
-                        return "A3" + bitManipFormat("A3", args[0], args[1], line);
+                        return "A3" + regRedImFormat("A3", args[0], args[1], line);
                     case "SL":
-                        return "A4" + bitManipFormat("A4", args[0], args[1], line);   //END CHANGE LOG: 22
+                        return "A4" + regRedImFormat("A4", args[0], args[1], line);   //END CHANGE LOG: 22
                     //CHANGE LOG END: 32
                     case "JMPEQ":
                         return "B" + jmpeq(args[0], args[1], line);
@@ -838,6 +835,44 @@ public class Assembler {
     }
 
     /**
+     * Generate the bottom byte of the PUSH(64) and POP(65) Op-Codes.
+     * @param firstArg - Register
+     * @param line - Line number of the Op-Code
+     * @return - return the bottom byte of the Op-Code
+     */
+    private String sRegFormat(String firstArg, int line) {
+        String result = getRegister(firstArg, line) + "0";
+        return result;
+    }
+    
+    /**
+     * Op-Code D2
+     * @param firstArg
+     * @param secondArg
+     * @param line
+     * @return Last three bytes for assembly of the MOVE instruction
+     */
+    //CHANGE LOG: 22
+    private String dRegFormat(String firstArg, String secondArg, int line) {
+        return getRegister(firstArg, line) + getRegister(secondArg, line);
+    }
+    
+        /**
+     * Tri-Register Format - Generates the bottom three nibbles of the ADD(5), AND(8), 
+     * OR(7), and XOR(9) Op-Codes.
+     * @param firstArg - Destination Register
+     * @param secondArg - Source Register 1
+     * @param thirdArg - Source Register 2
+     * @param line - Line number of the operation
+     * @return - Bottom three nibbles of the Op-Code
+     */
+    //CHANGE LOG BEGIN: 30
+    private String triRegFormat(String firstArg, String secondArg, String thirdArg, int line) {
+        return getRegister(firstArg, line) + getRegister(secondArg, line) + getRegister(thirdArg, line);
+    }
+    //CHANGE LOG END: 30
+    
+    /**
      * Generates the last three nibbles of the STORE, JMPEQ, JMPLT, direct LOAD
      * and immediate LOAD instructions. Dereferences labels and EQU labels to
      * obtain the address. 
@@ -874,7 +909,101 @@ public class Assembler {
         return result;
     }
     //CHANGE LOG END: 30
+    
+    /**
+     * Register Reduced Immediate Format - Generates the bottom Byte of the ROR(A0), ROL(A1), 
+     * SRA(A2), SRL(A3), and SL(A4) Op-Codes. Immediate value limited to a single nibble.
+     * @param opcode - A0, A1, A2, A3, A4
+     * @param firstArg - Register 
+     * @param secondArg - Number of Bits to manipulate
+     * @param line - Line number of the operation
+     * @return - the bottom Byte of the Op-Code 
+     */
+    //CHANGE LOG BEGIN: 32
+    private String regRedImFormat(String opcode, String firstArg, String secondArg, int line) {
+        String result = "00";
+        
+        boolean errorFlag = false;
+        int secondArgDecFormat;
+        firstArg = getRegister(firstArg, line);
+        if (secondArg.length() == 1 || secondArg.length() == 4) {
+            if (isHex(secondArg)) {
+                secondArgDecFormat = Integer.parseInt(secondArg.substring(3, 4), 16);
+                if (0 <= secondArgDecFormat && secondArgDecFormat < 9) {
+                    result = firstArg + secondArg.substring(3, 4);
+                }
+                else {
+                    errorFlag = true;
+                }
+            }
+            else if (isInt(secondArg)) {
+                secondArgDecFormat = Integer.parseInt(secondArg, 10);
+                if (0 <= secondArgDecFormat && secondArgDecFormat < 9) {
+                    result = firstArg + secondArg;
+                }
+                else {
+                    errorFlag = true;
+                }
+            }
+            else if (labelMap.containsKey(secondArg)) {
+                result = firstArg + intToHex(Integer.toString(labelMap.get(secondArg)));
+            }
+            else if (equivalencies.containsKey(secondArg)) {
+                String ref = equivalencies.get(secondArg);
+                result = firstArg + intToHex(Integer.toString(labelMap.get(ref)));
+            }
+            else {
+                    errorFlag = true;
+                }
+            
+        }
+        if (errorFlag) {
+            errorList.add("Error: " + opcode + " operation on line " + line +
+                            " has invalid arguments.");
+        }
+        
+        return result;
+    }
+    //CHANGE LOG END: 32
 
+    /**
+     * Immediate Value Format - Generates the bottom byte of the CALL(60), RET(61), 
+     * SCALL(62), and JMP(B0) Op-Codes.
+     * @param opcode - 60, 61, 62, B0
+     * @param firstArg - Address/Label
+     * @param line - Line number of the operation
+     * @return - Bottom Byte of the Op-Code 
+     */
+    //CHANGE LOG BEGIN: 33
+    private String imValFormat(String opcode, String firstArg, int line) {
+        String result = "00";
+        
+        if (labelMap.containsKey(firstArg)) { //arg is a label
+            result = intToHex(Integer.toString(labelMap.get(firstArg)));
+        }
+        else if (equivalencies.containsKey(firstArg)) { //arg is a label-to-label EQU
+            String ref = equivalencies.get(firstArg);
+            if (!ref.toUpperCase().matches("R[0-9A-F]|RSP|RBP")) { //Not a Register
+                result = intToHex(Integer.toString(labelMap.get(ref)));
+            }
+            else {
+                errorList.add("Error: Invalid Destination for " + opcode + " on line " + line);
+            }
+        }
+        else if (isInt(firstArg)) { // arg is decimal
+            result = intToHex(firstArg);
+        } 
+        else if (isHex(firstArg)) { // arg is hex
+            result = firstArg.substring(2, 4);
+        }
+        else {
+            errorList.add("Error: Invalid destination for " + opcode + " on line " + line); 
+        }
+        
+        return result;
+    }
+    //CHANGE LOG END: 33
+    
     /**
      * Op-Code 3
      * @param firstArg
@@ -1000,126 +1129,6 @@ public class Assembler {
         return offset + firstRegister + secondRegister; //CHANGE LOG: 21
         //CHANGE LOG END: 3
     }
-    
-    /**
-     * Tri-Register Format - Generates the bottom three nibbles of the ADD(5), AND(8), 
-     * OR(7), and XOR(9) Op-Codes.
-     * @param firstArg - Destination Register
-     * @param secondArg - Source Register 1
-     * @param thirdArg - Source Register 2
-     * @param line - Line number of the operation
-     * @return - Bottom three nibbles of the Op-Code
-     */
-    //CHANGE LOG BEGIN: 30
-    private String triRegFormat(String firstArg, String secondArg, String thirdArg, int line) {
-        return getRegister(firstArg, line) + getRegister(secondArg, line) + getRegister(thirdArg, line);
-    }
-    //CHANGE LOG END: 30
-  
-    /**
-     * Immediate Value Format - Generates the bottom byte of the CALL(60), RET(61), 
-     * SCALL(62), and JMP(B0) Op-Codes.
-     * @param opcode - 60, 61, 62, B0
-     * @param firstArg - Address/Label
-     * @param line - Line number of the operation
-     * @return - Bottom Byte of the Op-Code 
-     */
-    //CHANGE LOG BEGIN: 33
-    private String iValFormat(String opcode, String firstArg, int line) {
-        String result = "00";
-        
-        if (labelMap.containsKey(firstArg)) { //arg is a label
-            result = intToHex(Integer.toString(labelMap.get(firstArg)));
-        }
-        else if (equivalencies.containsKey(firstArg)) { //arg is a label-to-label EQU
-            String ref = equivalencies.get(firstArg);
-            if (!ref.toUpperCase().matches("R[0-9A-F]|RSP|RBP")) { //Not a Register
-                result = intToHex(Integer.toString(labelMap.get(ref)));
-            }
-            else {
-                errorList.add("Error: Invalid Destination for " + opcode + " on line " + line);
-            }
-        }
-        else if (isInt(firstArg)) { // arg is decimal
-            result = intToHex(firstArg);
-        } 
-        else if (isHex(firstArg)) { // arg is hex
-            result = firstArg.substring(2, 4);
-        }
-        else {
-            errorList.add("Error: Invalid destination for " + opcode + " on line " + line); 
-        }
-        
-        return result;
-    }
-    //CHANGE LOG END: 33
-    
-    /**
-     * Generate the bottom byte of the PUSH(64) and POP(65) Op-Codes.
-     * @param firstArg - Register
-     * @param line - Line number of the Op-Code
-     * @return - return the bottom byte of the Op-Code
-     */
-    private String sRegFormat(String firstArg, int line) {
-        String result = getRegister(firstArg, line) + "0";
-        return result;
-    }
-    
-    /**
-     * Generates the bottom Byte of the ROR(A0), ROL(A1), SRA(A2), SRL(A3), and SL(A4)
-     * Op-Codes.
-     * @param opcode - A0, A1, A2, A3, A4
-     * @param firstArg - Register 
-     * @param secondArg - Number of Bits to manipulate
-     * @param line - Line number of the operation
-     * @return - the bottom Byte of the Op-Code 
-     */
-    //CHANGE LOG BEGIN: 32
-    private String bitManipFormat(String opcode, String firstArg, String secondArg, int line) {
-        String result = "00";
-        
-        boolean errorFlag = false;
-        int secondArgDecFormat;
-        firstArg = getRegister(firstArg, line);
-        if (secondArg.length() == 1 || secondArg.length() == 4) {
-            if (isHex(secondArg)) {
-                secondArgDecFormat = Integer.parseInt(secondArg.substring(3, 4), 16);
-                if (0 <= secondArgDecFormat && secondArgDecFormat < 9) {
-                    result = firstArg + secondArg.substring(3, 4);
-                }
-                else {
-                    errorFlag = true;
-                }
-            }
-            else if (isInt(secondArg)) {
-                secondArgDecFormat = Integer.parseInt(secondArg, 10);
-                if (0 <= secondArgDecFormat && secondArgDecFormat < 9) {
-                    result = firstArg + secondArg;
-                }
-                else {
-                    errorFlag = true;
-                }
-            }
-            else if (labelMap.containsKey(secondArg)) {
-                result = firstArg + intToHex(Integer.toString(labelMap.get(secondArg)));
-            }
-            else if (equivalencies.containsKey(secondArg)) {
-                String ref = equivalencies.get(secondArg);
-                result = firstArg + intToHex(Integer.toString(labelMap.get(ref)));
-            }
-            else {
-                    errorFlag = true;
-                }
-            
-        }
-        if (errorFlag) {
-            errorList.add("Error: " + opcode + " operation on line " + line +
-                            " has invalid arguments.");
-        }
-        
-        return result;
-    }
-    //CHANGE LOG END: 32
 
     /**
      * Op-Code B
@@ -1214,18 +1223,6 @@ public class Assembler {
                 + " has invalid arguments.");
         }
         return result;
-    }
-
-    /**
-     * Op-Code D2
-     * @param firstArg
-     * @param secondArg
-     * @param line
-     * @return Last three bytes for assembly of the MOVE instruction
-     */
-    //CHANGE LOG: 22
-    private String move(String firstArg, String secondArg, int line) {
-        return getRegister(firstArg, line) + getRegister(secondArg, line);
     }
     
     /**
@@ -1340,6 +1337,11 @@ public class Assembler {
                 errorList.add("Error: Invalid Comparison Register or Operation Symbol for JMPLT on line " + line); //CHANGE LOG: 19
             }
         }
+        //CHANGE LOG END: 10
+        /*if (firstArg.toUpperCase().contains("<R0")) { //change "<=R0" to "<R0"
+            String first[] = firstArg.split("<"); //change "<=" to "<"
+            
+        }*/ 
         else {
             //change "JMPLE" to "JMPLT"
             errorList.add("Error: Missing equal sign for JMPLT on line " + line);
@@ -1573,7 +1575,7 @@ public class Assembler {
             //codeList.add(codes[i]);
         }
     }
-   
+    
     /*
     *   Author: Guojun Liu
     *   03/15/2016
