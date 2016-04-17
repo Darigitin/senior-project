@@ -122,7 +122,6 @@ import java.awt.Desktop;
 import java.io.BufferedWriter;
 import java.io.*;
 import java.io.File;
-import java.io.FileWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -139,11 +138,7 @@ public class Assembler {
     private final MachineController controller;
     private final ArrayList<String> byteCode = new ArrayList<>();
     private final ArrayList<String> errorList = new ArrayList<>();
-    private final ArrayList<String> logList = new ArrayList<>();
     private final ArrayList<String> codeList = new ArrayList<>();
-    private final ArrayList<String> defList = new ArrayList<>();
-    private final ArrayList<String> refList = new ArrayList<>();
-    private final ArrayList<String> memMatList = new ArrayList<>();
     private final ArrayList<String> labelList;
     private final static String[] PSEUDOOPS = {"SIP", "ORG", "BSS", "DB", "EQU"}; //CHANGE LOG: 10
     private final static String[] OPERATIONS = 
@@ -277,11 +272,9 @@ public class Assembler {
                     labelMap.put(labels[i], currentLocation); 
                     //TODO: Get rid of superfluous statemens
                     System.out.println("In passOne, before dbOneLocation, currentLocation = " + currentLocation);
-                    logList.add("In passOne, before dbOneLocation, currentLocation = " + currentLocation);
                     
                     currentLocation += dbOneLocation(tokens, i);
                     System.out.println("In passOne, after dbOneLocation, currentLocation = " + currentLocation);
-                    logList.add("In passOne, after dbOneLocation, currentLocation = " + currentLocation);
                 }   
                 //CHANGE LOG: 23
                 /*else if ((labels[i] != null) && (tokens[0].toUpperCase().equals("RLOAD"))){ //RLOAD after a label
@@ -424,12 +417,9 @@ public class Assembler {
         for (int i = 0; i < tempMem.length; i++) {
             if ((i+1) % 16 == 0) {
                 System.out.print(tempMem[i]);
-                memMatList.add(tempMem[i]);
                 System.out.println();              
             } else {
                 System.out.print(tempMem[i] + ", ");
-                memMatList.add(tempMem[i]);
-            
             }
         }
 
@@ -465,7 +455,6 @@ public class Assembler {
             //-2 for both the beginning and ending " char. See passTwo
             result = temp.length() - 2; //CHANGE LOG: 2
             //System.out.println("In passOneDB, length of string is: " + result);
-            logList.add("In passOneDB, length of string is: " + result);
         } else { // not a string, split on ,
             String[] args = temp.split(",");
             result = args.length;
@@ -640,7 +629,6 @@ public class Assembler {
      */
     private int passTwoDB(String dbString, int currentLocation, int lineNum) {
         System.out.println(dbString);
-        logList.add(dbString);
         int result = 0;
         String temp = "";
         DBcode = "";
@@ -710,7 +698,6 @@ public class Assembler {
             if (args.length == 1) { // 1 argument found
                 opcode = "Operation: " + op + " args: " + args[0];
                 System.out.println(opcode);
-                defList.add(opcode);
                 switch (op.toUpperCase()) {
                     
                     //CHANGE LOG BEGIN: 16, 33
@@ -732,7 +719,6 @@ public class Assembler {
             else if (args.length == 2) { // 2 arguments found
                 opcode = "Operation: " + op + " args: " + args[0] + " " + args[1];
                 System.out.println(opcode);
-                defList.add(opcode);
                 
                 if (op.toUpperCase().equals("LOAD") && args[1].startsWith("[")
                     && args[1].endsWith("]")) { // Direct Load
@@ -786,7 +772,6 @@ public class Assembler {
             else if (args.length == 3) { // 3 arguments found
                 opcode = "Operation: " + op + " args: " + args[0] + " " + args[1] + " " + args[2];
                 System.out.println(opcode);
-                defList.add(opcode);
                 //CHANGE LOG BEGIN: 30
 //                if (op.matches("5|7|8|9")) {
 //                    return op + triRegFormat(args[0], args[1], args[3], line);
@@ -808,7 +793,6 @@ public class Assembler {
         } else if (tokens.length == 1) { 	// No arguments
             opcode = "Operation: " + op + "args: none";
             System.out.println(opcode);
-            defList.add(opcode);
             switch (op.toUpperCase()) {
                 case "RET":
                     return "6101"; //CHANGE LOG: 14
@@ -850,7 +834,6 @@ public class Assembler {
             tempMem[currentLocation] = bytes.substring(0, 2);// Placing Bytecode in memory
             tempMem[currentLocation + 1] = bytes.substring(2, 4);
             System.out.println("Code: " + codes[i] + "Currentlocation: " + intToHex(Integer.toString(currentLocation)));
-            refList.add("Code: " + codes[i] + "Currentlocation: " + intToHex(Integer.toString(currentLocation)));
             Location[i] = intToHex(Integer.toString(currentLocation));
             
             location = 2;
@@ -1501,7 +1484,7 @@ public class Assembler {
     }
 
     /**
-     * Prints the contents of the lables array and the codes array for the
+     * Prints the contents of the labels array and the codes array for the
      * virtual machine.
      *
      * @param labels
@@ -1517,13 +1500,11 @@ public class Assembler {
         System.out.println("\nPrinting through Label map");
         for (String key: labelMap.keySet()){
             System.out.println(key + " : " + intToHex(Integer.toString(labelMap.get(key))));
-            logList.add(key + " : " + intToHex(Integer.toString(labelMap.get(key))));
         }
         //CHANGE LOG BEGIN: 10
         System.out.println("\nPrintin through Equivalencies Map");
         for (String key: equivalencies.keySet()){
             System.out.println(key + " : " + equivalencies.get(key));
-            logList.add(key + " : " + equivalencies.get(key));
         }
         //CHANGE LOG END: 10
         
@@ -1532,162 +1513,6 @@ public class Assembler {
             System.out.println(code);
             //codeList.add(codes[i]);
         }
-    }
-    
-    /**
-     * Pass One - parses text and splits everything into labels, codes, and
-     * comments, then calls Pass Two
-     *
-     * @param text
-     */
-    private void createLogfile() {
-        //Creates a logfile and files it with assembler information
-        //Programmer: Mariela Barrera
-        if (new File ("logfile.txt").exists()){
-            System.out.print("It exsists");
-            new File ("logfile.txt").setWritable(true);
-        }
-        String errorCount = "0";
-        Date date = new Date();
-        SimpleDateFormat simpDate = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a");
-        int refLineCount;
-        int DefLineCount;
-        int labelLineNum = 1;
-        
-       
-        try 
-        {
-            logfile = new BufferedWriter(new FileWriter("logfile.txt"));
-        
-         
-            logfile.append("************Logfile************");
-            logfile.newLine();
-            logfile.newLine();
-            logfile.append(simpDate.format(date));
-            logfile.newLine();
-            logHeaders("PROGRAM");
-            for (String codeList1 : codeList) {
-                logfile.append(codeLines +" " + codeList1);
-                logfile.newLine(); 
-                codeLines++;
-            }  
-            //This loop prints information about special cases
-            for (String logList1 : logList) {
-                logfile.newLine();
-                logfile.append(logList1);
-                logfile.newLine();
-            }
-            logHeaders("Printing through Label Map");
-            logfile.append("*************LABELS*************");
-            logfile.newLine();
-            logfile.newLine();
-       
-            for (String label : labels) {
-                if (label != null) {
-                    logfile.append(label);
-                    logfile.newLine();
-                    labelMatching(label);
-                    labelLineNum++;
-                } else {
-                    labelLineNum++; 
-                }
-            }
-         
-
-            logfile.newLine();      
-            //This loop prints the defined information
-            for (String defList1 : defList) {
-                logfile.append(defList1);
-                logfile.newLine();
-            }
-            logfile.newLine();
-            //This loop prints the reference information
-            for (String refList1 : refList) {
-                logfile.append(refList1);
-                logfile.newLine();
-            }
-                
-            logHeaders("MEMORY");
-            //This loop prints the memory matrix    
-            for (int i = 0; i < tempMem.length; i++) {
-                if ((i+1) % 16 == 0) {
-                    logfile.append(memMatList.get(i));
-                    logfile.newLine();
-                } else {
-                     logfile.append(memMatList.get(i) + ", ");
-                }
-            }
-               
-            logHeaders("ERROR REPORT");
-            
-            //This loop prints the error report
-            if (!errorList.isEmpty()){
-                for (String errorList1 : errorList) {
-                    logfile.append(errorList1);
-                    logfile.newLine();
-                    logfile.newLine();
-                    errorCount = Integer.toString(errorList.size());
-                    logfile.append("Error Count: "+errorCount);
-               }
-            } else{
-                    logfile.append("Error Count: "+errorCount);  
-            }
-            logfile.close();
-        }
-       
-        catch (Exception e) {}
-    }
-    
-    /**
-     * 
-     * @param labelAppears 
-     */
-    private void labelMatching(String labelAppears) {
-   //Programmer: Mariela Barrera
-   //Finds where all the labels are referenced
-        for (int i =0; i<codeList.size(); i++){ 
-            if (codeList.get(i).contains(labelAppears)){
-                labelAppearsLine = i+1;
-                try{
-                    logfile.append("appears in line " +labelAppearsLine);
-                    logfile.newLine();
-                }
-                catch (Exception e){}
-            }
-        }
-    }
-    
-    /**
-     * 
-     * @param header 
-     */
-    private void logHeaders(String header) {
-    //Creates the logfile headers.    
-    //Programmer: Mariela Barrera
-        try{ 
-            logfile.newLine();
-            logfile.append( "*******************************");
-            logfile.newLine();
-            logfile.append(header);
-            logfile.newLine();
-            logfile.append( "*******************************");
-            logfile.newLine();         
-            logfile.newLine();
-        }
-        catch (Exception e){}
-    }
-    
-    /**
-     * 
-     */
-    public void displayLog() {
-        //Displays the logfile as an automated pop up.
-        //Programmer: Mariela Barrera
-        new File ("logfile.txt").setReadOnly();
-        try{
-            Desktop.getDesktop().open(new File ("logfile.txt"));
-        }
-        catch (Exception e){}
     }
     
     /*
