@@ -423,7 +423,8 @@ public class TextLineNumber extends JPanel
 				try
 				{
 					int endPos = component.getDocument().getLength();
-					Rectangle rect = component.modelToView(endPos);
+                                        //TODO: Occassionally Errors Out.
+                                        Rectangle rect = component.modelToView(endPos);
 
 					if (rect != null && rect.y != lastHeight)
 					{

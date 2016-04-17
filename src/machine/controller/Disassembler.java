@@ -28,7 +28,7 @@
 * # modfied istore and restore
 */
 
-package machine.presenter;
+package machine.controller;
 
 import java.util.ArrayList;
 public class Disassembler {

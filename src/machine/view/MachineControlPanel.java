@@ -7,7 +7,7 @@ package machine.view;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import machine.presenter.MachineController;
+import machine.controller.MachineController;
 
 /**
  *

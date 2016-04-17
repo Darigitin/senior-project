@@ -1,0 +1,10 @@
+load R1,0x0F
+load R2,0xF0
+load R3,0xFF
+load R4,0xFF
+
+ror R1,4
+rol R2,4
+sra R3,4
+srl  R4,4
+sl  R2,4
