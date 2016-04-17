@@ -109,6 +109,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -131,6 +132,37 @@ public class Assembler {
          "PUSH", "POP", "OR", "AND", "XOR",
          "ROR", "JMPEQ", "JMP", "HALT", "ILOAD", "ISTORE",
          "RLOAD", "RSTORE", "JMPLT", "ROL", "SRA", "SRL", "SL"}; //CHANGE LOG: 22
+    private static final Map<String, String> OPERATIONMAP;
+    static {
+        OPERATIONMAP = new HashMap<String, String>();
+        OPERATIONMAP.put("LOAD", "2");
+        OPERATIONMAP.put("STORE", "3");
+        OPERATIONMAP.put("MOVE", "D");
+        OPERATIONMAP.put("ADD", "5");
+        OPERATIONMAP.put("CALL", "6");
+        OPERATIONMAP.put("RET", "6");
+        OPERATIONMAP.put("PUSH", "6");
+        OPERATIONMAP.put("POP", "6");
+        OPERATIONMAP.put("OR", "7");
+        OPERATIONMAP.put("AND", "8");
+        OPERATIONMAP.put("XOR", "9");
+        OPERATIONMAP.put("ROR", "A");
+        OPERATIONMAP.put("JMPEQ", "B");
+        OPERATIONMAP.put("JMP", "B");
+        OPERATIONMAP.put("HALT", "C");
+        OPERATIONMAP.put("ILOAD", "D");
+        OPERATIONMAP.put("ISTORE", "D");
+        OPERATIONMAP.put("RLOAD", "4");
+        OPERATIONMAP.put("RSTORE", "4");
+        OPERATIONMAP.put("JMPLT", "F");
+        OPERATIONMAP.put("ROL", "A");
+        OPERATIONMAP.put("SRA", "A");
+        OPERATIONMAP.put("SRL", "A");
+        OPERATIONMAP.put("SL", "A");
+        OPERATIONMAP.put("SRET", "6");
+        OPERATIONMAP.put("SCALL", "6");
+        
+    }
     BufferedWriter logfile;
     String[] codes; 
     String[] labels;
@@ -695,6 +727,8 @@ public class Assembler {
                     //CHANGE LOG BEGIN: 16
                     case "CALL":
                         return "60" + call(args[0], line);
+                    case "RET":
+                        return "61" + ret(args[0], line);
                     case "SCALL":
                         return "62" + scall(args[0], line);
                     case "PUSH":
@@ -703,8 +737,6 @@ public class Assembler {
                         return "65" + pop(args[0], line);
                     case "JMP":
                         return "B0" + jump(args[0], line);
-                    case "RET":
-                        return "61" + ret(args[0], line);
                     //CHANGE LOG END: 16
                 }
             } 
