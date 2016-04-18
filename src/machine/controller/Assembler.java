@@ -2002,10 +2002,10 @@ public class Assembler {
         Date date = new Date();
         SimpleDateFormat simpDate = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a");
         
-        java.io.File file = new java.io.File("Assembler Listing.txt");
+        java.io.File file = new java.io.File("WALL-Listing.txt");
         try (java.io.PrintWriter output = new java.io.PrintWriter(file)) {
-            output.println("******** Assembler Listing **********");
-            output.println("Created date: "+simpDate.format(date));
+            output.println("*********** WALL-Listing ***********");
+            output.println("Created date: " + simpDate.format(date));
             output.println("\n");
             output.println("Location    " + "Object Code       " + "Line   " + "Source Statement");
             for (int i = 0; i<codeList.size(); i++){
@@ -2045,10 +2045,45 @@ public class Assembler {
                 
                 codeLines++;
             }
+            //generateCrossReferenceListing();
+            output.close();    //Close the file
+            generateCrossReferenceListing();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Assembler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private void generateCrossReferenceListing(){
+        Date date = new Date();
+        SimpleDateFormat simpDate = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a");
+        
+        java.io.File file = new java.io.File("WALL-Cross-Reference Listing.txt");
+        //java.io.File file = new java.io.File("WALL-Listing.txt");
+        try (java.io.PrintWriter output = new java.io.PrintWriter(file)) {
+            output.println();
+            output.println("***************** WALL-Cross-Reference Listing *******************");
+            output.println("Created date: " + simpDate.format(date));
+            output.println("\n");
+            output.println("         Cross-Reference Listing Description");
+            output.println("Labels: The label name that appears in the source program.");
+            output.println("Mem_Loc: Memory location of a label in the memory.");
+            output.println("         If address starts with 'R', then value is a Register.");
+            output.println("Def_Line: Defined line number of a label in the source code.");
+            output.println("Ref_line: Referenced line number(s) of a label in the source code.");
+            output.println();
+            output.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+            output.println("Labels         " + "  Mem_Loc" + "     Def_Line" + "     Ref_line");
+            for (int i = 0; i<codeList.size(); i++){
+                if (labels[i] != null){
+                    String memoryAddress = intToHex(Integer.toString(labelMap.get(labels[i]))); 
+                    output.printf("%-15s%7s%12d%8s%-15s", labels[i], memoryAddress, i+1, " ", "---");
+                    output.println();
+                }
+            }
             output.close();    //Close the file
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Assembler.class.getName()).log(Level.SEVERE, null, ex);
         }
-    } 
+    }
     
 }
