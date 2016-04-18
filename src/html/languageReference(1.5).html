@@ -231,40 +231,40 @@ date/ver: 03/26/16 1.0.0
                             &nbsp;reg[IP] := XY
                         </td>
                     </tr>
-                    <tr id="immediateLoad">
-                        <td>
-                            LOAD RN,XY
-                        </td>
-                        <td>
-                            1N XY
-                        </td>
-                        <td>
-                            LOAD R3,0x01<br>
-                            Assembled => 13 01
-                        </td>
-                        <td>
-                            Immediate Load - loads Register N with the value XY.<br>
-                            Note: A label can be used in place of an XY value.<br>
-                            reg[N] := XY
-                        </td>
-                    </tr>
                     <tr id="directLoad">
                         <td>
                             LOAD RN,[XY]
                         </td>
                         <td>
-                            2N XY
+                            1N XY
                         </td>
                         <td>
                             label: db 1<br>
                             LOAD R3,[label]<br>
-                            Assembled => 23 01
+                            Assembled => 13 01
                         </td>
                         <td>
                             Direct Load - loads Register N with the value at address
                             XY in memory.<br>
                             Note: A label can be used in place of an Absolute Address (XY).<br>
                             reg[N] := memory[XY]
+                        </td>
+                    </tr>
+                    <tr id="immediateLoad">
+                        <td>
+                            LOAD RN,XY
+                        </td>
+                        <td>
+                            2N XY
+                        </td>
+                        <td>
+                            LOAD R3,0x01<br>
+                            Assembled => 23 01
+                        </td>
+                        <td>
+                            Immediate Load - loads Register N with the value XY.<br>
+                            Note: A label can be used in place of an XY value.<br>
+                            reg[N] := XY
                         </td>
                     </tr>
                     <tr id="move">
