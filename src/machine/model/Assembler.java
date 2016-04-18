@@ -719,10 +719,14 @@ public class Assembler {
             String[] args = tokens[1].split("\\s*,\\s*");
                 System.out.println("generateByteCode: " + op + " " + Arrays.toString(args));
                 if (args.length == 1) { //1 Argument
-                    //CALL, RET, SCALL, JMP
-                    if (OPERATIONMAP.get(op).matches("60|61|62|B0")) {
+                    //CALL, SCALL, JMP
+                    if (OPERATIONMAP.get(op).matches("60|62|B0")) {
                         return OPERATIONMAP.get(op) + imValFormat(op, args[0], line);
                     }//end if
+                    //RET
+                    else if (OPERATIONMAP.get(op).matches("61")) {
+                        return OPERATIONMAP.get(op) + retSyntax(op, args[0], line);
+                    }
                     //PUSH, POP
                     else if (OPERATIONMAP.get(op).matches("64|65")) {
                         return OPERATIONMAP.get(op) + sRegFormat(op, args[0], line);
@@ -1138,7 +1142,29 @@ public class Assembler {
             return result;
         }
     }
-
+    
+    private String retSyntax(String op, String firstArg, int line) {
+        String result = "01";
+        
+        if (isInt(firstArg)) {
+            result = Integer.toString(Integer.parseInt(firstArg) + 1);
+            result = intToHex(result);
+        }
+        else if (isHex(firstArg)) {
+            result = Integer.toString(hexToInt(firstArg) + 1);
+            result = result.substring(2, 4);
+        }
+        else if (equivalencies.containsKey(firstArg)) {
+            String ref = equivalencies.get(firstArg);
+            result = intToHex(Integer.toString(labelMap.get(ref) + 1));
+        }
+        else {
+            errorList.add("Error: Invalid number for " + op + " on line " + line);
+        }
+        
+        return result;
+    }
+    
     /**
      * Jump Comparison Syntax - Test to see whether the Op-Code is JMPEQ or JMPLT, 
      * parse the syntax and call the Register Immediate Format function.
