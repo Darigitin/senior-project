@@ -125,7 +125,6 @@ package machine.model;
 
 import java.io.BufferedWriter;
 import java.io.*;
-import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -154,7 +153,7 @@ public class Assembler {
     private static final Map<String, String> OPERATIONMAP; //CHANGE LOG BEING: 36
     static {
         OPERATIONMAP = new HashMap<>();
-        OPERATIONMAP.put("LOAD", "2"); //Direct Load loadSyntax RN,[XY]
+        OPERATIONMAP.put("LOAD", "2"); //Direct Load  RN,[XY]
         OPERATIONMAP.put("STORE", "3");
         OPERATIONMAP.put("MOVE", "D2");
         OPERATIONMAP.put("ADD", "5");
@@ -271,7 +270,7 @@ public class Assembler {
         }
         
 	// codes[] now has all the code and labels
-        // pull out any labels and storeSyntax them
+        // pull out any labels and store them
         for (i = 0; i < lineCount; i++) {
             tokens = codes[i].split(":");
             if (codes[i].contains(":") && isValidLabel(tokens[0]) // check to see if label has been used
@@ -564,13 +563,14 @@ public class Assembler {
         }
         return location;
     }
-    
+
     /**
      * Equivalent - Checks what kind of equivalency is being made (label to hex,
      * label to int, label to label, or label to register) and then makes the
      * reference and places them into the appropriate HashMap. (labelMap for
      * labels to int, and labels to hex. equivalencies for label to label, and
      * label to register.)
+     * 
      * @param tokens - Label, Register, Int, Hex
      * @param i - location in the labels array
      */
@@ -699,7 +699,7 @@ public class Assembler {
         }
         return result;
     }
-    
+
     /**
      * Takes an the the mnemonic operation and converts it into its byteCode format.
      * 
@@ -716,7 +716,7 @@ public class Assembler {
             
             if (tokens.length == 2) { //Op-Code has arguments
                 
-                String[] args = tokens[1].split("\\s*,\\s*");
+            String[] args = tokens[1].split("\\s*,\\s*");
                 System.out.println("generateByteCode: " + op + " " + Arrays.toString(args));
                 if (args.length == 1) { //1 Argument
                     //CALL, RET, SCALL, JMP
@@ -767,7 +767,7 @@ public class Assembler {
                 else { //To many Arguments
                     errorList.add("Error: To many arguments on line " + line);
                 }//end else
-            
+                    
             }//end if
             else { //No Arguments
                 //NO-OP, HALT, RET, SRET
@@ -785,9 +785,9 @@ public class Assembler {
         else { //Invalid Operation
             errorList.add("Error: Invalid Operation " + op + " on line " + line);
         }//end else
-        return "0000";
+                    return "0000";
     }
-
+    
     /**
      *
      * @param bytes
@@ -797,12 +797,13 @@ public class Assembler {
      */
     private int byteCodeInTemp(String bytes, int currentLocation, int i) {
         int location;
-        tempMem[currentLocation] = bytes.substring(0, 2);// Placing Bytecode in memory
-        tempMem[currentLocation + 1] = bytes.substring(2, 4);
-        System.out.println("Code: " + codes[i] + "Currentlocation: " + intToHex(Integer.toString(currentLocation)));
-        Location[i] = intToHex(Integer.toString(currentLocation));
-
-        location = 2;
+            tempMem[currentLocation] = bytes.substring(0, 2);// Placing Bytecode in memory
+            tempMem[currentLocation + 1] = bytes.substring(2, 4);
+            System.out.println("Code: " + codes[i] + "Currentlocation: " + intToHex(Integer.toString(currentLocation)));
+            Location[i] = intToHex(Integer.toString(currentLocation));
+            
+            location = 2;
+        /*}*/
         return location;
     }
 
@@ -837,7 +838,6 @@ public class Assembler {
      * Triple Register Format - Generates the bottom three nibbles of the ADD(5), AND(8), 
      * OR(7), and XOR(9) Op-Codes.
      * 
-     * @param op - ADD, AND, OR, XOR
      * @param firstArg - Destination Register
      * @param secondArg - Source Register 1
      * @param thirdArg - Source Register 2
@@ -1111,8 +1111,7 @@ public class Assembler {
             result = regImFormat(op, secondArg, firstArg, line);
         }
         else {
-            errorList.add("Error: " + op + " operation on line " + line
-                    + " has invalid arguments.");
+            errorList.add("Error: Invalid Syntax for " + op + " on line " + line);
         } 
         return result;
     }
@@ -1152,18 +1151,16 @@ public class Assembler {
      */
     private String jmpCompSyntax(String op, String firstArg, String secondArg, int line) {
         String result = "000";
-        String first[];
         //CHANGE LOG BEGIN: 10
         if (firstArg.matches(".+=.+|.+<.+")) {
-            first = firstArg.split("=|<");
+            String[] first = firstArg.split("=|<");
             if (isComparisonReg(first[1])) {
                 result = regImFormat(op, first[0], secondArg, line);
             }
             else {
                 errorList.add("Invalid Operator for " + op + " on line " + line);
             }
-        }
-        
+        }            
         return result;
     }
     
@@ -1239,7 +1236,7 @@ public class Assembler {
             return result;
         }
     }
-
+    
     /**
      * Helper method Returns a string with the corresponding register
      *
