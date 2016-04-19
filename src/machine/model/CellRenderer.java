@@ -47,4 +47,5 @@ public class CellRenderer extends DefaultTableCellRenderer {
         setBorder(BorderFactory.createLineBorder(Color.black));
         return this;
     }
+    
 }
