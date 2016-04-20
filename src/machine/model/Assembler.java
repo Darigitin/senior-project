@@ -1325,14 +1325,17 @@ public class Assembler {
      */
     private boolean isValidLabel(String token) {
         //make sure label is unique
-        for (String label : labels) {
-            if (label != null && label.equals(token)) {
-                return false;
+        //if (token.matches("[_]*[a-zA-Z]*[_]*[a-zA-Z]*")) {
+            for (String label : labels) {
+                if (label != null && label.equals(token)) {
+                    return false;
+                }
             }
-        }
-        // TODO: make sure we match the regex
-        // label okay
-        return true;
+            return true;
+        //}
+        //else {
+        //    return false;
+        //}
     }
 
     /**
