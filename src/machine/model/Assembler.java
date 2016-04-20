@@ -81,10 +81,20 @@
  * 22 jl948836 - 04/07/16: Corrected ByteCode Format of Operations
  * 
  * 23 jl948836 - 04/07/16: Swapped ByteCode of move and rload. rload is now 4
- *                         and move is D2. rload is now a 2 byte instruction.
+ *                         and move is D2. rload is now a 2 byte instruction
  * 
  * 24 jl948836 - 04/10/16: Got rid of operationLocation(). No longer necessary
  *                         due to rload being the same size as all other instructions.
+ * 
+ * 25 jl948836 - 04/14/16: Error in getRegister(), changed .equls() to .matches() for
+ *                         regEx
+ *
+ * 26 jl948836 - 04/14/16: isSingleHex() now accepts 0xH and 0x0H formats
+ * 
+ * 27 jl948836 - 04/15/16: bug, store now Handles EQU labels
+ * 
+ * 28 jl948836 - 04/15/16: bug, rload and rstore now handles 0xH and 0x0H formats 
+ *                         for offset.
  * 
  * 29 jl948836 - 04/10/16: Re-ordered the Instruction ByteCode methods to be in
  *                         ascending order of their ByteCodes.
@@ -109,8 +119,10 @@
  * 
  * 36 mv935583 - 04/16/16: Created OPERATIONSMAP.
  * 
- * 37 jl948836 - 04/17-16: Re-wrote the generateByteCode() function to incorporate
+ * 37 jl948836 - 04/17/16: Re-wrote the generateByteCode() function to incorporate
  *                         changes 30-36.
+ * 
+ * 38 jl948836 - 04/19/16: Combined rloadSyntax() and rstoreSyntax() into relativeSyntax()
  * /
 
 /*
@@ -364,11 +376,6 @@ public class Assembler {
         Location = new String[codes.length];  
         Object_code = new String[codes.length];
         for (int i = 0; i < codes.length; i++) {
-            /*if (i==39){
-                //This is a debug method, ignore this.
-               
-            }*/
-               
             tokens = codes[i].split("\\s+");
             if (tokens.length > 0) { // A line with pseudo-op or operation
                 switch (tokens[0].toUpperCase()) {
@@ -714,45 +721,51 @@ public class Assembler {
         
         if (OPERATIONMAP.containsKey(op)) { //valid Operation
             
+            String opCode = OPERATIONMAP.get(op);
+            
             if (tokens.length == 2) { //Op-Code has arguments
                 
             String[] args = tokens[1].split("\\s*,\\s*");
                 System.out.println("generateByteCode: " + op + " " + Arrays.toString(args));
                 if (args.length == 1) { //1 Argument
-                    //CALL, RET, SCALL, JMP
-                    if (OPERATIONMAP.get(op).matches("60|61|62|B0")) {
-                        return OPERATIONMAP.get(op) + imValFormat(op, args[0], line);
+                    //CALL, SCALL, JMP
+                    if (opCode.matches("60|62|B0")) {
+                        return opCode + imValFormat(op, args[0], line);
                     }//end if
+                    //RET
+                    else if (opCode.matches("61")) {
+                        return opCode + retSyntax(op, args[0], line);
+                    }
                     //PUSH, POP
-                    else if (OPERATIONMAP.get(op).matches("64|65")) {
-                        return OPERATIONMAP.get(op) + sRegFormat(op, args[0], line);
+                    else if (opCode.matches("64|65")) {
+                        return opCode + sRegFormat(op, args[0], line);
                     }//end else if
                 }//end if
                 else if (args.length == 2) { //2 Arguments
                     //ROR, ROL, SRA, SRL, SL
-                    if (OPERATIONMAP.get(op).matches("A0|A1|A2|A3|A4")) {
-                        return OPERATIONMAP.get(op) + regRedImFormat(op, args[0], args[1], line);
+                    if (opCode.matches("A0|A1|A2|A3|A4")) {
+                        return opCode + regRedImFormat(op, args[0], args[1], line);
                     }//end if
                     //JMPEQ, JMPLT
-                    else if (OPERATIONMAP.get(op).matches("B|F")) {
-                        return OPERATIONMAP.get(op) + jmpCompSyntax(op, args[0], args[1], line);
+                    else if (opCode.matches("B|F")) {
+                        return opCode + jmpCompSyntax(op, args[0], args[1], line);
                     }//end else if
                     //MOVE
-                    else if (OPERATIONMAP.get(op).matches("D2")) {
-                        return OPERATIONMAP.get(op) + dRegFormat(op, args[0], args[1], line);
+                    else if (opCode.matches("D2")) {
+                        return opCode + dRegFormat(op, args[0], args[1], line);
                     }//end else if
                     else {
-                        switch (OPERATIONMAP.get(op)) {
+                        switch (opCode) {
                             case "D0": //ILOAD
-                                return OPERATIONMAP.get(op) + iloadSyntax(op, args[0], args[1], line);
+                                return opCode + iloadSyntax(op, args[0], args[1], line);
                             case "D1": //ISTORE
-                                return OPERATIONMAP.get(op) + istoreSyntax(op, args[0], args[1], line);
+                                return opCode + istoreSyntax(op, args[0], args[1], line);
                             case "3": //STORE
-                                return OPERATIONMAP.get(op) + storeSyntax(op, args[0], args[1],line);
+                                return opCode + storeSyntax(op, args[0], args[1],line);
                             case "4": //RLOAD
-                                return OPERATIONMAP.get(op) + rloadSyntax(op, args[0], args[1], line);
+                                return opCode + relativeSyntax(op, args[0], args[1], line);
                             case "E": //RSTORE
-                                return OPERATIONMAP.get(op) + rstoreSyntax(op, args[0], args[1], line);
+                                return opCode + relativeSyntax(op, args[0], args[1], line);
                             case "2": //Direct + Indirect Load
                                 return loadSyntax(op, args[0], args[1], line);
                         }//end switch
@@ -760,8 +773,8 @@ public class Assembler {
                 }//end else if
                 else if (args.length == 3) { //3 Arguments
                     //ADD, AND, OR, XOR
-                    if (OPERATIONMAP.get(op).matches("5|7|8|9")) {
-                        return OPERATIONMAP.get(op) + triRegFormat(op, args[0], args[1], args[2], line);
+                    if (opCode.matches("5|7|8|9")) {
+                        return opCode + triRegFormat(op, args[0], args[1], args[2], line);
                     }//end if
                 }//end else if
                 else { //To many Arguments
@@ -771,11 +784,11 @@ public class Assembler {
             }//end if
             else { //No Arguments
                 //NO-OP, HALT, RET, SRET
-                if (OPERATIONMAP.get(op).matches("0000|C000|6301")) {
-                    return OPERATIONMAP.get(op);
+                if (opCode.matches("0000|C000|6301")) {
+                    return opCode;
                 }//end if
-                else if (OPERATIONMAP.get(op).matches("61")) {
-                    return OPERATIONMAP.get(op) + "01";
+                else if (opCode.matches("61")) {
+                    return opCode + "01";
                 }//end else if
                 else { //Valid Op with Missing Arguments
                     errorList.add("Error: Missing Arguments for " + op + " on line " + line);
@@ -1117,28 +1130,59 @@ public class Assembler {
     }
     
     /**
-     * Relative Load Syntax - Handles the syntax checking for RLOAD(4).
+     * Relative Syntax - Handles the syntax checking for RLOAD(4) and RSTORE(E).
      * 
-     * @param op - RLOAD
+     * @param op - RLOAD, RSTORE
      * @param firstArg - Destination Register
-     * @param secondArg - offset[Source Register]
+     * @param secondArg - Source Register
      * @param line - Line number of the Op-Code
-     * @return Assembled byte values for the RLOAD instruction.
+     * @return Assembled byte values for the Op-Code.
      */
-    private String rloadSyntax(String op, String firstArg, String secondArg, int line) {
+    //CHANGE LOG BEGIN: 38
+    private String relativeSyntax(String op, String firstArg, String secondArg, int line) {
         String result = "000"; //CHANGE LOG: 21
+        String tokens[];
         if (secondArg.matches(".+\\[.+\\]")){
             //System.out.println("****************************************THE REGEX WORKS MOTHERFUCKER!!!!");
-            String tokens[] = secondArg.split("\\[|\\]"); //tokens[0]=offset, tokens[1]= reg]
+            tokens = secondArg.split("\\[|\\]"); //tokens[0]=offset, tokens[1]= reg]
             result = imDRegFormat(op, tokens[0], firstArg, tokens[1], line);
             return result;
+        }
+        else if (firstArg.matches(".+\\[.+\\]")) {
+           tokens = firstArg.split("\\[|\\]");
+           System.out.println(Arrays.toString(tokens));
+           result = imDRegFormat(op, tokens[0], tokens[1], secondArg, line);
+           return result;
         }
         else {
             errorList.add("Error: " + op + " invalid argument on line " + line);
             return result;
         }
     }
-
+    //CHANGE LOG END: 38
+    
+    private String retSyntax(String op, String firstArg, int line) {
+        String result = "01";
+        
+        if (isInt(firstArg)) {
+            result = Integer.toString(Integer.parseInt(firstArg) + 1);
+            result = intToHex(result);
+        }
+        else if (isHex(firstArg)) {
+            result = Integer.toString(hexToInt(firstArg) + 1);
+            result = result.substring(2, 4);
+        }
+        else if (equivalencies.containsKey(firstArg)) {
+            String ref = equivalencies.get(firstArg);
+            result = intToHex(Integer.toString(labelMap.get(ref) + 1));
+        }
+        else {
+            errorList.add("Error: Invalid number for " + op + " on line " + line);
+        }
+        
+        return result;
+    }
+    
     /**
      * Jump Comparison Syntax - Test to see whether the Op-Code is JMPEQ or JMPLT, 
      * parse the syntax and call the Register Immediate Format function.
@@ -1212,31 +1256,7 @@ public class Assembler {
         }
         return result;
     }
-    
-    /**
-     * Relative Store Syntax - Handles the syntax checking for RSTORE(E).
-     * 
-     * @param op - RSTORE
-     * @param firstArg - offset[Destination Register]
-     * @param secondArg - Source Register
-     * @param line - Line number of the Op-Code
-     * @return - The bottom three nibbles for the Op-Code
-     */
-    private String rstoreSyntax(String op, String firstArg, String secondArg, int line) {
-        String result = "000";
-        String tokens[];
-        
-        if (firstArg.matches(".+\\[.+\\]")) {
-           tokens = firstArg.split("\\[|\\]");
-           result = imDRegFormat(op, tokens[0], tokens[1], secondArg, line);
-           return result;
-        }
-        else {
-            errorList.add("Error: Invalid argument on line " + line);
-            return result;
-        }
-    }
-    
+
     /**
      * Helper method Returns a string with the corresponding register
      *
@@ -1247,6 +1267,7 @@ public class Assembler {
         //CHANGE LOG BEGIN: 10
         if (equivalencies.containsKey(register)){
             if (equivalencies.get(register).toUpperCase().matches("R[0-9A-F]|RSP|RBP")){
+                //System.out.println(register);
                 register = equivalencies.get(register).toUpperCase();
                 if (register.toUpperCase().equals("RBP")) { //CHANGE LOG: 14
                     return "D";
@@ -1304,14 +1325,17 @@ public class Assembler {
      */
     private boolean isValidLabel(String token) {
         //make sure label is unique
-        for (String label : labels) {
-            if (label != null && label.equals(token)) {
-                return false;
+        //if (token.matches("[_]*[a-zA-Z]*[_]*[a-zA-Z]*")) {
+            for (String label : labels) {
+                if (label != null && label.equals(token)) {
+                    return false;
+                }
             }
-        }
-        // TODO: make sure we match the regex
-        // label okay
-        return true;
+            return true;
+        //}
+        //else {
+        //    return false;
+        //}
     }
 
     /**
@@ -1331,15 +1355,22 @@ public class Assembler {
     }
 
     /**
-     *
+     * Test to see if the user input a single Hex character in either 0xH or
+     * 0x0H format.
      * @param number
      * @return True if it is Hex, false if not
      */
     private boolean isSingleHex(String number) {
         //System.out.println(number.length());
-        if (number.length() != 4) { //CHANGE LOG BEGIN: 5
-            return false;
-        } else {
+        //CHANGE LOG BEGIN: 26
+        if (number.length() == 3){
+            if (number.substring(0,2).equalsIgnoreCase("0x") &&
+                    number.substring(2,3).toUpperCase().matches("[0-9A-F]")) {
+                return true;
+            }
+        } 
+        //CHANGE LOG END: 26
+        else if (number.length() == 4) {
             if (number.substring(0, 3).equalsIgnoreCase("0x0")
                 && number.substring(3, 4).toUpperCase().matches("[0-9A-F]")) {  //CHANGE LOG END: 5
                 return true;
