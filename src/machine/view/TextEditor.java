@@ -77,7 +77,7 @@ public class TextEditor extends JScrollPane implements Serializable {
         
         tln.setUpdateFont(true);
         textPane.setFont(DEFAULT_FONT);
-        
+     
         undo = new CompoundUndoManager(textPane);
     }
     
