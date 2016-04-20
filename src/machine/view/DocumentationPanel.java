@@ -3,6 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+/**
+ * Program: Documentation Panel
+ * 
+ * Purpose: Creates a custom panel with tabbed panels inside it to display the
+ *          Language Reference and Machine Syntax Documentation.
+ *          Uses a GridBag Layout.
+ * 
+ * @author: Jordan Lescallette
+ * 
+ * date/ver: 03/18/16 1.0.0
+ */
 package machine.view;
 
 import java.io.BufferedReader;
@@ -28,12 +39,15 @@ public class DocumentationPanel extends javax.swing.JPanel {
     }
     
     /**
-     * Creates new form Documentation
+     * Constructs a DocumentationPanel()
      */
     public DocumentationPanel() {
         initComponents();
     }
 
+    /**
+     * Adds the Language Reference html to the Language Reference tab
+     */
     public void addLanguageReference() {
         languageRefEditorPane.setContentType("text/html");
         InputStream inputStream =  DocumentationPanel.class.getResourceAsStream("/html/languageReference(1.5).html");
@@ -62,6 +76,9 @@ public class DocumentationPanel extends javax.swing.JPanel {
         });
     }
     
+    /**
+     * Adds the Machine Syntax html to the Syntax tab.
+     */
     public void addSyntaxReference() {
         syntaxEditorPane.setContentType("text/html");
         InputStream inputStream =  DocumentationPanel.class.getResourceAsStream("/html/machineSyntax(1.5).html");

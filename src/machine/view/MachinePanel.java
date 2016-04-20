@@ -1,11 +1,14 @@
 /**
- * Program:
+ * Program: Machine Panel
  * 
- * Purpose:
+ * Purpose: Creates a custom panel that is essentially the Machine of the WALL
+ *          Assembler. Contains the RAM Table, PSW Table, Register Table, Disassemble
+ *          Console, Display Console, and the Location Counter.
+ *          Uses a GridBag Layout.
  * 
- * @author:
+ * @author: jl94836, Jordan Lescallette
  * 
- * date/ver:
+ * date/ver: 03/19/16 1.0.5
  */
 
 /**
@@ -17,7 +20,6 @@
 package machine.view;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Font;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
@@ -42,9 +44,10 @@ public class MachinePanel extends javax.swing.JPanel {
     }
 
     /**
+     * Get the bytes located at a specific memory address in the RAM table.
      * 
-     * @param address
-     * @return 
+     * @param address - Between 0-255
+     * @return - Value at the memory address 
      */
     public String getRAMBytes(int address) {
         int row = address / 16;
@@ -53,9 +56,10 @@ public class MachinePanel extends javax.swing.JPanel {
     }
     
     /**
+     * Set the bytes located at a specific memory address into the RAM table.
      * 
-     * @param value
-     * @param address 
+     * @param value - between 0-255
+     * @param address - (hex) between 00-FF
      */
     public void setRAMBytes(String value, int address) {
         int row = address / 16;
@@ -64,13 +68,13 @@ public class MachinePanel extends javax.swing.JPanel {
     }
     
     /**
+     * Get the value of every memory address in the RAM Table (from 0-255)
      * 
-     * @return 
+     * @return - String Array of all values in the RAM Table
      */
     public String[] getAllRAMBytes() {
         String[] ramBytes= new String[256];
 
-        int i = 0;
         for (int address = 0; address < 256; address++) {
                 ramBytes[address] = getRAMBytes(address);
         }
@@ -79,8 +83,9 @@ public class MachinePanel extends javax.swing.JPanel {
     }
 
     /**
+     * Set the value of every memory address in the RAM Table (from 0-255)
      * 
-     * @param ramBytes 
+     * @param ramBytes - byte Array containing values for every address (from 0-255)
      */
     public void setAllRAMBytes(byte[] ramBytes) {
         for (int i = 0; i < 256; i++) {
@@ -89,22 +94,25 @@ public class MachinePanel extends javax.swing.JPanel {
     }
     
     /**
+     * Get value from the Instruction Pointer (IP) in the PSW Table
      * 
-     * @return 
+     * @return
      */
     public String getInstructionPointer() {
         return (String) pswTable.getValueAt(0, 1);
     }
 
     /**
+     * Set the value of the Instruction Pointer (IP) in the PSW Table
      * 
-     * @param value 
+     * @param value - String hex number 00-FF
      */
     public void setInstructionPointer(String value) {
         pswTable.setValueAt(value, 0, 1);
     }
     
     /**
+     * Get the value of the Instruction Register (IR) in the PSW Table
      * 
      * @return 
      */
@@ -113,8 +121,9 @@ public class MachinePanel extends javax.swing.JPanel {
     }
 
     /**
+     * Set the value in the Instruction Register (IR) in the PSW Table
      * 
-     * @param value 
+     * @param value - String hex number 00-FF
      */
     public void setInstructionRegister(String value) {
         pswTable.setValueAt(value, 1, 1);
@@ -139,8 +148,9 @@ public class MachinePanel extends javax.swing.JPanel {
 //    }
 
     /**
+     * Get the value from a Register in the Register Table
      * 
-     * @param register
+     * @param register - (dec) from 0-15
      * @return 
      */
     public String getRegisterBytes(int register) {
@@ -148,15 +158,17 @@ public class MachinePanel extends javax.swing.JPanel {
     }
 
     /**
+     * Set the value in a Register in the Register Table
      * 
-     * @param value
-     * @param register 
+     * @param value - (hex) from 00-FF
+     * @param register - (dec) from 0-15
      */
     public void setRegisterBytes(String value, int register) {
         registerTable.setValueAt(value, register, 1);
     }
     
     /**
+     * Get the values from every Register in the Register Table
      * 
      * @return 
      */
@@ -171,6 +183,7 @@ public class MachinePanel extends javax.swing.JPanel {
     
     /**
     * Used to create a new activation record and add it to the stack panel.
+    * 
     * @param returnAddress
     * @param dynamicLink
     */
@@ -197,7 +210,8 @@ public class MachinePanel extends javax.swing.JPanel {
     }
    
     /**
-     *
+     * Get reference to the RAM Table
+     * 
      * @return 
      */
     public JTable getRamTable() {
@@ -205,6 +219,7 @@ public class MachinePanel extends javax.swing.JPanel {
     }
     
     /**
+     * Get reference to the PSW Table
      * 
      * @return 
      */
@@ -213,6 +228,7 @@ public class MachinePanel extends javax.swing.JPanel {
     }
     
     /**
+     * Get reference to the Register Table
      * 
      * @return 
      */
@@ -221,6 +237,7 @@ public class MachinePanel extends javax.swing.JPanel {
     }
     
     /**
+     * Get reference to the Display Console
      * 
      * @return 
      */
@@ -229,6 +246,7 @@ public class MachinePanel extends javax.swing.JPanel {
     }
     
     /**
+     * Get reference to the Disassemble Console
      * 
      * @return 
      */
@@ -237,6 +255,7 @@ public class MachinePanel extends javax.swing.JPanel {
     }
     
     /**
+     * Get reference to Instruction Counter Console
      * 
      * @return 
      */
@@ -244,11 +263,20 @@ public class MachinePanel extends javax.swing.JPanel {
         return instructionCounterConsole;
     }
     
+    /**
+     * 
+     * @param row
+     * @param column 
+     */
     public void visualStack(int row, int column) {
         Object value = registerTable.getValueAt(row, column);
         System.out.println("Register Talbe value" + value.toString());
     }
     
+    /**
+     * Set up, initialize, format the RAM Table, Register Table and PSW Table.
+     * Initialize the Cell Renderer.
+     */
     private void customInitComponents(){
         ColumnHeaderRenderer colRenderer = new ColumnHeaderRenderer();
         RowHeaderRenderer rowRenderer = new RowHeaderRenderer();

@@ -43,8 +43,9 @@ public class MachineView extends javax.swing.JFrame {
         "White on Black", "Black on Light-Yellow"};
     
     
-        /**
-     * Creates new form MachineView
+    /**
+     * Constructs a standalone MachineView. Here to allow NetBeans GUI Builder to
+     * drag and drop into panels and frames.
      */
     public MachineView() {
         controller = null;
@@ -58,7 +59,8 @@ public class MachineView extends javax.swing.JFrame {
     }
     
     /**
-     * Creates new form MachView
+     * Creates new form MachView with Communication to the Machine Controller.
+     * 
      * @param controller
      */
     public MachineView(final MachineController controller) {
@@ -179,6 +181,7 @@ public class MachineView extends javax.swing.JFrame {
     
     /**
     * Used to create a new activation record and add it to the stack panel.
+    * 
     * @param returnAddress
     * @param dynamicLink
     */
@@ -221,10 +224,10 @@ public class MachineView extends javax.swing.JFrame {
  */
     
     /**
-     * 
+     * Reset the Register table and RAM Table to their initial States.
      */
     public void reset() {
-        if (machine1.getRegisterTable().isEditing()){                         //Change Log Begin #1
+        if (machine1.getRegisterTable().isEditing()){ //Change Log Begin #1
             machine1.getRegisterTable().getCellEditor().cancelCellEditing();
         }
         if (machine1.getRamTable().isEditing()){
@@ -377,8 +380,8 @@ public class MachineView extends javax.swing.JFrame {
         controlPanel = new javax.swing.JPanel();
         assembleButton = new javax.swing.JButton();
         runButton = new javax.swing.JButton();
-        stopButton = new javax.swing.JButton();
         stepButton = new javax.swing.JButton();
+        stopButton = new javax.swing.JButton();
         resetButton = new javax.swing.JButton();
         disassembleButton = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
@@ -424,16 +427,6 @@ public class MachineView extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
         controlPanel.add(runButton, gridBagConstraints);
 
-        stopButton.setText("Stop");
-        stopButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                stopButtonActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
-        controlPanel.add(stopButton, gridBagConstraints);
-
         stepButton.setText("Step");
         stepButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -443,6 +436,16 @@ public class MachineView extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
         controlPanel.add(stepButton, gridBagConstraints);
+
+        stopButton.setText("Stop");
+        stopButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                stopButtonActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
+        controlPanel.add(stopButton, gridBagConstraints);
 
         resetButton.setText("Reset");
         resetButton.addActionListener(new java.awt.event.ActionListener() {
