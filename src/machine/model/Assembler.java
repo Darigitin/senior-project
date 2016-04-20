@@ -119,8 +119,10 @@
  * 
  * 36 mv935583 - 04/16/16: Created OPERATIONSMAP.
  * 
- * 37 jl948836 - 04/17-16: Re-wrote the generateByteCode() function to incorporate
+ * 37 jl948836 - 04/17/16: Re-wrote the generateByteCode() function to incorporate
  *                         changes 30-36.
+ * 
+ * 38 jl948836 - 04/19/16: Combined rloadSyntax() and rstoreSyntax() into relativeSyntax()
  * /
 
 /*
@@ -761,9 +763,9 @@ public class Assembler {
                             case "3": //STORE
                                 return opCode + storeSyntax(op, args[0], args[1],line);
                             case "4": //RLOAD
-                                return opCode + rloadSyntax(op, args[0], args[1], line);
+                                return opCode + relativeSyntax(op, args[0], args[1], line);
                             case "E": //RSTORE
-                                return opCode + rstoreSyntax(op, args[0], args[1], line);
+                                return opCode + relativeSyntax(op, args[0], args[1], line);
                             case "2": //Direct + Indirect Load
                                 return loadSyntax(op, args[0], args[1], line);
                         }//end switch
@@ -1128,27 +1130,36 @@ public class Assembler {
     }
     
     /**
-     * Relative Load Syntax - Handles the syntax checking for RLOAD(4).
+     * Relative Syntax - Handles the syntax checking for RLOAD(4) and RSTORE(E).
      * 
-     * @param op - RLOAD
+     * @param op - RLOAD, RSTORE
      * @param firstArg - Destination Register
-     * @param secondArg - offset[Source Register]
+     * @param secondArg - Source Register
      * @param line - Line number of the Op-Code
-     * @return Assembled byte values for the RLOAD instruction.
+     * @return Assembled byte values for the Op-Code.
      */
-    private String rloadSyntax(String op, String firstArg, String secondArg, int line) {
+    //CHANGE LOG BEGIN: 38
+    private String relativeSyntax(String op, String firstArg, String secondArg, int line) {
         String result = "000"; //CHANGE LOG: 21
+        String tokens[];
         if (secondArg.matches(".+\\[.+\\]")){
             //System.out.println("****************************************THE REGEX WORKS MOTHERFUCKER!!!!");
-            String tokens[] = secondArg.split("\\[|\\]"); //tokens[0]=offset, tokens[1]= reg]
+            tokens = secondArg.split("\\[|\\]"); //tokens[0]=offset, tokens[1]= reg]
             result = imDRegFormat(op, tokens[0], firstArg, tokens[1], line);
             return result;
+        }
+        else if (firstArg.matches(".+\\[.+\\]")) {
+           tokens = firstArg.split("\\[|\\]");
+           System.out.println(Arrays.toString(tokens));
+           result = imDRegFormat(op, tokens[0], tokens[1], secondArg, line);
+           return result;
         }
         else {
             errorList.add("Error: " + op + " invalid argument on line " + line);
             return result;
         }
     }
+    //CHANGE LOG END: 38
     
     private String retSyntax(String op, String firstArg, int line) {
         String result = "01";
@@ -1244,31 +1255,6 @@ public class Assembler {
                 + " has invalid arguments.");
         }
         return result;
-    }
-    
-    /**
-     * Relative Store Syntax - Handles the syntax checking for RSTORE(E).
-     * 
-     * @param op - RSTORE
-     * @param firstArg - offset[Destination Register]
-     * @param secondArg - Source Register
-     * @param line - Line number of the Op-Code
-     * @return - The bottom three nibbles for the Op-Code
-     */
-    private String rstoreSyntax(String op, String firstArg, String secondArg, int line) {
-        String result = "000";
-        String tokens[];
-        
-        if (firstArg.matches(".+\\[.+\\]")) {
-           tokens = firstArg.split("\\[|\\]");
-           System.out.println(Arrays.toString(tokens));
-           result = imDRegFormat(op, tokens[0], tokens[1], secondArg, line);
-           return result;
-        }
-        else {
-            errorList.add("Error: Invalid argument on line " + line);
-            return result;
-        }
     }
 
     /**
