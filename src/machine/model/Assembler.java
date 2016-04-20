@@ -714,49 +714,51 @@ public class Assembler {
         
         if (OPERATIONMAP.containsKey(op)) { //valid Operation
             
+            String opCode = OPERATIONMAP.get(op);
+            
             if (tokens.length == 2) { //Op-Code has arguments
                 
             String[] args = tokens[1].split("\\s*,\\s*");
                 System.out.println("generateByteCode: " + op + " " + Arrays.toString(args));
                 if (args.length == 1) { //1 Argument
                     //CALL, SCALL, JMP
-                    if (OPERATIONMAP.get(op).matches("60|62|B0")) {
-                        return OPERATIONMAP.get(op) + imValFormat(op, args[0], line);
+                    if (opCode.matches("60|62|B0")) {
+                        return opCode + imValFormat(op, args[0], line);
                     }//end if
                     //RET
-                    else if (OPERATIONMAP.get(op).matches("61")) {
-                        return OPERATIONMAP.get(op) + retSyntax(op, args[0], line);
+                    else if (opCode.matches("61")) {
+                        return opCode + retSyntax(op, args[0], line);
                     }
                     //PUSH, POP
-                    else if (OPERATIONMAP.get(op).matches("64|65")) {
-                        return OPERATIONMAP.get(op) + sRegFormat(op, args[0], line);
+                    else if (opCode.matches("64|65")) {
+                        return opCode + sRegFormat(op, args[0], line);
                     }//end else if
                 }//end if
                 else if (args.length == 2) { //2 Arguments
                     //ROR, ROL, SRA, SRL, SL
-                    if (OPERATIONMAP.get(op).matches("A0|A1|A2|A3|A4")) {
-                        return OPERATIONMAP.get(op) + regRedImFormat(op, args[0], args[1], line);
+                    if (opCode.matches("A0|A1|A2|A3|A4")) {
+                        return opCode + regRedImFormat(op, args[0], args[1], line);
                     }//end if
                     //JMPEQ, JMPLT
-                    else if (OPERATIONMAP.get(op).matches("B|F")) {
-                        return OPERATIONMAP.get(op) + jmpCompSyntax(op, args[0], args[1], line);
+                    else if (opCode.matches("B|F")) {
+                        return opCode + jmpCompSyntax(op, args[0], args[1], line);
                     }//end else if
                     //MOVE
-                    else if (OPERATIONMAP.get(op).matches("D2")) {
-                        return OPERATIONMAP.get(op) + dRegFormat(op, args[0], args[1], line);
+                    else if (opCode.matches("D2")) {
+                        return opCode + dRegFormat(op, args[0], args[1], line);
                     }//end else if
                     else {
-                        switch (OPERATIONMAP.get(op)) {
+                        switch (opCode) {
                             case "D0": //ILOAD
-                                return OPERATIONMAP.get(op) + iloadSyntax(op, args[0], args[1], line);
+                                return opCode + iloadSyntax(op, args[0], args[1], line);
                             case "D1": //ISTORE
-                                return OPERATIONMAP.get(op) + istoreSyntax(op, args[0], args[1], line);
+                                return opCode + istoreSyntax(op, args[0], args[1], line);
                             case "3": //STORE
-                                return OPERATIONMAP.get(op) + storeSyntax(op, args[0], args[1],line);
+                                return opCode + storeSyntax(op, args[0], args[1],line);
                             case "4": //RLOAD
-                                return OPERATIONMAP.get(op) + rloadSyntax(op, args[0], args[1], line);
+                                return opCode + rloadSyntax(op, args[0], args[1], line);
                             case "E": //RSTORE
-                                return OPERATIONMAP.get(op) + rstoreSyntax(op, args[0], args[1], line);
+                                return opCode + rstoreSyntax(op, args[0], args[1], line);
                             case "2": //Direct + Indirect Load
                                 return loadSyntax(op, args[0], args[1], line);
                         }//end switch
@@ -764,8 +766,8 @@ public class Assembler {
                 }//end else if
                 else if (args.length == 3) { //3 Arguments
                     //ADD, AND, OR, XOR
-                    if (OPERATIONMAP.get(op).matches("5|7|8|9")) {
-                        return OPERATIONMAP.get(op) + triRegFormat(op, args[0], args[1], args[2], line);
+                    if (opCode.matches("5|7|8|9")) {
+                        return opCode + triRegFormat(op, args[0], args[1], args[2], line);
                     }//end if
                 }//end else if
                 else { //To many Arguments
@@ -775,11 +777,11 @@ public class Assembler {
             }//end if
             else { //No Arguments
                 //NO-OP, HALT, RET, SRET
-                if (OPERATIONMAP.get(op).matches("0000|C000|6301")) {
-                    return OPERATIONMAP.get(op);
+                if (opCode.matches("0000|C000|6301")) {
+                    return opCode;
                 }//end if
-                else if (OPERATIONMAP.get(op).matches("61")) {
-                    return OPERATIONMAP.get(op) + "01";
+                else if (opCode.matches("61")) {
+                    return opCode + "01";
                 }//end else if
                 else { //Valid Op with Missing Arguments
                     errorList.add("Error: Missing Arguments for " + op + " on line " + line);
