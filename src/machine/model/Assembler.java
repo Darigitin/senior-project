@@ -81,10 +81,20 @@
  * 22 jl948836 - 04/07/16: Corrected ByteCode Format of Operations
  * 
  * 23 jl948836 - 04/07/16: Swapped ByteCode of move and rload. rload is now 4
- *                         and move is D2. rload is now a 2 byte instruction.
+ *                         and move is D2. rload is now a 2 byte instruction
  * 
  * 24 jl948836 - 04/10/16: Got rid of operationLocation(). No longer necessary
  *                         due to rload being the same size as all other instructions.
+ * 
+ * 25 jl948836 - 04/14/16: Error in getRegister(), changed .equls() to .matches() for
+ *                         regEx
+ *
+ * 26 jl948836 - 04/14/16: isSingleHex() now accepts 0xH and 0x0H formats
+ * 
+ * 27 jl948836 - 04/15/16: bug, store now Handles EQU labels
+ * 
+ * 28 jl948836 - 04/15/16: bug, rload and rstore now handles 0xH and 0x0H formats 
+ *                         for offset.
  * 
  * 29 jl948836 - 04/10/16: Re-ordered the Instruction ByteCode methods to be in
  *                         ascending order of their ByteCodes.
@@ -364,11 +374,6 @@ public class Assembler {
         Location = new String[codes.length];  
         Object_code = new String[codes.length];
         for (int i = 0; i < codes.length; i++) {
-            /*if (i==39){
-                //This is a debug method, ignore this.
-               
-            }*/
-               
             tokens = codes[i].split("\\s+");
             if (tokens.length > 0) { // A line with pseudo-op or operation
                 switch (tokens[0].toUpperCase()) {
@@ -1256,6 +1261,7 @@ public class Assembler {
         
         if (firstArg.matches(".+\\[.+\\]")) {
            tokens = firstArg.split("\\[|\\]");
+           System.out.println(Arrays.toString(tokens));
            result = imDRegFormat(op, tokens[0], tokens[1], secondArg, line);
            return result;
         }
@@ -1264,7 +1270,7 @@ public class Assembler {
             return result;
         }
     }
-    
+
     /**
      * Helper method Returns a string with the corresponding register
      *
@@ -1275,6 +1281,7 @@ public class Assembler {
         //CHANGE LOG BEGIN: 10
         if (equivalencies.containsKey(register)){
             if (equivalencies.get(register).toUpperCase().matches("R[0-9A-F]|RSP|RBP")){
+                //System.out.println(register);
                 register = equivalencies.get(register).toUpperCase();
                 if (register.toUpperCase().equals("RBP")) { //CHANGE LOG: 14
                     return "D";
@@ -1359,15 +1366,22 @@ public class Assembler {
     }
 
     /**
-     *
+     * Test to see if the user input a single Hex character in either 0xH or
+     * 0x0H format.
      * @param number
      * @return True if it is Hex, false if not
      */
     private boolean isSingleHex(String number) {
         //System.out.println(number.length());
-        if (number.length() != 4) { //CHANGE LOG BEGIN: 5
-            return false;
-        } else {
+        //CHANGE LOG BEGIN: 26
+        if (number.length() == 3){
+            if (number.substring(0,2).equalsIgnoreCase("0x") &&
+                    number.substring(2,3).toUpperCase().matches("[0-9A-F]")) {
+                return true;
+            }
+        } 
+        //CHANGE LOG END: 26
+        else if (number.length() == 4) {
             if (number.substring(0, 3).equalsIgnoreCase("0x0")
                 && number.substring(3, 4).toUpperCase().matches("[0-9A-F]")) {  //CHANGE LOG END: 5
                 return true;
