@@ -247,6 +247,8 @@ public class MachinePanel extends javax.swing.JPanel {
         CellRenderer cellRenderer = new CellRenderer();
         CellEditor cellEditor = new CellEditor();
         cellEditor.setClickCountToStart(1);
+        disassembledConsole.setEditable(false);
+        displayConsole.setEditable(false);
         TableColumn column;
         
         ramTable.getTableHeader().setDefaultRenderer(colRenderer);
@@ -261,12 +263,14 @@ public class MachinePanel extends javax.swing.JPanel {
         ramTable.getTableHeader().setResizingAllowed(false);
         ramTable.setCellSelectionEnabled(true);
         
+        pswTable.setCellSelectionEnabled(true);
         pswTable.getTableHeader().setDefaultRenderer(colRenderer);
         pswTable.getColumnModel().getColumn(0).setCellRenderer(
                 new RowHeaderRenderer(new Color(128, 0, 0), Color.white,
                 new Font("SansSerif", Font.BOLD, 16)));
         column = pswTable.getColumnModel().getColumn(1);
         column.setCellRenderer(cellRenderer);
+        column.setCellEditor(cellEditor);
         
         registerTable.getTableHeader().setDefaultRenderer(colRenderer);
         registerTable.getColumnModel().getColumn(0).setCellRenderer(

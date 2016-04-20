@@ -88,11 +88,7 @@ public class Disassembler {
         String code = "";
         //boolean foundRload = false;
         for (int i = 0; i < bytecode.length; i += 2) {
-            //if (bytecode[i].equals("D2")) {
-            //    output.remove(output.size()-1);
-            //    foundRload = true;
-            //}
-            if ( (IP * 2) == i) { //|| (foundRload && (IP == 2)) ) {
+            if ( (IP * 2) == i) {
                 String outText;
                 outText = disassemble(bytecode[i], bytecode[i + 1], i);
                 if (outText.length() > 11) {
