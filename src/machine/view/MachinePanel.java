@@ -236,6 +236,14 @@ public class MachinePanel extends javax.swing.JPanel {
         return disassembledConsole;
     }
     
+    /**
+     * 
+     * @return 
+     */
+    public JTextArea getInstructCounterTextArea() {
+        return instructionCounterConsole;
+    }
+
     public void visualStack(int row, int column) {
         Object value = registerTable.getValueAt(row, column);
         System.out.println("Register Talbe value" + value.toString());
@@ -247,6 +255,8 @@ public class MachinePanel extends javax.swing.JPanel {
         CellRenderer cellRenderer = new CellRenderer();
         CellEditor cellEditor = new CellEditor();
         cellEditor.setClickCountToStart(1);
+        disassembledConsole.setEditable(false);
+        displayConsole.setEditable(false);
         TableColumn column;
         
         ramTable.getTableHeader().setDefaultRenderer(colRenderer);
@@ -261,12 +271,14 @@ public class MachinePanel extends javax.swing.JPanel {
         ramTable.getTableHeader().setResizingAllowed(false);
         ramTable.setCellSelectionEnabled(true);
         
+        pswTable.setCellSelectionEnabled(true);
         pswTable.getTableHeader().setDefaultRenderer(colRenderer);
         pswTable.getColumnModel().getColumn(0).setCellRenderer(
                 new RowHeaderRenderer(new Color(128, 0, 0), Color.white,
                 new Font("SansSerif", Font.BOLD, 16)));
         column = pswTable.getColumnModel().getColumn(1);
         column.setCellRenderer(cellRenderer);
+        column.setCellEditor(cellEditor);
         
         registerTable.getTableHeader().setDefaultRenderer(colRenderer);
         registerTable.getColumnModel().getColumn(0).setCellRenderer(
@@ -299,6 +311,8 @@ public class MachinePanel extends javax.swing.JPanel {
         displayConsole = new javax.swing.JTextArea();
         stackPanelScrollPane = new javax.swing.JScrollPane();
         stackRecordPanel = new machine.view.StackPanel();
+        instructionCounterScrollPane = new javax.swing.JScrollPane();
+        instructionCounterConsole = new javax.swing.JTextArea();
 
         setMinimumSize(new java.awt.Dimension(600, 500));
         setLayout(new java.awt.GridBagLayout());
@@ -349,6 +363,7 @@ public class MachinePanel extends javax.swing.JPanel {
 
         disassembleScrollPane.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true), "Disassembled Console"));
 
+        disassembledConsole.setEditable(false);
         disassembledConsole.setBackground(new java.awt.Color(204, 204, 204));
         disassembledConsole.setColumns(20);
         disassembledConsole.setRows(5);
@@ -365,6 +380,7 @@ public class MachinePanel extends javax.swing.JPanel {
 
         displayScrollPane.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true), "Display Console"));
 
+        displayConsole.setEditable(false);
         displayConsole.setBackground(new java.awt.Color(0, 0, 0));
         displayConsole.setColumns(20);
         displayConsole.setForeground(new java.awt.Color(0, 250, 0));
@@ -389,6 +405,22 @@ public class MachinePanel extends javax.swing.JPanel {
         gridBagConstraints.weightx = 0.3;
         gridBagConstraints.weighty = 1.0;
         add(stackPanelScrollPane, gridBagConstraints);
+
+        instructionCounterScrollPane.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true), "Instruction Counter"));
+
+        instructionCounterConsole.setEditable(false);
+        instructionCounterConsole.setBackground(new java.awt.Color(204, 204, 204));
+        instructionCounterConsole.setColumns(20);
+        instructionCounterConsole.setRows(5);
+        instructionCounterConsole.setText("Count of the number of Instructions executed.");
+        instructionCounterScrollPane.setViewportView(instructionCounterConsole);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        add(instructionCounterScrollPane, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
     private void ramTableComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_ramTableComponentResized
@@ -402,6 +434,8 @@ public class MachinePanel extends javax.swing.JPanel {
     private javax.swing.JTextArea disassembledConsole;
     private javax.swing.JTextArea displayConsole;
     private javax.swing.JScrollPane displayScrollPane;
+    private javax.swing.JTextArea instructionCounterConsole;
+    private javax.swing.JScrollPane instructionCounterScrollPane;
     private javax.swing.JScrollPane pswScrollPane;
     private javax.swing.JTable pswTable;
     private javax.swing.JScrollPane ramScrollPane;

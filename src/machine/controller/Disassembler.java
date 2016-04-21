@@ -19,6 +19,8 @@
  *                                 reflect Change #2 in Assembler.java
  * 
  * 2 mv935583 - 04/11/16: Implemented changed to add shift instructions.
+ * 
+ * 3 jl948836 - 04/19/16: Swapped how RSTORE is displayed
 */
 
 /*
@@ -88,11 +90,7 @@ public class Disassembler {
         String code = "";
         //boolean foundRload = false;
         for (int i = 0; i < bytecode.length; i += 2) {
-            //if (bytecode[i].equals("D2")) {
-            //    output.remove(output.size()-1);
-            //    foundRload = true;
-            //}
-            if ( (IP * 2) == i) { //|| (foundRload && (IP == 2)) ) {
+            if ( (IP * 2) == i) {
                 String outText;
                 outText = disassemble(bytecode[i], bytecode[i + 1], i);
                 if (outText.length() > 11) {
@@ -213,7 +211,7 @@ public class Disassembler {
             case "E":
                 //modified code
                 return "rstore " + "0x" + secondNibble + "[R"
-			+ fourthNibble + "]"+ " ,R" + thirdNibble;
+			+ thirdNibble + "]"+ " ,R" + secondNibble; //CHANGE LOG: 3
                 //original code
 		/*return "rstore " + "R" + thirdNibble + ",0x" + secondNibble + "[R"
                     + fourthNibble + "]";*/

@@ -24,6 +24,9 @@ date/ver: 03/26/16 1.0.0
     <body>
         <div>
             <h1>WALL (WTAMU AssembLy Language) Syntax</h1>
+            <p>When you climb me, you will be a CS major.<br>
+               But, be forewarned you will be driven into me, and many will go mad.
+            </p>
             <h2>WALL Syntax Structure</h2>
             <p>
                 [label:] [instruction] [# comment]
@@ -50,6 +53,20 @@ date/ver: 03/26/16 1.0.0
                     after the comment symbol "#" is treated as a comment, even labels and
                     instructions.)<br>
                 </li>
+            </ol>
+            
+            <h2>Reserved Characters and Words</h2>
+            <p> These are characters and words that are used by WALL to Parse and interpret
+                the code input into the Text Editor. Therefore using them as a label or a
+                EQU label may cause unpredictable errors in the Assembler.
+            <ol>
+                <li>Commas(,) - to deliminate arguments</li>
+                <li>Quotations("") - used by DB to input strings into memory</li>
+                <li>Apostrophes('') - used by DB to input strings into memory</li>
+                <li>Mathematic Operators(= &lt;) - used by JMP operations</li>
+                <li>Register Names(R0-RF) - overloading these names can confuse the parser</li>
+                <li>Operation Names - overloading these names can confuse the parser</li>
+                <li>Pseudo-Op Names - overloading these names can confuse the parser</li>
             </ol>
             <h2>WALL has 16 Registers.</h2>
             <p>

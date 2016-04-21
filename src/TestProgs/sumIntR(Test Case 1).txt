@@ -1,0 +1,97 @@
+# ******************************************************************
+# * Program:  sumIntR.txt - Test Case 1                            *
+# *                                                                *
+# * Purpose:  Test the CALL and RET (w/ overload) Operations       *
+# *           Test the SCALL and SRET Operations                   *
+# *           Test the RLOAD and ILOAD Operations                  *
+# *           Test the EQU Pseudo-Op                               *
+# *           Test the RSTORE and PUSH Operations                  *
+# *           Test the JMPEQ Operation                             *
+# *                                                                *
+# * @author:  jl948836, Jordan Lescallette                         *
+# *                                                                *
+# * date/ver:  04/14/16 1.0.0                                      *
+# *            04/19/16 1.0.1                                      *
+# *                                                                *
+# * Results: RA should contain "37"                                *
+# *          The rest is just messing around mostly.               *
+# ******************************************************************
+
+# EQU Section
+compReg:    Equ    R0
+o_n_e:      eQu    1
+_zero:      eqU    0
+number:     equ    N
+ref:        equ    temp
+
+# Data Section
+            org    0x80
+N:          db     10
+Result:     bss    1
+
+# Code Section
+            org    0x00
+            sip    main
+
+setUp:      push   RBP
+            move   RBP,RSP
+recSum:     rload  R3,2[RBP]
+            rload  R2,3[basePtr]
+            iload  R2,[R2]
+            jmpeq  R2=compReg,skipFrwd
+            load   R4,0xFF
+            add    R2,R2,R4
+            store [temp],R2
+            load   R2,ref
+            push   R2
+secNum:     jmpeq  R3=compReg,done
+            load   R5,nOne
+            add    R3,R3,R5
+            rstore -1[RSP],R3
+            add    RSP,RSP,R5
+            scall  recSum
+
+            load   R1,2
+            add    R1,R1,RBP
+            iload  R2,[R1]
+            add    RA,R10,R2
+
+            load   R1,0x03
+            add    R1,R1,RBP
+            rload  R3,0[R1]
+            iload  R3,[R4]
+            add    RB,RB,R3
+            sret
+
+done:       xor    R10,RA,R10
+            xor    RB,RB,RB
+            pop    RBP
+            ret    2
+
+            org    0x40
+main:       load   compReg,_zero
+            load   R1,o_n_e
+            load   R2,N
+            load   R3,[N]
+            load   R4,ref
+            push   R2
+            push   R3
+            call   setUp
+
+            store  [Result],retReg
+            load   R1,r
+            rstore 1[R1],RB
+
+            halt
+
+# Data Section
+            org    0x90
+temp:       bss    1
+
+# EQU Section
+r:          equ    Result
+retReg:     equ    RA
+R10:        equ    RA
+basePtr:    equ    RBP
+skipFrwd:   equ    secNum
+nOne:       equ    0xFF

@@ -28,6 +28,8 @@
  * 4 jl948836 - 04/01/16: Fixed the SCALL and SRET functions
  * 
  * 5 mv935583 - 04/11/16: Implemented changed to add shift instructions.
+ * 
+ * 6 jl948836 - 04/19/16: flipped RSTORE, register operands were backward.
  */
 
 /* Change Log
@@ -631,7 +633,7 @@ public class Clock {
     * @param register
     * @param pointer
     */
-    private void rstore(int offset, int register, int pointer) {
+    private void rstore(int offset, int pointer, int register) { //CHANGE LOG: 6
         if(offset > 7) {
             offset -= 16;
         }
