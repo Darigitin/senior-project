@@ -81,7 +81,7 @@
  * 22 jl948836 - 04/07/16: Corrected ByteCode Format of Operations
  * 
  * 23 jl948836 - 04/07/16: Swapped ByteCode of move and rload. rload is now 4
- *                         and move is D2. rload is now a 2 byte instruction
+ *                         and move is D2. rload is now a 2 byte instruction.
  * 
  * 24 jl948836 - 04/10/16: Got rid of operationLocation(). No longer necessary
  *                         due to rload being the same size as all other instructions.
@@ -95,7 +95,7 @@
  * 
  * 28 jl948836 - 04/15/16: bug, rload and rstore now handles 0xH and 0x0H formats 
  *                         for offset.
- * 
+ *
  * 29 jl948836 - 04/10/16: Re-ordered the Instruction ByteCode methods to be in
  *                         ascending order of their ByteCodes.
  * 
@@ -119,10 +119,12 @@
  * 
  * 36 mv935583 - 04/16/16: Created OPERATIONSMAP.
  * 
- * 37 jl948836 - 04/17/16: Re-wrote the generateByteCode() function to incorporate
+ * 37 jl948836 - 04/17-16: Re-wrote the generateByteCode() function to incorporate
  *                         changes 30-36.
+ * 38 gl939543 - 04/19/16: Created cross reference under assembler listing
  * 
- * 38 jl948836 - 04/19/16: Combined rloadSyntax() and rstoreSyntax() into relativeSyntax()
+ * 39 gl939543 - 04/19/16: Point the error message to the error line in assembler listing if
+ *                         error(s) detected. 
  * /
 
 /*
@@ -200,6 +202,8 @@ public class Assembler {
     String DBcode = "";
     HashMap<String, Integer> labelMap = new HashMap<>(256); //labels mapped to addrs.
     HashMap<String, String> equivalencies = new HashMap<>(256); //CHANGE LOG: 10 - labels mapped to labels/Registers
+    HashMap<String, String> referenceLine = new HashMap<>(256); //line number(s) for referenced label
+    HashMap<Integer, String> errorLines = new HashMap<>(256);   //line number(s) for referenced label
     String labelAppears;
     String SIP = "00";
     int codeLines = 1;
@@ -231,7 +235,6 @@ public class Assembler {
      */
     public ArrayList<String> parse(String text) {
         passOne(text);
-        //createLogfile();
        
         if (errorList.isEmpty()) {
             controller.setEditorErrorVisible(false);
@@ -239,7 +242,8 @@ public class Assembler {
             displayErrors();
         }
         
-        generateAssemblerList();  // Create a assembler list
+        generateAssemblerList();  // Create an assembler list
+
         return byteCode;
     }
 
@@ -295,6 +299,7 @@ public class Assembler {
                 codes[i] = "";
             } else if (codes[i].contains(":")) {
                 errorList.add("Error: Invalid label found on line " + (i + 1) + ": " + tokens[0]);
+                errorLines.put((i+1), "Error: Invalid label found on line " + (i + 1) + ": " + tokens[0]);
             }
         }
         
@@ -308,7 +313,8 @@ public class Assembler {
             if (tokens.length > 0) { // A line with pseudo-op or operation
                 if (tokens[0].toUpperCase().equals(PSEUDOOPS[1])) { // handle ORG pseudo-op
                     currentLocation = orgLocation(tokens, i);
-                    labelMap.put(labels[i], currentLocation); 
+                    labelMap.put(labels[i], currentLocation);
+                    referenceLine.put(labels[i], "");  //mark each defined label
                 }
                 //CHANGE LOG: 23
                 /*else if ((tokens[0].toUpperCase().equals("RLOAD")) && (labels[i] == null)){ //Rload without a label
@@ -316,11 +322,12 @@ public class Assembler {
                 } */  
                 else if (tokens[0].toUpperCase().equals(PSEUDOOPS[3])) { 	// handle DB pseudo op
                     labelMap.put(labels[i], currentLocation); 
+                    referenceLine.put(labels[i], "");
                     //TODO: Get rid of superfluous statemens
-                    System.out.println("In passOne, before dbOneLocation, currentLocation = " + currentLocation);
+                    //System.out.println("In passOne, before dbOneLocation, currentLocation = " + currentLocation);
                     
                     currentLocation += dbOneLocation(tokens, i);
-                    System.out.println("In passOne, after dbOneLocation, currentLocation = " + currentLocation);
+                    //System.out.println("In passOne, after dbOneLocation, currentLocation = " + currentLocation);
                 }   
                 //CHANGE LOG: 23
                 /*else if ((labels[i] != null) && (tokens[0].toUpperCase().equals("RLOAD"))){ //RLOAD after a label
@@ -333,7 +340,8 @@ public class Assembler {
                 }
                 //CHANGE LOG END: 10
                 else if (labels[i] != null) { 	// we have a label on this line with operation following
-                    labelMap.put(labels[i], currentLocation);	
+                    labelMap.put(labels[i], currentLocation);
+                    referenceLine.put(labels[i], "");
                     if (tokens[0].toUpperCase().equals(PSEUDOOPS[2])) { 	// handle BSS pseudo op
                         currentLocation += bssLocation(tokens, i);
                     }
@@ -343,11 +351,13 @@ public class Assembler {
                     }
                 } 
                 else if (tokens[0].toUpperCase().equals(PSEUDOOPS[2])) { // error, bss and no label
-                    errorList.add("Error: BSS pseudo op on line " + (i + 1) + " is missing a label.");    
+                    errorList.add("Error: BSS pseudo op on line " + (i + 1) + " is missing a label.");  
+                    errorLines.put((i+1), "Error: BSS pseudo op on line " + (i + 1) + " is missing a label.");
                 } 
                 //CHANGE LOG BEGIN: 10
                 else if (tokens[0].toUpperCase().equals(PSEUDOOPS[4])) {
                     errorList.add("Error: EQU pseudo op on line " + (i + 1) + " is missing a label.");
+                    errorLines.put((i+1), "Error: EQU pseudo op on line " + (i + 1) + " is missing a label.");
                 }
                 //CHANGE LOG END: 10
                 else if (isOperation(tokens[0])) { 	// operation without label
@@ -356,7 +366,8 @@ public class Assembler {
                 }
             } 
             else if (labels[i] != null) { // we have a label with nothing following 
-                labelMap.put(labels[i], currentLocation);	
+                labelMap.put(labels[i], currentLocation);
+                referenceLine.put(labels[i], "");
             }
         }
         
@@ -427,6 +438,7 @@ public class Assembler {
                 //If forward reference hasn't been resolved and not a register
                 if (!labelMap.containsKey(equivalencies.get(labels[i])) && !equivalencies.get(labels[i]).matches("R[0-9A-F]|RSP|RBP")){ 
                     errorList.add("Error: Forward Reference undefined - " + labels[i]);
+                    errorLines.put((i+1), "Error: Forward Reference undefined - " + labels[i]);
                 }
             }
             //CHANGE LOG END: 17
@@ -528,6 +540,7 @@ public class Assembler {
             location = hexToInt(tokens[1]);
         } else { // Invalid number of arguments or argument not hex
             errorList.add("Error: invalid argument to ORG found on line " + (i + 1));
+            errorLines.put((i+1), "Error: invalid argument to ORG found on line " + (i + 1));
         }
         return location;
     }
@@ -546,6 +559,7 @@ public class Assembler {
         int location = 0;
         if (tokens.length == 1) { // there must be an argument
             errorList.add("Error: Argument list for DB op is invalid on line " + (i + 1));
+            errorLines.put((i+1), "Error: Argument list for DB op is invalid on line " + (i + 1));
         } else {
             location = passOneDB(tokens);
         }
@@ -567,6 +581,7 @@ public class Assembler {
             location = passOneBSS(tokens[1]);
         } else {
             errorList.add("Error: BSS pseudo-op on line " + (i + 1) + " invalid argument(s)");
+            errorLines.put((i+1), "Error: BSS pseudo-op on line " + (i + 1) + " invalid argument(s)");
         }
         return location;
     }
@@ -596,9 +611,11 @@ public class Assembler {
         }
         else if (tokens.length <= 1){
             errorList.add("Error: EQU pseudo op on line " + (i + 1) + " is missing an argument.");
+            errorLines.put((i+1), "Error: EQU pseudo op on line " + (i + 1) + " is missing an argument.");
         }
         else {
             errorList.add("Error: EQU pseudo op on line" + (i + 1) + " has to many arguments.");
+            errorLines.put((i+1), "Error: EQU pseudo op on line" + (i + 1) + " has to many arguments.");
         }
     }
     //CHANGE LOG END: 10
@@ -626,6 +643,7 @@ public class Assembler {
             //CHANGE LOG END: 10
         } else {
             errorList.add("Error: SIP psuedo-op on line " + (i + 1) + "invalid argument");
+            errorLines.put((i+1), "Error: SIP psuedo-op on line " + (i + 1) + "invalid argument");
         }
     }
 
@@ -639,6 +657,7 @@ public class Assembler {
         int location = 0;
         if (dbString.split("\\s+").length == 1) { // there must be an argument
             errorList.add("Error: DB pseudo op argument list is invalid on line " + (i + 1));
+            errorLines.put((i+1), "Error: DB pseudo op argument list is invalid on line " + (i + 1));
         } else {
             location = passTwoDB(dbString, currentLocation, lineNum);
         }
@@ -701,6 +720,7 @@ public class Assembler {
                 }
                 else {
                     errorList.add("Invalid db parameter \"" + arg + "\" found on line " + lineNum);
+                    errorLines.put((lineNum), "Invalid db parameter \"" + arg + "\" found on line " + lineNum);
                 }
             }
         }
@@ -720,13 +740,15 @@ public class Assembler {
         String op = tokens[0].toUpperCase();
         
         if (OPERATIONMAP.containsKey(op)) { //valid Operation
-            
+    
             String opCode = OPERATIONMAP.get(op);
             
             if (tokens.length == 2) { //Op-Code has arguments
                 
             String[] args = tokens[1].split("\\s*,\\s*");
                 System.out.println("generateByteCode: " + op + " " + Arrays.toString(args));
+                String[] tempArgs = args;  //make sure check referenced label will not change anything in args
+                checkReferencedLabel(tempArgs, line);  //check if the args contains reference label
                 if (args.length == 1) { //1 Argument
                     //CALL, SCALL, JMP
                     if (opCode.matches("60|62|B0")) {
@@ -779,24 +801,27 @@ public class Assembler {
                 }//end else if
                 else { //To many Arguments
                     errorList.add("Error: To many arguments on line " + line);
+                    errorLines.put((line), "Error: To many arguments on line " + line);
                 }//end else
                     
             }//end if
             else { //No Arguments
                 //NO-OP, HALT, RET, SRET
-                if (opCode.matches("0000|C000|6301")) {
-                    return opCode;
+                if (OPERATIONMAP.get(op).matches("0000|C000|6301")) {
+                    return OPERATIONMAP.get(op);
                 }//end if
-                else if (opCode.matches("61")) {
-                    return opCode + "01";
+                else if (OPERATIONMAP.get(op).matches("61")) {
+                    return OPERATIONMAP.get(op) + "01";
                 }//end else if
                 else { //Valid Op with Missing Arguments
                     errorList.add("Error: Missing Arguments for " + op + " on line " + line);
+                    errorLines.put((line), "Error: Missing Arguments for " + op + " on line " + line);
                 }//end else
             }//end else
         }//end if
         else { //Invalid Operation
             errorList.add("Error: Invalid Operation " + op + " on line " + line);
+            errorLines.put((line), "Error: Invalid Operation " + op + " on line " + line);
         }//end else
                     return "0000";
     }
@@ -895,6 +920,8 @@ public class Assembler {
         else {
             errorList.add("Error: " + op + " operation on line " + line + 
                     " has invalid arguments.");
+            errorLines.put((line), "Error: " + op + " operation on line " + line + 
+                    " has invalid arguments.");
         }
         
         return result;
@@ -952,6 +979,8 @@ public class Assembler {
         }
         if (errorFlag) {
             errorList.add("Error: " + op + " operation on line " + line +
+                            " has invalid arguments.");
+            errorLines.put((line), "Error: " + op + " operation on line " + line +
                             " has invalid arguments.");
         }
         
@@ -1033,6 +1062,7 @@ public class Assembler {
         
         if (errorFlag) {
             errorList.add("Error: Invalid offset for " + op + " found on line " + line);
+            errorLines.put((line), "Error: Invalid offset for " + op + " found on line " + line);
             return result;
         }
         
@@ -1065,6 +1095,7 @@ public class Assembler {
             }
             else {
                 errorList.add("Error: Invalid Destination for " + op + " on line " + line);
+                errorLines.put((line), "Error: Invalid Destination for " + op + " on line " + line);
             }
         }
         else if (isInt(firstArg)) { // arg is decimal
@@ -1074,7 +1105,8 @@ public class Assembler {
             result = firstArg.substring(2, 4);
         }
         else {
-            errorList.add("Error: Invalid destination for " + op + " on line " + line); 
+            errorList.add("Error: Invalid destination for " + op + " on line " + line);
+            errorLines.put((line), "Error: Invalid destination for " + op + " on line " + line);
         }
         
         return result;
@@ -1125,11 +1157,11 @@ public class Assembler {
         }
         else {
             errorList.add("Error: Invalid Syntax for " + op + " on line " + line);
+            errorLines.put((line), "Error: Invalid Syntax for " + op + " on line " + line);
         } 
         return result;
     }
-    
-    /**
+    /*
      * Relative Syntax - Handles the syntax checking for RLOAD(4) and RSTORE(E).
      * 
      * @param op - RLOAD, RSTORE
@@ -1156,6 +1188,7 @@ public class Assembler {
         }
         else {
             errorList.add("Error: " + op + " invalid argument on line " + line);
+            errorLines.put((line), "Error: Invalid Syntax for " + op + " on line " + line);
             return result;
         }
     }
@@ -1178,6 +1211,7 @@ public class Assembler {
         }
         else {
             errorList.add("Error: Invalid number for " + op + " on line " + line);
+            errorLines.put((line), "Error: Invalid Syntax for " + op + " on line " + line);
         }
         
         return result;
@@ -1203,6 +1237,7 @@ public class Assembler {
             }
             else {
                 errorList.add("Invalid Operator for " + op + " on line " + line);
+                errorLines.put((line), "Invalid Operator for " + op + " on line " + line);
             }
         }            
         return result;
@@ -1226,6 +1261,8 @@ public class Assembler {
         } 
         else {
             errorList.add("Error: ILOAD operation on line " + line
+                + " has invalid arguments.");
+            errorLines.put((line), "Error: ILOAD operation on line " + line
                 + " has invalid arguments.");
         }
         return result;
@@ -1253,10 +1290,12 @@ public class Assembler {
         else {
             errorList.add("Error: ISTORE operation on line " + line
                 + " has invalid arguments.");
+            errorLines.put((line), "Error: ISTORE operation on line " + line
+                + " has invalid arguments.");
         }
         return result;
     }
-
+    
     /**
      * Helper method Returns a string with the corresponding register
      *
@@ -1267,7 +1306,6 @@ public class Assembler {
         //CHANGE LOG BEGIN: 10
         if (equivalencies.containsKey(register)){
             if (equivalencies.get(register).toUpperCase().matches("R[0-9A-F]|RSP|RBP")){
-                //System.out.println(register);
                 register = equivalencies.get(register).toUpperCase();
                 if (register.toUpperCase().equals("RBP")) { //CHANGE LOG: 14
                     return "D";
@@ -1293,6 +1331,7 @@ public class Assembler {
             return register.substring(1);
         }       
         errorList.add("Error: Invalid register for " + op + " on line " + line);
+        errorLines.put((line), "Error: Invalid register for " + op + " on line " + line);
         return "0";
     }
     /**
@@ -1324,7 +1363,6 @@ public class Assembler {
      * @return boolean
      */
     private boolean isValidLabel(String token) {
-        //make sure label is unique
         //if (token.matches("[_]*[a-zA-Z]*[_]*[a-zA-Z]*")) {
             for (String label : labels) {
                 if (label != null && label.equals(token)) {
@@ -1357,6 +1395,7 @@ public class Assembler {
     /**
      * Test to see if the user input a single Hex character in either 0xH or
      * 0x0H format.
+     * 
      * @param number
      * @return True if it is Hex, false if not
      */
@@ -1495,6 +1534,65 @@ public class Assembler {
         }
     }
     
+    /**
+     * Author: Guojun Liu
+     * 04/19/2016 
+     * @param operation
+     * @param line 
+     * Check if the give line's code contains referenced label
+     */
+    
+    private void checkReferencedLabel(String[] checkargs, int line){
+        String lineNum = Integer.toString(line);
+        if (checkargs.length == 1){  //1 Argument
+            if (referenceLine.containsKey(checkargs[0])){
+                referenceLine.put(checkargs[0], referenceLine.get(checkargs[0])+lineNum + "  ");
+            }
+        }//end only 1 argument check
+        else if (checkargs.length == 2){ //2 Arguments
+            //First two if conditions hold the situations for when "STORE", "RLOAD", "RLOAD", "RSTORE" etc. using references.
+            if (checkargs[0].startsWith("[")){                          
+                checkargs[0] = checkargs[0].replaceAll("[\\[.\\]]","");;
+                updateReferenceWithTwoArgs(checkargs, lineNum);
+                checkargs[0] = "[" + checkargs[0] + "]";
+            }
+            else if(checkargs[1].startsWith("[")){
+                checkargs[1] = checkargs[1].replaceAll("[\\[.\\]]","");
+                updateReferenceWithTwoArgs(checkargs, lineNum);
+                checkargs[1] = "[" + checkargs[1] + "]";
+            }
+            else{
+                updateReferenceWithTwoArgs(checkargs, lineNum);
+            }           
+        }//end 2 arguments check
+        else if(checkargs.length == 3){ //3 Arguments
+            if (referenceLine.containsKey(checkargs[0])){
+                referenceLine.put(checkargs[0], referenceLine.get(checkargs[0])+lineNum + "  ");
+            }
+            if (referenceLine.containsKey(checkargs[1])){
+                referenceLine.put(checkargs[1], referenceLine.get(checkargs[1])+lineNum + "  ");
+            }
+            if (referenceLine.containsKey(checkargs[2])){
+                referenceLine.put(checkargs[2], referenceLine.get(checkargs[2])+lineNum + "  ");
+            }
+        }//end 3 arguments check
+    }
+    
+    /**
+     * Author: Guojun Liu
+     * 04/19/2016 
+     * @param newArgs
+     * @param line 
+     */
+    private void updateReferenceWithTwoArgs (String[] newArgs, String line){
+        if (referenceLine.containsKey(newArgs[0])){
+            referenceLine.put(newArgs[0], referenceLine.get(newArgs[0])+ line + "  ");
+        }
+        if (referenceLine.containsKey(newArgs[1])){
+            referenceLine.put(newArgs[1], referenceLine.get(newArgs[1])+line + "  ");
+        }
+    }
+
     /*
     *   Author: Guojun Liu
     *   03/15/2016
@@ -1505,14 +1603,16 @@ public class Assembler {
         String restDBcode = "";             //Declare a string DB contents in the memory
         Date date = new Date();
         SimpleDateFormat simpDate = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a");
-        
-        java.io.File file = new java.io.File("Assembler Listing.txt");
+        java.io.File file = new java.io.File("WALL-Listing.lst");
         try (java.io.PrintWriter output = new java.io.PrintWriter(file)) {
-            output.println("******** Assembler Listing **********");
-            output.println("Created date: "+simpDate.format(date));
+            output.println("*************************** WALL-Listing ***********************");
+            output.println("Created date: " + simpDate.format(date));
             output.println("\n");
             output.println("Location    " + "Object Code       " + "Line   " + "Source Statement");
             for (int i = 0; i<codeList.size(); i++){
+                if(errorLines.get(i) != null){     // If code line contains error, dispaly the error
+                    output.println("=========================>" + errorLines.get(i));
+                }
                 if ( Location[i] != null){
                     if (Object_code[i] != null){
                         if (Object_code[i].endsWith("]")){
@@ -1546,13 +1646,37 @@ public class Assembler {
                         restDBcode  = "";                                   //Clear restDBcode
                     }
                 }//end while
-                
+                             
                 codeLines++;
             }
+            
+            //The following part will generate a cross reference listing for the above assembler listing.
+            output.println();
+            output.println();
+            output.println("***************** WALL Cross-Reference Listing *******************");
+            output.println("Created date: " + simpDate.format(date));
+            output.println("\n");
+            output.println("         Cross-Reference Listing Description");
+            output.println("Labels: The label name that appears in the source program.");
+            output.println("Mem_Loc: Memory location of a label in the memory. If the value");
+            output.println("         starts with 'R', it represents a register.");
+            output.println("Def_Line: Defined line number of a label in the source code.");
+            output.println("Ref_line: Referenced line number(s) of a label in the source code.");
+            output.println();
+            output.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+            output.println("Labels         " + "  Mem_Loc" + "     Def_Line" + "     Ref_line");
+            for (int i = 0; i < codeList.size(); i++){
+                if (labels[i] != null){
+                    String memoryAddress = intToHex(Integer.toString(labelMap.get(labels[i]))); 
+                    output.printf("%-15s%7s%12d%8s%-15s", labels[i], memoryAddress, i+1, " ", referenceLine.get(labels[i]));
+                    output.println();
+                }
+            }//end cross reference listing
+            
             output.close();    //Close the file
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Assembler.class.getName()).log(Level.SEVERE, null, ex);
         }
-    } 
+    }
     
 }
