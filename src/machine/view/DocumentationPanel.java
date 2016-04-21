@@ -29,7 +29,7 @@ import javax.swing.SwingUtilities;
  *
  * @author jl948836
  */
-public class DocumentationPanel extends javax.swing.JPanel {
+public final class DocumentationPanel extends javax.swing.JPanel {
     
     public static void main(String[] args){
         JFrame frame = new JFrame();
@@ -43,6 +43,9 @@ public class DocumentationPanel extends javax.swing.JPanel {
      */
     public DocumentationPanel() {
         initComponents();
+        
+        addLanguageReference();
+        addSyntaxReference();
     }
 
     /**

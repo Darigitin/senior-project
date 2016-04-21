@@ -1,115 +1,158 @@
 *************************** WALL-Listing ***********************
-Created date: 04/20/2016 08:23:28 PM
+Created date: 04/21/2016 01:45:32 PM
 
 
 Location    Object Code       Line   Source Statement
-                                 1   # *******************************************************
-                                 2   # * Program: Displays and Loops                         *
-                                 3   # *                                                     *
-                                 4   # * Purpose: Iterate through an array of values until   *
-                                 5   # *          the sentinel character is reached, and     *
-                                 6   # *          display the ASCII characters of the array. *
-                                 7   # *          2.1.0 takes advantage of offsets with the  *
-                                 8   # *          rload instruction.                         *
-                                 9   # *                                                     *
-                                10   # * @author: jl948836, Jordan Lescallette               *
-                                11   # *                                                     *
-                                12   # * date/ver: 2/04/16 2.0.0                             *
-                                13   # *           2/09/16 2.5.0 added loopV2 and loopV3     *
-                                14   # *           2/20/16 3.0.0 removed loopV3, logic was   *
-                                15   # *                         faulty. Added loopV4 and    *
-                                16   # *                         mainV4.                     *
-                                17   # *                                                     *
-                                18   # * Results:  The string at Head and Head2 should be    *
-                                19   # *           printed in the console.                   *
-                                20   # *******************************************************
-                                21   
-                                22   # Data Section
-                                23             org   0x60
-60          54 68 65 20 63      24    Head:     db    "The cake is a lie",0 #0 is a sentinel value
-            61 6B 65 20 69            
-            73 20 61 20 6C            
-            69 65 00                  
-                                25   
-                                26   # *For loopV4 and mainV4
-                                27             org   0x72
-72          54 68 65 20 63      28    Head2:    db    "The cake is a lie"
-            61 6B 65 20 69            
-            73 20 61 20 6C            
-            69 65                     
-83          00                  29    Tail:     db    0
-84                              30    Size:     bss   1
-                                31   # Code            
-                                32             org    0x00
-                                33             sip    0x00
-                                34             #init. variables     
-00          20 00               35    main:     load   R0,0           #constant 0 & sentinel value                
-02          21 01               36              load   R1,1           #constant 1
-04          22 60               37              load   R2,Head        #ptr to start of array
-                                38             # **************************************************
-                                39             # * To see a different loop run, just change which *
-                                40             # * loop you jump to from main. In case of loopV4, *
-                                41             # * you need to jump to mainV4.                    *
-                                42             # **************************************************
-06          B0 18               43              jmp    mainV4         #jump to specified loop
-                                44   
-08          40 F2               45    loopV1:   rload  RF,0[R2]       #get value from address pt. to by R2
-0A          52 21               46              add    R2,R2,R1       #ptr++
-0C          BF 36               47              jmpeq  RF=R0,done     #check for sentinel value
-0E          B0 08               48              jmp    loopV1         #while not at end of array, continue
-                                49   
-                                50   # ************************************
-                                51   # * Same lop as loopV1, except using *
-                                52   # * iload insead of rload            *
-                                53   # ************************************
-10          D0 F2               54    loopV2:   iload  RF,[R2]        #get value from address pt. to by R2   
-12          52 21               55              add    R2,R2,R1       #ptr++
-14          BF 36               56              jmpeq  RF=R0,done     #check for sentinel value
-16          B0 10               57              jmp    loopV2         #while not at end of array, continue
-                                58   
-                                59   # ************************************
-                                60   # * Same lop as loopV1, except using *
-                                61   # * pre-conditioning                 *
-                                62   # ************************************
-                                63   #mainV3:  load RF,Head
-                                64   #loopV3:   jmpeq  RF=R0,done      #if R2 == sentinel value, then done
-                                65   #          iload  RF,[R2]         #get value from address pt. to by R2
-                                66   #          add    R2,R2,R1        #ptr++
-                                67   #          jmp    loopV3          #while R2 != R0, continue
-                                68   
-                                69   # ************************************
-                                70   # * Dynamically Calculates the size  *
-                                71   # * of the array (by subtracting the *
-                                72   # * first address of the array [Head]*
-                                73   # * and he last address of the array *
-                                74   # * [Tail]). Then uses the size of   *
-                                75   # * determine if it has iterated to  *
-                                76   # * the end of the array.            *
-                                77   # ************************************
-18          22 72               78    mainV4:   load  R2,Head2         #ptr to start of array
-1A          24 FF               79              load  R4,0xFF          #R4 <- mask 1111 1111
-1C          23 83               80              load  R3,Tail          #R3 contains address of label Tail
-1E          94 24               81              xor   R4,R2,R4         #Toggle all bits
-20          54 41               82              add   R4,R4,R1         #add 1
-22          53 34               83              add   R3,R3,R4         #Tail - Head = sizeOfArray
-24          33 84               84              store [Size],R3
-                                85             
-26          90 00               86              xor   R0,R0,R0
-28          10 84               87              load  R0,[Size]        #sizeOfArray
-2A          93 33               88              xor   R3,R3,R3         #Clear R3, will be a counter
-                                89   
+                                 1   # *******************************************************************
+                                 2   # * Program: lab0 (Function format) (parameter passing)             *
+                                 3   # *                                                                 *
+                                 4   # * Purpose: This is a rewrite of lab0 to functionalize the program *
+                                 5   # *          so that it can better approximate how high-level       *
+                                 6   # *          languages work, as well as demonstrate better written  *
+                                 7   # *          assembly code. This version shows good stack discipline*
+                                 8   # *          through passing of variables (both by reference and by *
+                                 9   # *          value).                                                *
+                                10   # *                                                                 *
+                                11   # * @author: jl948836, Jordan Lescallette                           *
+                                12   # *                                                                 *
+                                13   # * date/ver: 2/8/16  1.5.0                                         *
+                                14   # *           2/14/16 2.0.0                                         *
+                                15   # *                                                                 *
+                                16   # * Results: Memory Address 0x90 should contain "FB".               *
+                                17   # *          Memory Address 0x91 should contain "DB".               *
+                                18   # *          Memory Address 0x92 should contain "CA".               *
+                                19   # *******************************************************************
+                                20   
+                                21   # Var Pool
+                                22             org   0x80
+80          5                   23    X:        db    0x05
+81          AB                  24    Num1:     db    0xAB
+82          CD                  25    Num2:     db    0xCD
+83          FF                  26    Nmask:    db    0xFF
+84          F0                  27    Bmask:    db    0xF0
+                                28   
+                                29   # Storage
+                                30             org   0x90
+90          00                  31    Negated:  db    0
+91                              32    swapA:    bss   1
+92                              33    swapB:    bss   1
+                                34   
+                                35   # Code
+                                36             org   0x00
+                                37             sip   main
+                                38   
+                                39             # ****************************************
+                                40             # * This resets the base of the stack,   *
+                                41             # * so that you essentially get a new    *
+                                42             # * stack for each function.             *
+                                43             # ****************************************
+00          64 D0               44    Negate:   push  RBP           # put current BP onto the stack
+02          D2 DE               45              move  RBP,RSP       # set BasePointer to StackPointer
+                                46   
+                                47             # ****************************************
+                                48             # * Grab parameters from bottom of the   *
+                                49             # * stack.                               *
+                                50             # ****************************************          
+04          43 2D               51              rload R2,3[RBP]     # get R2 from 3 addrs. higher than BP
+06          42 3D               52              rload R3,2[RBP]     # get R3 from 2 addrs. higher than BP
+08          D0 22               53              iload R2,[R2]       # replace addr. in R2 with val. from addr.
+                                54             
+0A          92 23               55              xor   R2,R2,R3      # Toggle all bits
+0C          52 21               56              add   R2,R2,R1      # add 1
+                                57             
+0E          65 D0               58              pop   RBP           # put value pointed to by SP and put it in BP
+10          61 01               59              ret                 # SP now points to ret addr. on the stack
+                                60   
+                                61             # ****************************************
+                                62             # * Grab parameters from top of the      *
+                                63             # * stack.                               *
+                                64             # ****************************************
+12          4F 2D               65    BitSwap:  rload R2,-1[RBP]    # get R2 from 1 addr. less than BP
+14          D0 22               66              iload R2,[R2]       # replace addr. in R2 with val. from the addr.
+16          4E 3D               67              rload R3,-2[RBP]    # get R3 from 2 addrs. less than BP
+18          4D 4D               68              rload R4,-3[RBP]    # get R4 from 3 addrs. less than BP
+                                69   
+                                70             # ****************************************
+                                71             # * This resets the base of the stack,   *
+                                72             # * so that you essentially get a new    *
+                                73             # * stack for each function.             *
+                                74             # ****************************************          
+1A          64 D0               75              push  RBP          # put current BP onto the stack
+1C          D2 DE               76              move  RBP,RSP      # set BasePointer to StackPointer
+                                77             
+1E          85 24               78              and   R5,R2,R4     # 0xAB and 0xF0, R5 <- 0xA0
+20          A0 54               79              ror   R5,4         # R5 <- 0x0A
+22          A0 44               80              ror   R4,4         # R4 <- 0x0F
+24          82 24               81              and   R2,R2,R4     # 0xAB and 0x0F, R2 <- 0x0B
+                                82   
+26          86 34               83              and   R6,R3,R4     # 0xCD and 0x0F, R6 <- 0x0D
+28          A0 64               84              ror   R6,4         # R6 <- 0xD0
+2A          A0 44               85              ror   R4,4         # R4 <- 0xF0
+2C          83 34               86              and   R3,R3,R4     # 0xAB and 0xF0, R3 <- 0xC0
+                                87   
+2E          72 26               88              or    R2,R2,R6     # 0x0B or 0xD0, R2 <- 0xDB
+30          73 35               89              or    R3,R3,R5     # 0xC0 or 0x0A, R3 <- 0xCA
                                 90   
-2C          B3 36               91    loopV4:   jmpeq R3=R0,done       #if R3 == sizeOfArray, then done
-2E          D0 F2               92              iload RF,[R2]          #get value from address pt. to by R2
-30          52 21               93              add   R2,R2,R1         #ptr++
-32          53 31               94              add   R3,R3,R1         #counter++
-34          B0 2C               95              jmp   loopV4           #while R3 != sizeOfArray, continue
-                                96   
-36          C0 00               97    done:     halt
+32          65 D0               91              pop   RBP          # put value pointed to by SP and put it in BP
+34          61 01               92              ret                # SP now points to ret addr. on the stack
+                                93   
+36          21 01               94    main:     load  R1,1         # Const. 1
+38          22 80               95              load  R2,X         # R2 <- address of label X
+3A          13 83               96              load  R3,[Nmask]   # contains mask 1111 1111
+                                97   
+                                98             # ****************************************
+                                99             # * pass parameters onto the stack and   *
+                               100             # * and call the function                *
+                               101             # ****************************************
+3C          64 20              102              push  R2           # pass X by Reference
+3E          64 30              103              push  R3           # pass Nmask by Value
+40          60 00              104              call  Negate       # calls label Negate
+                               105   
+                               106             # ****************************************
+                               107             # * save result from register to memory  *
+                               108             # * Note: pop will take the value from   *
+                               109             # *       the addr. pointed to by SP and *
+                               110             # *       put it in the register.        *
+                               111             # *       This means RH will contain the *
+                               112             # *       the parameter that was pushed  *
+                               113             # *       onto the sack                  *
+                               114             # ****************************************
+42          32 90              115              store [Negated],R2 
+44          65 30              116              pop   R3           # clean up the stack
+46          65 20              117              pop   R2           # clean up the stack
+                               118   
+48          22 81              119              load  R2,Num1      # R2 <- 0xAB
+4A          13 82              120              load  R3,[Num2]    # R3 <- 0xCD
+4C          14 84              121              load  R4,[Bmask]   # R4 <- 0xF0
+                               122   
+                               123             # ****************************************
+                               124             # * pass parameters onto the stack and   *
+                               125             # * and call the function                *
+                               126             # ****************************************
+4E          64 20              127              push  R2           # pass Num1 by Reference
+50          64 30              128              push  R3           # pass Num2 by Value
+52          64 40              129              push  R4           # pass Num3 by Value
+54          60 12              130              call  BitSwap      # calls label BitSwap
+                               131             
+                               132             # ****************************************
+                               133             # * save result from register to memory  *
+                               134             # * Note: pop will take the value from   *
+                               135             # *       the addr. pointed to by SP and *
+                               136             # *       put it in the register.        *
+                               137             # ****************************************
+56          32 91              138              store [swapA],R2
+58          33 92              139              store [swapB],R3
+5A          65 40              140              pop   R4           # clean up the stack
+5C          65 30              141              pop   R3           # clean up the stack
+5E          65 20              142              pop   R2           # clean up the stack
+                               143   
+60          B0 62              144              jmp   Done        
+                               145   
+62          C0 00              146    Done:     halt
 
 
 ***************** WALL Cross-Reference Listing *******************
-Created date: 04/20/2016 08:23:28 PM
+Created date: 04/21/2016 01:45:32 PM
 
 
          Cross-Reference Listing Description
@@ -121,13 +164,15 @@ Ref_line: Referenced line number(s) of a label in the source code.
 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Labels           Mem_Loc     Def_Line     Ref_line
-Head                60          24        37             
-Head2               72          28        78             
-Tail                83          29        80             
-Size                84          30        84  87         
-main                00          35                       
-loopV1              08          45        48             
-loopV2              10          54        57             
-mainV4              18          78        43             
-loopV4              2C          91        95             
-done                36          97        47  56  91     
+X                   80          23        95             
+Num1                81          24        119            
+Num2                82          25        120            
+Nmask               83          26        96             
+Bmask               84          27        121            
+Negated             90          31        115            
+swapA               91          32        138            
+swapB               92          33        139            
+Negate              00          44        104            
+BitSwap             12          65        130            
+main                36          94                       
+Done                62         146        144            

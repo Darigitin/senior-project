@@ -16,7 +16,8 @@ public class ActivationRecord extends javax.swing.JPanel {
 //    private final String call = "Main";
     
     /**
-     * Creates new form StackRecordPanel
+     * Creates new form StackRecordPanel with template record pointing
+     * to the program "MAIN".
      */
     public ActivationRecord() {
         initComponents();
@@ -31,7 +32,9 @@ public class ActivationRecord extends javax.swing.JPanel {
     }
     
     /**
-     * Constructor
+     * Constructor - create a activation record that shows the call, return address
+     * and the dynamic link.
+     * 
      * @param returnAddress
      * @param dynamicLink
      * @param call

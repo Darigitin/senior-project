@@ -25,7 +25,11 @@ public class StackPanel extends javax.swing.JPanel {
         super.add(new ActivationRecord());
     }
     
-    
+    /**
+     * Adds a record to the bottom of the StackPanel
+     * 
+     * @param ar 
+     */
     public void addRecord(ActivationRecord ar) {
         ((ActivationRecord)this.getComponent(numOfRecords))
                 .setTextAreaVisible(false);
@@ -33,12 +37,18 @@ public class StackPanel extends javax.swing.JPanel {
         numOfRecords++;
     }
     
+    /**
+     * Removes the bottom record from the StackPanel
+     */
     public void removeRecord() {
         this.remove(numOfRecords--);
         ((ActivationRecord)this.getComponent(numOfRecords))
                 .setTextAreaVisible(true);
     }
     
+    /**
+     * Removes all entries on the StackPanel
+     */
     public void resetRecords() {
         while (numOfRecords != 0) {
             this.removeRecord();

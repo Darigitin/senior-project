@@ -121,7 +121,7 @@ public class MachineController {
         ArrayList<String> codes = assembler.parse(text);
         lastAssembledProg.clear();
         lastAssembledProg = codes;
-        if (!machineView.getErrorPane().isVisible()) {
+        if (!machineView.getErrorTextArea().isVisible()) {
             loadMachine(codes);
             machineView.resetActivationRecords();
         }
@@ -314,7 +314,7 @@ public class MachineController {
         String text = disassembler.getDisassemble(instructionPointer, ramBytes);
 
         machineView.resetActivationRecords();
-        machineView.getErrorPane().setVisible(false);
+        machineView.getErrorTextArea().setVisible(false);
         machineView.revalidate();
         machineView.repaint();
 
@@ -341,7 +341,7 @@ public class MachineController {
      * @param value
      */
     public void setEditorErrorVisible(boolean value) {
-        machineView.getErrorPane().setVisible(value);
+        machineView.getErrorTextArea().setVisible(value);
         machineView.revalidate();
         machineView.repaint();
     }
