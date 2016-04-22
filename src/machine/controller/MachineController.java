@@ -112,6 +112,10 @@ public class MachineController {
         if (fatalMemErrorList.isEmpty()) {
             clock.step();
         }
+        else if (!nonFatalMemErrorList.isEmpty()) {
+            setMemoryErrors();
+            clock.step();
+        }
         else {
             setMemoryErrors();
         }
@@ -284,7 +288,11 @@ public class MachineController {
      * @return Instruction Pointer
      */
     public int getInstructionPointer() {
-        return Integer.parseInt(machineView.getInstructionPointer(),16);
+        int ip = Integer.parseInt(machineView.getInstructionPointer(),16);
+//        if (ip % 2 != 0) {
+//            nonFatalMemErrorList.add("Instruction Pointer Misaligned");
+//        }
+        return ip;
     }
 
     /**
@@ -358,6 +366,9 @@ public class MachineController {
         for (String error : fatalMemErrorList) {
             sb.append(error).append("\n");
         }
+        for (String error : nonFatalMemErrorList) {
+            sb.append(error).append("\n");
+        }
         machineView.getMemoryErrorTextArea().setText(sb.toString());
     }
 
@@ -402,7 +413,7 @@ public class MachineController {
      * @param value
      */
     public void setMemoryValue(int index, String value) {
-        if (index > 254) {
+        if (index > 255) {
             fatalMemErrorList.add("Error: Segmentation Fault - Invalid Memory Address");
         }
         else if (index == 255) {
@@ -420,8 +431,12 @@ public class MachineController {
      * @return 
      */
     public String getMemoryValue(int index){
-        if (index > 254) {
+        if (index > 255) {
             fatalMemErrorList.add("Error: Segmentation Fault - Invalid Memory Address");
+            return "00";
+        }
+        else if (index == 255) {
+            nonFatalMemErrorList.add("Error: Reserved Memory Address - 255(FF)");
             return "00";
         }
         else {

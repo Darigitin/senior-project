@@ -1,13 +1,18 @@
 *************************** WALL-Listing ***********************
-Created date: 04/22/2016 12:07:14 AM
+Created date: 04/22/2016 04:01:04 PM
 
 
 Location    Object Code       Line   Source Statement
-00          41 1D                1    rload r1,1[rbp]
+00          21 01                1    load r1,1
+02          22 02                2    load r2,2
+04          B0 0f                3    jmp 0x0f
+                                 4   org 0x0f
+0F          23 02                5    load r3,2
+11          24 03                6    load r4,3
 
 
 ***************** WALL Cross-Reference Listing *******************
-Created date: 04/22/2016 12:07:14 AM
+Created date: 04/22/2016 04:01:04 PM
 
 
          Cross-Reference Listing Description
