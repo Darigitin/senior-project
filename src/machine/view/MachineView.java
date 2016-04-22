@@ -226,6 +226,14 @@ public class MachineView extends javax.swing.JFrame {
         return machine1.getDisassTextArea();
     }
     
+    /**
+     * 
+     * @return 
+     */
+    public JTextArea getMemoryErrorTextArea() {
+        return machine1.getMemoryErrorTextArea();
+    }
+    
     /*
      * Control Panel Section   
      */

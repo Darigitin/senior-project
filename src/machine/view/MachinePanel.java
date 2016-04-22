@@ -264,6 +264,15 @@ public class MachinePanel extends javax.swing.JPanel {
     }
     
     /**
+     * Get a reference to the Memory Error Display
+     * 
+     * @return 
+     */
+    public JTextArea getMemoryErrorTextArea() {
+        return memoryErrorDisplay;
+    }
+    
+    /**
      * 
      * @param row
      * @param column 
@@ -339,8 +348,11 @@ public class MachinePanel extends javax.swing.JPanel {
         displayConsole = new javax.swing.JTextArea();
         stackPanelScrollPane = new javax.swing.JScrollPane();
         stackRecordPanel = new machine.view.StackPanel();
+        jPanel1 = new javax.swing.JPanel();
         instructionCounterScrollPane = new javax.swing.JScrollPane();
         instructionCounterConsole = new javax.swing.JTextArea();
+        memoryErrorDisplayScrollPane = new javax.swing.JScrollPane();
+        memoryErrorDisplay = new javax.swing.JTextArea();
 
         setMinimumSize(new java.awt.Dimension(600, 500));
         setLayout(new java.awt.GridBagLayout());
@@ -434,6 +446,8 @@ public class MachinePanel extends javax.swing.JPanel {
         gridBagConstraints.weighty = 1.0;
         add(stackPanelScrollPane, gridBagConstraints);
 
+        jPanel1.setLayout(new java.awt.GridBagLayout());
+
         instructionCounterScrollPane.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true), "Instruction Counter"));
 
         instructionCounterConsole.setEditable(false);
@@ -444,11 +458,37 @@ public class MachinePanel extends javax.swing.JPanel {
         instructionCounterScrollPane.setViewportView(instructionCounterConsole);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 0.025;
+        jPanel1.add(instructionCounterScrollPane, gridBagConstraints);
+
+        memoryErrorDisplayScrollPane.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true), "Memory Errors"));
+
+        memoryErrorDisplay.setEditable(false);
+        memoryErrorDisplay.setBackground(new java.awt.Color(204, 204, 204));
+        memoryErrorDisplay.setColumns(20);
+        memoryErrorDisplay.setLineWrap(true);
+        memoryErrorDisplay.setRows(5);
+        memoryErrorDisplayScrollPane.setViewportView(memoryErrorDisplay);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 0.975;
+        jPanel1.add(memoryErrorDisplayScrollPane, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        add(instructionCounterScrollPane, gridBagConstraints);
+        add(jPanel1, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
     private void ramTableComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_ramTableComponentResized
@@ -464,6 +504,9 @@ public class MachinePanel extends javax.swing.JPanel {
     private javax.swing.JScrollPane displayScrollPane;
     private javax.swing.JTextArea instructionCounterConsole;
     private javax.swing.JScrollPane instructionCounterScrollPane;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JTextArea memoryErrorDisplay;
+    private javax.swing.JScrollPane memoryErrorDisplayScrollPane;
     private javax.swing.JScrollPane pswScrollPane;
     private javax.swing.JTable pswTable;
     private javax.swing.JScrollPane ramScrollPane;

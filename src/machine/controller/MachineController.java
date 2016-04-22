@@ -47,6 +47,8 @@ public class MachineController {
     private boolean isRunning = false;
     private static final String[] MemoryAddressRegister = new String[2];     //declear MAR
     Assembler assembler = new Assembler(this);
+    private final ArrayList<String> fatalMemErrorList = new ArrayList<>();
+    private final ArrayList<String> nonFatalMemErrorList = new ArrayList<>();
 
     /**
      * 
@@ -74,9 +76,6 @@ public class MachineController {
         if (!isRunning) {
             isRunning = true;
             clock.run();
-            //need this assembler to be able to display the logfile when the run button is clicked. MB
-            //Assembler assembler = new Assembler(this);
-            //assembler.displayLog();
         }
     }
 
@@ -87,10 +86,12 @@ public class MachineController {
         isRunning = false;
         clock.timer.cancel();
         machineView.reset();
+        fatalMemErrorList.removeAll(fatalMemErrorList);
         loadMachine(lastAssembledProg);
         refreshMachineView();
         machineView.getConsoleTextArea().setText("");
         machineView.getDisassTextArea().setText("No disassembler text yet");
+        machineView.getMemoryErrorTextArea().setText("No Errors");
         machineView.resetActivationRecords();
     }
 
@@ -108,7 +109,12 @@ public class MachineController {
     public void stepClock() {
         isRunning = false;
         clock.timer.cancel();
-        clock.step();
+        if (fatalMemErrorList.isEmpty()) {
+            clock.step();
+        }
+        else {
+            setMemoryErrors();
+        }
     }
 
     /**
@@ -345,6 +351,15 @@ public class MachineController {
         machineView.revalidate();
         machineView.repaint();
     }
+    
+    public void setMemoryErrors() {
+        StringBuilder sb = new StringBuilder();
+        
+        for (String error : fatalMemErrorList) {
+            sb.append(error).append("\n");
+        }
+        machineView.getMemoryErrorTextArea().setText(sb.toString());
+    }
 
     /**
      * 
@@ -387,8 +402,16 @@ public class MachineController {
      * @param value
      */
     public void setMemoryValue(int index, String value) {
-        machineView.setRAMBytes(value, index);
-        refreshMachineView();
+        if (index > 254) {
+            fatalMemErrorList.add("Error: Segmentation Fault - Invalid Memory Address");
+        }
+        else if (index == 255) {
+            nonFatalMemErrorList.add("Error: Reserved Memory Address - 255(FF)");
+        }
+        else {
+            machineView.setRAMBytes(value, index);
+            refreshMachineView();
+        }
     }
 
     /**
@@ -397,7 +420,13 @@ public class MachineController {
      * @return 
      */
     public String getMemoryValue(int index){
-        return machineView.getRAMBytes(index);
+        if (index > 254) {
+            fatalMemErrorList.add("Error: Segmentation Fault - Invalid Memory Address");
+            return "00";
+        }
+        else {
+            return machineView.getRAMBytes(index);
+        }
     }
 
      /**
