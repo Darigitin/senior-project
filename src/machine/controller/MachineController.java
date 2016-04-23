@@ -109,7 +109,7 @@ public class MachineController {
     public void stepClock() {
         isRunning = false;
         clock.timer.cancel();
-        if (fatalMemErrorList.isEmpty()) {
+        if (fatalMemErrorList.isEmpty() && nonFatalMemErrorList.isEmpty()) {
             clock.step();
         }
         else if (!nonFatalMemErrorList.isEmpty()) {
@@ -289,10 +289,16 @@ public class MachineController {
      */
     public int getInstructionPointer() {
         int ip = Integer.parseInt(machineView.getInstructionPointer(),16);
-//        if (ip % 2 != 0) {
-//            nonFatalMemErrorList.add("Instruction Pointer Misaligned");
-//        }
-        return ip;
+        if (ip % 2 != 0 && !nonFatalMemErrorList.contains("Potential Error: Instruction Pointer Misaligned")) {
+            nonFatalMemErrorList.add("Potential Error: Instruction Pointer Misaligned");
+            return ip;
+        }
+        else {
+            //nonFatalMemErrorList.remove("Potential Error: Instruction Pointer Misaligned");
+            //nonFatalMemErrorList.clear();
+            //setMemoryErrors();
+            return ip;
+        }
     }
 
     /**
@@ -413,11 +419,8 @@ public class MachineController {
      * @param value
      */
     public void setMemoryValue(int index, String value) {
-        if (index > 255) {
+        if (index >= 255) {
             fatalMemErrorList.add("Error: Segmentation Fault - Invalid Memory Address");
-        }
-        else if (index == 255) {
-            nonFatalMemErrorList.add("Error: Reserved Memory Address - 255(FF)");
         }
         else {
             machineView.setRAMBytes(value, index);
@@ -431,12 +434,8 @@ public class MachineController {
      * @return 
      */
     public String getMemoryValue(int index){
-        if (index > 255) {
+        if (index >= 255) {
             fatalMemErrorList.add("Error: Segmentation Fault - Invalid Memory Address");
-            return "00";
-        }
-        else if (index == 255) {
-            nonFatalMemErrorList.add("Error: Reserved Memory Address - 255(FF)");
             return "00";
         }
         else {

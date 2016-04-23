@@ -1102,7 +1102,7 @@ public class Assembler {
             result = intToHex(firstArg);
         } 
         else if (isHex(firstArg)) { // arg is hex
-            result = firstArg.substring(2, 4);
+            result = firstArg.substring(2, 4); //TODO: Handle FORAMT 0xH and 0xHH
         }
         else {
             errorList.add("Error: Invalid destination for " + op + " on line " + line);
