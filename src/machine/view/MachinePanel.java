@@ -20,9 +20,11 @@
 package machine.view;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import machine.model.CellEditor;
 import machine.model.CellRenderer;
@@ -269,8 +271,11 @@ public class MachinePanel extends javax.swing.JPanel {
      * @param column 
      */
     public void visualStack(int row, int column) {
-        Object value = registerTable.getValueAt(row, column);
-        System.out.println("Register Talbe value" + value.toString());
+        Object value = ramTable.getValueAt(row, column);
+        //System.out.println("Register Table value" + value.toString());
+        System.out.println("Visual Stack: " + row + " " + column + " " + value);
+        TableCellRenderer cr = ramTable.getCellRenderer(row, column);
+        //cr.setBackground(Color.red);
     }
     
     /**

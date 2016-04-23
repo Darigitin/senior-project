@@ -20,6 +20,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 public class CellRenderer extends DefaultTableCellRenderer {
     
     private final Font font = new Font("SansSerif", Font.PLAIN, 14);
+    private String visualStack = "";
     
     public CellRenderer() {
         
@@ -41,11 +42,19 @@ public class CellRenderer extends DefaultTableCellRenderer {
         else {
             setBackground(Color.white);
         }
+        
+        if (visualStack.matches("RSP|RBP")) {
+            setBackground(Color.red);
+        }
         setForeground(Color.black);
         setFont(font);
         setText((String) value);
         setBorder(BorderFactory.createLineBorder(Color.black));
         return this;
+    }
+    
+    public void setVisualStack(String register) {
+        visualStack = register;
     }
     
 }

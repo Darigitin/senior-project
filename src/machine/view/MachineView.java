@@ -297,6 +297,10 @@ public class MachineView extends javax.swing.JFrame {
         return speed;
     }
     
+    public void visualStack(int row, int column) {
+        machine1.visualStack(row, column);
+    }
+    
     /*
      * TextEditor and ErrorPanel Section   
      */    
