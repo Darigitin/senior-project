@@ -20,7 +20,7 @@ import javax.swing.table.JTableHeader;
 public class ColumnHeaderRenderer extends DefaultTableCellRenderer {
     
     private final Color foregroundColor = Color.WHITE;
-    private final Color backgroundColor = new Color(128, 0, 0);
+    private final Color backgroundColor = new Color(128, 0, 0); //Maroon
     private final Font font = new Font("SansSerif", Font.BOLD, 14);
     
     public ColumnHeaderRenderer() {

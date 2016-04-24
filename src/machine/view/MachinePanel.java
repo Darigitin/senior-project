@@ -40,6 +40,8 @@ import machine.model.SpecialTableModel;
  */
 public class MachinePanel extends javax.swing.JPanel {
     
+    private String visualStackFlag = "";
+    
     public MachinePanel(){
         initComponents();
         customInitComponents();
@@ -265,16 +267,23 @@ public class MachinePanel extends javax.swing.JPanel {
         return instructionCounterConsole;
     }
     
+    public String getVisualStackFlag() {
+        return visualStackFlag;
+    }
+    
     /**
      * 
+     * @param flag
      * @param row
      * @param column 
      */
-    public void visualStack(int row, int column) {
+    public void visualStack(String flag, int row, int column) {
+        visualStackFlag = flag;
         Object value = ramTable.getValueAt(row, column);
         //System.out.println("Register Table value" + value.toString());
         System.out.println("Visual Stack: " + row + " " + column + " " + value);
-        TableCellRenderer cr = ramTable.getCellRenderer(row, column);
+        ramTable.getCellRenderer(row, column).getTableCellRendererComponent(ramTable, value, false, false, row, column);
+        visualStackFlag = "";
         //cr.setBackground(Color.red);
     }
     
@@ -285,11 +294,10 @@ public class MachinePanel extends javax.swing.JPanel {
     private void customInitComponents(){
         ColumnHeaderRenderer colRenderer = new ColumnHeaderRenderer();
         RowHeaderRenderer rowRenderer = new RowHeaderRenderer();
-        CellRenderer cellRenderer = new CellRenderer();
+        CellRenderer cellRenderer = new CellRenderer(this);
+        
         CellEditor cellEditor = new CellEditor();
         cellEditor.setClickCountToStart(1);
-        disassembledConsole.setEditable(false);
-        displayConsole.setEditable(false);
         TableColumn column;
         
         ramTable.getTableHeader().setDefaultRenderer(colRenderer);

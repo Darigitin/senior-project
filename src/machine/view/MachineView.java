@@ -297,8 +297,8 @@ public class MachineView extends javax.swing.JFrame {
         return speed;
     }
     
-    public void visualStack(int row, int column) {
-        machine1.visualStack(row, column);
+    public void visualStack(String flag, int row, int column) {
+        machine1.visualStack(flag, row, column);
     }
     
     /*
