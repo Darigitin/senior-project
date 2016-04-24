@@ -1,13 +1,35 @@
 *************************** WALL-Listing ***********************
-Created date: 04/23/2016 11:03:42 PM
+Created date: 04/24/2016 05:07:38 PM
 
 
 Location    Object Code       Line   Source Statement
-                                 1   
+                                 1                   # Data Section
+                                 2                           org   0x60
+60          54 68 65 20 43       3                    Head:   db    "The Cake is a lie",0 # 0 = null termination character
+            61 6B 65 20 69            
+            73 20 61 20 6C            
+            69 65 00                  
+                                 4   
+                                 5                           org   0x00
+                                 6                           sip   main
+                                 7   
+00          20 00                8                    main:   load  R0,0                  # check for null term. char.
+02          21 01                9                            load  R1,1                  # constant 1
+04          22 60               10                            load  R2,Head               # pointer to the array of chars.
+06          D0 32               11                            iload R3,[R2]               # get the value at the pointer
+08          B0 0A               12                            jmp   doWhile
+                                13                   
+0A          D2 F3               14                    doWhile:    move  RF,R3             # do: display character
+0C          52 21               15                                add   R2,R2,R1          #     increment pointer
+0E          D0 32               16                                iload R3,[R2]           #     get the value at the pointer
+10          B3 14               17                                jmpeq R3=R0,done        # while R3 != R0, iterate
+12          B0 0A               18                                jmp   doWhile           # repeat
+                                19                   
+14          C0 00               20                    done:       halt
 
 
 ***************** WALL Cross-Reference Listing *******************
-Created date: 04/23/2016 11:03:42 PM
+Created date: 04/24/2016 05:07:38 PM
 
 
          Cross-Reference Listing Description
@@ -19,3 +41,7 @@ Ref_line: Referenced line number(s) of a label in the source code.
 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Labels           Mem_Loc     Def_Line     Ref_line
+Head                60           3        10             
+main                00           8                       
+doWhile             0A          14        12  18         
+done                14          20        17             
