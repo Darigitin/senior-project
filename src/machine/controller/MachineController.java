@@ -369,16 +369,6 @@ public class MachineController {
      */
     public void setRegisterValue(int index, String value) {
         machineView.setRegisterBytes(value, index);
-        if (index == 13) { //bp
-            int row = Integer.parseInt(value.substring(0, 1),16);
-            int column = Integer.parseInt(value.substring(1,2),16);
-            visualStack("RBP", row, column);
-        }
-        else if (index == 14) { //sp
-            int row = Integer.parseInt(value.substring(0, 1),16);
-            int column = Integer.parseInt(value.substring(1,2),16);
-            visualStack("RSP", row, column);
-        }
         refreshMachineView();
     }
 
@@ -425,12 +415,5 @@ public class MachineController {
      */
     public void deleteActivationRecord() {
         machineView.deleteActivationRecord();
-    }
-    
-    public void visualStack(String flag, int row, int column) {
-        machineView.visualStack(flag, row, column);
-        
-        machineView.revalidate();
-        machineView.repaint();
     }
 }

@@ -20,16 +20,15 @@
 package machine.view;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Font;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import machine.model.CellEditor;
-import machine.model.CellRenderer;
+import machine.model.RAMTableCellRenderer;
 import machine.model.ColumnHeaderRenderer;
 import machine.model.RAMTableModel;
+import machine.model.RegisterTableCellRenderer;
 import machine.model.RegisterTableModel;
 import machine.model.RowHeaderRenderer;
 import machine.model.SpecialTableModel;
@@ -39,8 +38,6 @@ import machine.model.SpecialTableModel;
  * @author jl948836
  */
 public class MachinePanel extends javax.swing.JPanel {
-    
-    private String visualStackFlag = "";
     
     public MachinePanel(){
         initComponents();
@@ -267,26 +264,6 @@ public class MachinePanel extends javax.swing.JPanel {
         return instructionCounterConsole;
     }
     
-    public String getVisualStackFlag() {
-        return visualStackFlag;
-    }
-    
-    /**
-     * 
-     * @param flag
-     * @param row
-     * @param column 
-     */
-    public void visualStack(String flag, int row, int column) {
-        visualStackFlag = flag;
-        Object value = ramTable.getValueAt(row, column);
-        //System.out.println("Register Table value" + value.toString());
-        System.out.println("Visual Stack: " + row + " " + column + " " + value);
-        ramTable.getCellRenderer(row, column).getTableCellRendererComponent(ramTable, value, false, false, row, column);
-        visualStackFlag = "";
-        //cr.setBackground(Color.red);
-    }
-    
     /**
      * Set up, initialize, format the RAM Table, Register Table and PSW Table.
      * Initialize the Cell Renderer.
@@ -294,7 +271,8 @@ public class MachinePanel extends javax.swing.JPanel {
     private void customInitComponents(){
         ColumnHeaderRenderer colRenderer = new ColumnHeaderRenderer();
         RowHeaderRenderer rowRenderer = new RowHeaderRenderer();
-        CellRenderer cellRenderer = new CellRenderer(this);
+        RAMTableCellRenderer ramCellRenderer = new RAMTableCellRenderer(this);
+        RegisterTableCellRenderer registerCellRenderer = new RegisterTableCellRenderer();
         
         CellEditor cellEditor = new CellEditor();
         cellEditor.setClickCountToStart(1);
@@ -305,7 +283,7 @@ public class MachinePanel extends javax.swing.JPanel {
         
         for (int col = 1; col < 17; col++) {
             column = ramTable.getColumnModel().getColumn(col);
-            column.setCellRenderer(cellRenderer);
+            column.setCellRenderer(ramCellRenderer);
             column.setCellEditor(cellEditor);
         }
         ramTable.getTableHeader().setReorderingAllowed(false);
@@ -318,7 +296,7 @@ public class MachinePanel extends javax.swing.JPanel {
                 new RowHeaderRenderer(new Color(128, 0, 0), Color.white,
                 new Font("SansSerif", Font.BOLD, 16)));
         column = pswTable.getColumnModel().getColumn(1);
-        column.setCellRenderer(cellRenderer);
+        column.setCellRenderer(registerCellRenderer);
         column.setCellEditor(cellEditor);
         
         registerTable.getTableHeader().setDefaultRenderer(colRenderer);
@@ -326,7 +304,7 @@ public class MachinePanel extends javax.swing.JPanel {
                 new RowHeaderRenderer(new Color(128, 0, 0), Color.white,
                 new Font("SansSerif", Font.BOLD, 16)));
         column = registerTable.getColumnModel().getColumn(1);
-        column.setCellRenderer(cellRenderer);
+        column.setCellRenderer(registerCellRenderer);
         column.setCellEditor(cellEditor);
     }
     

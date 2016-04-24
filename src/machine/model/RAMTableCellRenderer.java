@@ -16,14 +16,14 @@ import machine.view.MachinePanel;
 
 /**
  *
- * @author Ryan Ball
+ * @author jl948836
  */
-public class CellRenderer extends DefaultTableCellRenderer {
+public class RAMTableCellRenderer extends DefaultTableCellRenderer {
     
     private final Font font = new Font("SansSerif", Font.PLAIN, 14);
     private final MachinePanel machine;
     
-//    public CellRenderer() {
+//    public RAMTableCellRenderer() {
 //        
 //        super.setHorizontalAlignment(CENTER);
 //        super.setHorizontalTextPosition(CENTER);
@@ -31,7 +31,7 @@ public class CellRenderer extends DefaultTableCellRenderer {
 //        super.setOpaque(true);
 //    }
     
-    public CellRenderer(MachinePanel machine) {
+    public RAMTableCellRenderer(MachinePanel machine) {
         this.machine = machine;
         super.setHorizontalAlignment(CENTER);
         super.setHorizontalTextPosition(CENTER);
@@ -43,8 +43,7 @@ public class CellRenderer extends DefaultTableCellRenderer {
     public Component getTableCellRendererComponent(JTable table, Object value,
             boolean isSelected, boolean hasFocus, int row, int column) {
         
-        Component l = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-        
+        super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
         
         if (hasFocus && isSelected) {
             setBackground(new Color(255, 160, 160));
@@ -52,17 +51,36 @@ public class CellRenderer extends DefaultTableCellRenderer {
         else {
             setBackground(Color.white);
         }
-        
-        
-        if (machine.getVisualStackFlag().equals("RSP")) {
-            System.out.println("I am here motherfucker");
-            setBackground(Color.red);
-        }
-        else if (machine.getVisualStackFlag().equals("RBP")) {
-            setBackground(Color.red);
-        }
-        
         setForeground(Color.black);
+        
+        //Visual Stack - Stack Pointer
+        String sp = machine.getRegisterBytes(14);
+        int spRow = Integer.parseInt(sp.substring(0, 1), 16);
+        int spColumn = Integer.parseInt(sp.substring(1, 2), 16) + 1;
+        if (spRow == row && spColumn == column) {
+            //setBackground(Color.red);
+            setForeground(Color.red);
+        }
+        
+        //Visual Stack - Base Pointer
+        String bp = machine.getRegisterBytes(13);
+        int bpRow = Integer.parseInt(bp.substring(0, 1), 16);
+        int bpColumn = Integer.parseInt(bp.substring(1, 2), 16) + 1;
+        if (bpRow == row && bpColumn == column) {
+            //setBackground(Color.blue);
+            setForeground(Color.blue);
+        }
+        
+        //Visual - Instruction Pointer
+        String ip = machine.getInstructionPointer();
+        int ipRow = Integer.parseInt(ip.substring(0, 1), 16);
+        int ipColumn = Integer.parseInt(ip.substring(1, 2), 16) + 1;
+        if (ipRow == row && ipColumn == column) {
+            //setBackground(Color.GREEN);
+            setForeground(Color.green);
+        }
+        
+        
         setFont(font);
         setText((String) value);
         setBorder(BorderFactory.createLineBorder(Color.black));
