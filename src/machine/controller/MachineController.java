@@ -274,9 +274,16 @@ public class MachineController {
         
     public int[] getInstructionFromIP() {
         String[] ir = MemoryAddressRegister;
-        int[] instructions = {Integer.parseInt(ir[0], 16),
-                            Integer.parseInt(ir[1], 16)};
-        return instructions;
+        if (ir[0] == null || ir[1] == null) {
+            fatalMemErrorList.add("Error: Nothing Assembled into memory.");
+            int[] invalid = {0,0};
+            return invalid;
+        }
+        else {
+            int[] instructions = {Integer.parseInt(ir[0], 16),
+                                Integer.parseInt(ir[1], 16)};
+            return instructions;
+        }
     }
         
     public void updateIPwhenHalt(){
