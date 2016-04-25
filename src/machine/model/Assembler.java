@@ -1102,7 +1102,7 @@ public class Assembler {
             result = intToHex(firstArg);
         } 
         else if (isHex(firstArg)) { // arg is hex
-            result = firstArg.substring(2, 4);
+            result = firstArg.substring(2, 4); //TODO: Handle FORAMT 0xH and 0xHH
         }
         else {
             errorList.add("Error: Invalid destination for " + op + " on line " + line);
@@ -1665,13 +1665,13 @@ public class Assembler {
             output.println();
             output.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
             output.println("Labels         " + "  Mem_Loc" + "     Def_Line" + "     Ref_line");
-            for (int i = 0; i < codeList.size(); i++){
-                if (labels[i] != null){
-                    String memoryAddress = intToHex(Integer.toString(labelMap.get(labels[i]))); 
-                    output.printf("%-15s%7s%12d%8s%-15s", labels[i], memoryAddress, i+1, " ", referenceLine.get(labels[i]));
-                    output.println();
-                }
-            }//end cross reference listing
+//            for (int i = 0; i < codeList.size(); i++){
+//                if (labels[i] != null){
+//                    String memoryAddress = intToHex(Integer.toString(labelMap.get(labels[i]))); 
+//                    output.printf("%-15s%7s%12d%8s%-15s", labels[i], memoryAddress, i+1, " ", referenceLine.get(labels[i]));
+//                    output.println();
+//                }
+//            }//end cross reference listing
             
             output.close();    //Close the file
         } catch (FileNotFoundException ex) {

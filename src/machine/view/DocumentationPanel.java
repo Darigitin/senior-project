@@ -31,7 +31,7 @@ import javax.swing.SwingUtilities;
  */
 public final class DocumentationPanel extends javax.swing.JPanel {
     
-    public static void main(String[] args){
+    public static void main(String[] args) {
         JFrame frame = new JFrame();
         frame.add(new DocumentationPanel());
         frame.pack();
@@ -46,6 +46,8 @@ public final class DocumentationPanel extends javax.swing.JPanel {
         
         addLanguageReference();
         addSyntaxReference();
+        addExamples();
+        addAboutWALL();
     }
 
     /**
@@ -110,6 +112,64 @@ public final class DocumentationPanel extends javax.swing.JPanel {
         });
     }
     
+    
+    public void addExamples() {
+        examplesEditorPane.setContentType("text/html");
+        InputStream inputStream =  DocumentationPanel.class.getResourceAsStream("/html/examples.html");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            examplesEditorPane.setText(sb.toString());
+        } catch (IOException ex) {
+            examplesEditorPane.setText("Could not load language reference.");
+        }
+        try {
+            reader.close();
+        } catch (IOException ex) {
+            Logger.getLogger(DocumentationPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        examplesEditorPane.setEditable(false);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                examplesScrollPane.getVerticalScrollBar().setValue(0);
+            }
+        });
+    }
+    
+    
+    public void addAboutWALL() {
+        aboutWallEditorPane.setContentType("text/html");
+        InputStream inputStream =  DocumentationPanel.class.getResourceAsStream("/html/aboutWALL.html");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            aboutWallEditorPane.setText(sb.toString());
+        } catch (IOException ex) {
+            aboutWallEditorPane.setText("Could not load language reference.");
+        }
+        try {
+            reader.close();
+        } catch (IOException ex) {
+            Logger.getLogger(DocumentationPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        aboutWallEditorPane.setEditable(false);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                aboutWallScrollPane.getVerticalScrollBar().setValue(0);
+            }
+        });
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -127,6 +187,12 @@ public final class DocumentationPanel extends javax.swing.JPanel {
         languageRefPanel = new javax.swing.JPanel();
         languageRefScrollPane = new javax.swing.JScrollPane();
         languageRefEditorPane = new javax.swing.JEditorPane();
+        examplesPanel = new javax.swing.JPanel();
+        examplesScrollPane = new javax.swing.JScrollPane();
+        examplesEditorPane = new javax.swing.JEditorPane();
+        aboutWallPanel = new javax.swing.JPanel();
+        aboutWallScrollPane = new javax.swing.JScrollPane();
+        aboutWallEditorPane = new javax.swing.JEditorPane();
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -160,6 +226,30 @@ public final class DocumentationPanel extends javax.swing.JPanel {
 
         documentationTabbedPane.addTab("Language Reference", languageRefPanel);
 
+        examplesPanel.setLayout(new java.awt.GridBagLayout());
+
+        examplesScrollPane.setViewportView(examplesEditorPane);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        examplesPanel.add(examplesScrollPane, gridBagConstraints);
+
+        documentationTabbedPane.addTab("Examples", examplesPanel);
+
+        aboutWallPanel.setLayout(new java.awt.GridBagLayout());
+
+        aboutWallScrollPane.setViewportView(aboutWallEditorPane);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        aboutWallPanel.add(aboutWallScrollPane, gridBagConstraints);
+
+        documentationTabbedPane.addTab("About WALL", aboutWallPanel);
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -171,7 +261,13 @@ public final class DocumentationPanel extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JEditorPane aboutWallEditorPane;
+    private javax.swing.JPanel aboutWallPanel;
+    private javax.swing.JScrollPane aboutWallScrollPane;
     private javax.swing.JTabbedPane documentationTabbedPane;
+    private javax.swing.JEditorPane examplesEditorPane;
+    private javax.swing.JPanel examplesPanel;
+    private javax.swing.JScrollPane examplesScrollPane;
     private static javax.swing.JEditorPane languageRefEditorPane;
     private javax.swing.JPanel languageRefPanel;
     private static javax.swing.JScrollPane languageRefScrollPane;

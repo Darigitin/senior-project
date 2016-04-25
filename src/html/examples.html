@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Examples</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <div>
+            <h1>How to write Loop Structures in WALL</h1>
+            <p>
+                Just like in High-Level Languages, WALL and any other Assemblers
+                are capable of looping over a section of code until a condition is
+                met.<br>
+                The following two examples of how a user would write a While loop 
+                and a do While loop in WALL.
+            </p>
+            <pre>
+                # Sum of the first 10 numbers
+                # R0 is 11 since we terminate on equality.
+                # If R0 was 10, we'd get the sum of the first 9 numbers.
+                        org 0x00
+                main:   load R0,11          # Termination Condition
+                        load R1,1           # Constant 1
+                        xor  R2,R2,R2       # Load R2 with 0
+                        xor  RA,RA,RA       # Load RA with 0
+                        jmp  while
+
+                while:  jmpeq R2=R0,done    # while R2 != 0
+                        add   RA,RA,R2      #   Sum = Sum + number
+                        add   R2,R2,R1      #   number = number + 1
+                        jmp   while         
+
+                done:   halt
+            <samp>
+                Result of the Above Program
+                R10: 55
+            </samp>
+            </pre>
+            <pre>
+                # Sum of the first 10 numbers
+                # R0 is 11 since we terminate when R2 is greater than
+                # or equal to R0.
+                # If R0 was 10, we'd get the sum of the first 9 numbers.
+                            org   0x00
+                main:       load  R0,11             # Termination Condition
+                            load  R1,1              # Constant 1
+                            xor   R2,R2,R2          # Load R2 with 0
+                            xor   RA,RA,RA          # Load RA with 0
+                            jmp   doWhile
+                
+                doWhile:    add   RA,RA,R2          # Do: Sum = Sum + number
+                            add   R2,R2,R1          #     number = number + 1
+                            jmplt R2&lt;R0,doWhile  # while R2 &lt; R0
+                
+                done:       halt
+            <samp>
+                Result of the Above Program
+                R10: 55
+            </samp>
+            </pre>
+            <h1>How to Iterate through an Array</h1>
+            <p>
+                In High-Level Languages, to get to each value in an array you need
+                to iterate through each index of the array. WALL is no different.<br>
+                There are two ways to create arrays in WALL; with the DB and the BSS
+                pseudo-ops.<br>
+                DB  - will "initialize" an array with values.<br>
+                BSS - will "reserve" X amount of memory (no need to "initialize").<br>
+                Note: DB is special, in that it allows you to create a String of
+                characters using quotation marks ("") or apostrophes (''). What DB
+                does in these cases, is assign each character to an address (sequentially).
+                So, that means each character is at a different "index" of the array.<br>
+                <br>
+                There are two things to note in the Code below.
+            </p>
+            <ol>
+                <li>
+                    The output of both loops is the same, since they both look for
+                    the same terminating condition (a null character). This is a
+                    common way to end a string (all Strings in C are null character
+                    terminated).
+                </li>
+                <li>
+                    To iterate through an array in WALL, a user needs to begin at
+                    the first address of the array (usually pointed to by a label,
+                    in this case, the label "Head"), and then increment their way
+                    through the addresses of the array (like they would through the
+                    indices of an array in a High-Level Language).
+                </li>
+            </ol>
+            <pre>
+                # Data Section
+                        org   0x60
+                Head:   db    "The Cake is a lie",0 # 0 = null termination character
+                
+                        org   0x00
+                        sip   main
+
+                main:   load  R0,0                  # check for null term. char.
+                        load  R1,1                  # constant 1
+                        load  R2,Head               # pointer to the array of chars.
+                        iload R3,[R2]               # get the value at the pointer
+                        jmp   while
+                
+                while:  jmpeq R3=R0,done            # while R3 != R0, iterate
+                        move  RF,R3                 # display character
+                        add   R2,R2,R1              # increment pointer
+                        iload R3,[R2]               # get the value at the pointer
+                        jmp   while                 # repeat
+                
+                done:   halt
+            <samp>
+                Results will display in the Display Console:
+                The Cake is a Lie
+            </samp>
+            </pre>
+            <pre>
+                # Data Section
+                        org   0x60
+                Head:   db    "The Cake is a lie",0 # 0 = null termination character
+
+                        org   0x00
+                        sip   main
+
+                main:   load  R0,0                  # check for null term. char.
+                        load  R1,1                  # constant 1
+                        load  R2,Head               # pointer to the array of chars.
+                        iload R3,[R2]               # get the value at the pointer
+                        jmp   doWhile
+                
+                doWhile:    move  RF,R3             # do: display character
+                            add   R2,R2,R1          #     increment pointer
+                            iload R3,[R2]           #     get the value at the pointer
+                            jmpeq R3=R0,done        # while R3 != R0, iterate
+                            jmp   doWhile           # repeat
+                
+                done:       halt
+            <samp>
+                Results will display in the Display Console:
+                The Cake is a Lie
+            </samp>
+            </pre>
+        </div>
+    </body>
+</html>
