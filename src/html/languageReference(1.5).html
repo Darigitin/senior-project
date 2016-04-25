@@ -35,6 +35,10 @@ date/ver: 03/26/16 1.0.0
         <div>
             <h1>WALL (WTAMU AssembLy Language) Language Reference</h1>
             <h2>Operations</h2>
+            <p>
+                Operations are actions the assembler knows how to take and are compiled
+                directly into memory.
+            </p>
             <table id="operationsTable">
                 <thead>
                     <tr>
@@ -483,6 +487,25 @@ date/ver: 03/26/16 1.0.0
                             reg[BP] := reg[SP]
                         </td>
                     </tr>
+                    <tr id="sl">
+                        <td>
+                            SL RN,X
+                        </td>
+                        <td>
+                            A4 NX
+                        </td>
+                        <td>
+                            SL R1,0<br>
+                            Assembled => A4 10
+                        </td>
+                        <td>
+                            Shift Left - Shifts the value in Register N to the
+                            left X number of times. After each shift, the vacant
+                            Low-Order bit is filled in with a 0.<br>
+                            Note: Truncates the high-order bit X number of times.<br>
+                            reg[N] := reg[N] &lt;&lt; X
+                        </td>
+                    </tr>
                     <tr id="sra">
                         <td>
                             SRA RN,X
@@ -543,25 +566,6 @@ date/ver: 03/26/16 1.0.0
                             vacant High-Order bit is filled in with a 0.<br>
                             Note: Truncates the low-order bit X number of times.<br>
                             reg[N] := reg[N] &gt;&gt; X
-                        </td>
-                    </tr>
-                    <tr id="sl">
-                        <td>
-                            SL RN,X
-                        </td>
-                        <td>
-                            A4 NX
-                        </td>
-                        <td>
-                            SL R1,0<br>
-                            Assembled => A4 10
-                        </td>
-                        <td>
-                            Shift Left - Shifts the value in Register N to the
-                            left X number of times. After each shift, the vacant
-                            Low-Order bit is filled in with a 0.<br>
-                            Note: Truncates the high-order bit X number of times.<br>
-                            reg[N] := reg[N] &lt;&lt; X
                         </td>
                     </tr>
                     <tr id="store">
@@ -682,6 +686,20 @@ date/ver: 03/26/16 1.0.0
                             Origin - places the next instruction or data byte at the
                             memory address XY. This allows a program or data to be
                             placed at arbitrary places in memory.<br>
+                            Note: the argument must be Hex or a Label.
+                        </td>
+                    </tr>
+                    <tr id="SIP">
+                        <td>
+                            SIP
+                        </td>
+                        <td>
+                            SIP 0xXY<br>
+                            SIP label
+                        </td>
+                        <td>
+                            Set Instruction Pointer - tells the Machine where to
+                            begin execution of the code.<br>
                             Note: the argument must be Hex or a Label.
                         </td>
                     </tr>

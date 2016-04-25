@@ -17,13 +17,9 @@
 package machine.view;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
@@ -35,7 +31,7 @@ import javax.swing.SwingUtilities;
  */
 public final class DocumentationPanel extends javax.swing.JPanel {
     
-    public static void main(String[] args){
+    public static void main(String[] args) {
         JFrame frame = new JFrame();
         frame.add(new DocumentationPanel());
         frame.pack();
@@ -51,6 +47,7 @@ public final class DocumentationPanel extends javax.swing.JPanel {
         addLanguageReference();
         addSyntaxReference();
         addExamples();
+        addAboutWALL();
     }
 
     /**
@@ -115,51 +112,62 @@ public final class DocumentationPanel extends javax.swing.JPanel {
         });
     }
     
-    /**
-     * Adds the Language Reference html to the Language Reference tab
-     */
+    
     public void addExamples() {
-       // get location of the code source
-    URL url = machine.view.DocumentationPanel.class.getProtectionDomain().getCodeSource().getLocation();
-
-    try {
-        // extract directory from code source url
-        String root = (new File(url.toURI())).getParentFile().getPath();
-        File doc = new File("..", "html/examples.html");
-        // create htm file contents for testing
-        FileWriter writer = new FileWriter(doc);
-        writer.write("<h1>Test</h1>");
-        writer.close();
-        // open it in the editor
-        examplesEditorPane.setPage(doc.toURI().toURL());
-    } catch (Exception e) {
-        e.printStackTrace();
+        examplesEditorPane.setContentType("text/html");
+        InputStream inputStream =  DocumentationPanel.class.getResourceAsStream("/html/examples.html");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            examplesEditorPane.setText(sb.toString());
+        } catch (IOException ex) {
+            examplesEditorPane.setText("Could not load language reference.");
+        }
+        try {
+            reader.close();
+        } catch (IOException ex) {
+            Logger.getLogger(DocumentationPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        examplesEditorPane.setEditable(false);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                examplesScrollPane.getVerticalScrollBar().setValue(0);
+            }
+        });
     }
-//        examplesEditorPane.setContentType("text/html");
-//        InputStream inputStream =  DocumentationPanel.class.getResourceAsStream("/html/examples.html");
-//        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-//        StringBuilder sb = new StringBuilder();
-//        String line;
-//        try {
-//            while ((line = reader.readLine()) != null) {
-//                sb.append(line);
-//            }
-//            examplesEditorPane.setText(sb.toString());
-//        } catch (IOException ex) {
-//            examplesEditorPane.setText("Could not load language reference.");
-//        }
-//        try {
-//            reader.close();
-//        } catch (IOException ex) {
-//            Logger.getLogger(DocumentationPanel.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        examplesEditorPane.setEditable(false);
-//        SwingUtilities.invokeLater(new Runnable() {
-//            @Override
-//            public void run() {
-//                examplesScrollPane.getVerticalScrollBar().setValue(0);
-//            }
-//        });
+    
+    
+    public void addAboutWALL() {
+        aboutWallEditorPane.setContentType("text/html");
+        InputStream inputStream =  DocumentationPanel.class.getResourceAsStream("/html/aboutWALL.html");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            aboutWallEditorPane.setText(sb.toString());
+        } catch (IOException ex) {
+            aboutWallEditorPane.setText("Could not load language reference.");
+        }
+        try {
+            reader.close();
+        } catch (IOException ex) {
+            Logger.getLogger(DocumentationPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        aboutWallEditorPane.setEditable(false);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                aboutWallScrollPane.getVerticalScrollBar().setValue(0);
+            }
+        });
     }
     
     /**
@@ -182,6 +190,9 @@ public final class DocumentationPanel extends javax.swing.JPanel {
         examplesPanel = new javax.swing.JPanel();
         examplesScrollPane = new javax.swing.JScrollPane();
         examplesEditorPane = new javax.swing.JEditorPane();
+        aboutWallPanel = new javax.swing.JPanel();
+        aboutWallScrollPane = new javax.swing.JScrollPane();
+        aboutWallEditorPane = new javax.swing.JEditorPane();
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -227,6 +238,18 @@ public final class DocumentationPanel extends javax.swing.JPanel {
 
         documentationTabbedPane.addTab("Examples", examplesPanel);
 
+        aboutWallPanel.setLayout(new java.awt.GridBagLayout());
+
+        aboutWallScrollPane.setViewportView(aboutWallEditorPane);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        aboutWallPanel.add(aboutWallScrollPane, gridBagConstraints);
+
+        documentationTabbedPane.addTab("About WALL", aboutWallPanel);
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -238,6 +261,9 @@ public final class DocumentationPanel extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JEditorPane aboutWallEditorPane;
+    private javax.swing.JPanel aboutWallPanel;
+    private javax.swing.JScrollPane aboutWallScrollPane;
     private javax.swing.JTabbedPane documentationTabbedPane;
     private javax.swing.JEditorPane examplesEditorPane;
     private javax.swing.JPanel examplesPanel;
