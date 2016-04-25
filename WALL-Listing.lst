@@ -1,23 +1,13 @@
 *************************** WALL-Listing ***********************
-Created date: 04/24/2016 05:24:54 PM
+Created date: 04/24/2016 07:49:10 PM
 
 
 Location    Object Code       Line   Source Statement
-00          21 01                1    load R1,1
-02          22 ff                2    load R2,0xff
-04          5E E2                3    add rsp,rsp,r2
-06          5E E2                4    add rsp,rsp,r2
-08          5E E2                5    add rsp,rsp,r2
-0A          5D D2                6    add rbp,rbp,r2
-0C          5E E2                7    add rsp,rsp,r2
-0E          5E E2                8    add rsp,rsp,r2
-10          5D D2                9    add rbp,rbp,r2
-12          5E E1               10    add rsp,rsp,r1
-14          5E E1               11    add rsp,rsp,r1
+                                 1   
 
 
 ***************** WALL Cross-Reference Listing *******************
-Created date: 04/24/2016 05:24:54 PM
+Created date: 04/24/2016 07:49:10 PM
 
 
          Cross-Reference Listing Description

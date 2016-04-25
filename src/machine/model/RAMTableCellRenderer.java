@@ -58,7 +58,7 @@ public class RAMTableCellRenderer extends DefaultTableCellRenderer {
         int spRow = Integer.parseInt(sp.substring(0, 1), 16);
         int spColumn = Integer.parseInt(sp.substring(1, 2), 16) + 1;
         if (spRow == row && spColumn == column) {
-            //setBackground(Color.red);
+            setBackground(getBackground().darker());
             setForeground(Color.red);
         }
         
@@ -67,7 +67,7 @@ public class RAMTableCellRenderer extends DefaultTableCellRenderer {
         int bpRow = Integer.parseInt(bp.substring(0, 1), 16);
         int bpColumn = Integer.parseInt(bp.substring(1, 2), 16) + 1;
         if (bpRow == row && bpColumn == column) {
-            //setBackground(Color.blue);
+            setBackground(getBackground().darker());
             setForeground(Color.blue);
         }
         
@@ -76,8 +76,8 @@ public class RAMTableCellRenderer extends DefaultTableCellRenderer {
         int ipRow = Integer.parseInt(ip.substring(0, 1), 16);
         int ipColumn = Integer.parseInt(ip.substring(1, 2), 16) + 1;
         if (ipRow == row && ipColumn == column) {
-            //setBackground(Color.GREEN);
-            setForeground(Color.green);
+            setBackground(getBackground().darker());
+            setForeground(Color.MAGENTA.darker());
         }
         
         
