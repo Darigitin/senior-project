@@ -21,11 +21,12 @@
  * and open the template in the editor.
  */
 
-/* Change Log
-    #Guojun Liu  03/08/16 
-    1. Create a new string array to hold the instruction in IP
-    2. Create three new methods new CPU cycle
-*/
+/** Change Log
+*    #Guojun Liu  03/08/16 
+*    1. Create a new string array to hold the instruction in IP
+*    2. Create three new methods new CPU cycle
+*   
+**/
 
 package machine.controller;
 
@@ -86,11 +87,13 @@ public class MachineController {
     public void resetMachine() {
         isRunning = false;
         clock.timer.cancel();
+        clock.resetInstructionCount();
         machineView.reset();
         loadMachine(lastAssembledProg);
         refreshMachineView();
         machineView.getConsoleTextArea().setText("");
         machineView.getDisassTextArea().setText("No disassembler text yet");
+        machineView.getInstructionCountTextArea().setText("Count of the number of Instructions executed.");
         machineView.resetActivationRecords();
     }
 
@@ -142,6 +145,15 @@ public class MachineController {
     public void setConsoleText(char c) {
         machineView.getConsoleTextArea().setText(
         machineView.getConsoleTextArea().getText() + c);
+    }
+    
+    /**
+     * Sets the InstructionCounterTextArea with the current instructionCount
+     * @param instructionCount 
+     */
+    public void setInstructionCounterText(int instructionCount){
+        machineView.getInstructionCountTextArea().setText(
+        "Instruction count: " + clock.getInstructionCount());
     }
  
     /**

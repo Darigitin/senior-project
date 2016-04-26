@@ -43,6 +43,8 @@ public class TextEditor extends JScrollPane implements Serializable {
     private static final int FONTSTYLE = Font.PLAIN;
     private static String fontName = "Tahoma";
     private static int fontSize = 14;   //END CHANGE LOG: 2
+    private static String textColorString = "BLACK";
+    private static String backGroundColorString = "WHITE";
     
     private final JTextPane textPane;
     private final KarelDocument doc;
@@ -110,6 +112,7 @@ public class TextEditor extends JScrollPane implements Serializable {
     }
     
     public void setBackGround(String backGroundColor){      //BEGIN CHANGE LOG: 2
+        TextEditor.backGroundColorString = backGroundColor;
         
         if (backGroundColor.equals("BLACK")){
             textPane.setBackground(Color.BLACK);
@@ -126,11 +129,16 @@ public class TextEditor extends JScrollPane implements Serializable {
             colorArray[3] = Color.getHSBColor(hsbvals[0], hsbvals[1], hsbvals[2]);
                 
         }
-        setTextPaneFont(textPane.getFont());
-        
+        setTextPaneFont(textPane.getFont());   
+    }
+    
+    public String getBackGroundString(){
+        return TextEditor.backGroundColorString;
     }
     
     public void setTextColor(String textColor){
+        TextEditor.textColorString = textColor;
+        
         float[] hsbvals = new float[3];
         switch (textColor){
             case "GREEN":
@@ -169,9 +177,17 @@ public class TextEditor extends JScrollPane implements Serializable {
         }
     }   //END CHANGE LOG: 2
     
+    public String getTextColorString(){
+        return TextEditor.textColorString;
+    }
+    
     public void setFontName(String fontName){
         TextEditor.fontName = fontName;
         updateFont();
+    }
+    
+    public String getFontName(){
+        return TextEditor.fontName;
     }
     
     public void setFontSize(int fontSize){

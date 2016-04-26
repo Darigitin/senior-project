@@ -30,6 +30,8 @@
  * 5 mv935583 - 04/11/16: Implemented changed to add shift instructions.
  * 
  * 6 jl948836 - 04/19/16: flipped RSTORE, register operands were backward.
+ * 
+ * 7 mv935583 - 04/25/16: Added code for tracking number of instructions executed
  */
 
 /* Change Log
@@ -51,6 +53,7 @@ public class Clock {
     private int instructionPointer;
     private final Disassembler disassembler = new Disassembler();
     private int speed;
+    private int instructionCount;   //CHANGELOG: 7
 	
     /**
     * Creates a Clock object every time an instruction is executed
@@ -91,6 +94,7 @@ public class Clock {
             timer.cancel();
         }
         fetch();
+        controller.setInstructionCounterText(instructionCount++);   //CHANGELOG: 7
     }
 
     /**
@@ -298,6 +302,22 @@ public class Clock {
         //controller.setInstructionRegister();
         controller.refreshMachineView();
     }
+    
+    /**
+     * Returns the number of instructions ran by the clock.     //CHANGELOG BEGIN: 7
+     * @return instructionCount
+     */
+    public int getInstructionCount(){
+        return this.instructionCount;
+    }
+    
+    /**
+     * Resets the clock internal instruction count for the purpose of machine
+     * assemble and reset.
+     */
+    public void resetInstructionCount(){
+        this.instructionCount = 0;
+    }   //CHANGELOG END: 7
 
     /**
     * Opcode 1 - LOAD

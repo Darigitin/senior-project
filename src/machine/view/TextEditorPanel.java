@@ -38,6 +38,8 @@ public class TextEditorPanel extends javax.swing.JPanel {
         "White on Black", "Black on Light-Yellow"}; //CHANGE LOG: 1
     private MachineView machineView;
     private TextEditorFrame editorWindow;
+    private TextEditor editorWindowTextEditor;
+    private TextEditorPanel editorWindowTextEditorPanel;
     
     /**
      * Creates new form TextEditorPanel
@@ -272,23 +274,41 @@ public class TextEditorPanel extends javax.swing.JPanel {
             public void run() {
                 if (splitJoinButton.getText().equals("Split Editor")) {
                     editorWindow = new TextEditorFrame(machineView);
+                    editorWindowTextEditorPanel = editorWindow.getTextEditorPanel();
+                    editorWindowTextEditor = editorWindowTextEditorPanel.getTextEditor();
                     editorWindow.getEditorPane().setText(codeInEditor);
                     machineView.getTextEditorPanel().setVisible(false);
                     editorWindow.getErrorPane().setVisible(false);
                     machineView.setTitle("WALL - Machine Window");
                     editorWindow.setTitle("WALL - Text Editor Window");
+                    editorWindowTextEditor.setFontName(textEditor.getFontName());
+                    editorWindowTextEditorPanel.fontComboBox.setSelectedIndex(fontComboBox.getSelectedIndex());
+                    editorWindowTextEditor.setFontSize(textEditor.getFontSize());
+                    editorWindowTextEditorPanel.fontSizeComboBox.setSelectedIndex(fontSizeComboBox.getSelectedIndex());
+                    editorWindowTextEditor.setBackGround(textEditor.getBackGroundString());
+                    editorWindowTextEditor.setTextColor(textEditor.getTextColorString());
+                    editorWindowTextEditorPanel.fontThemeComboBox.setSelectedIndex(fontThemeComboBox.getSelectedIndex());
                     machineView.pack();
                     editorWindow.pack();
                     editorWindow.setLocationRelativeTo(machineView);
                     editorWindow.setVisible(true);
+                    
                 }
                 else { //Join Editor
                     splitJoinButton.setText("Split Editor");
-                    editorWindow.dispose();
                     machineView.setTitle("WALL - Machine Simulator");
                     machineView.getTextEditorPanel().getEditorPane().setText(codeInEditor);
+                    machineView.getTextEditorPanel().getTextEditor().setFontName(textEditor.getFontName());
+                    machineView.getTextEditorPanel().getTextEditor().setFontSize(textEditor.getFontSize());
+                    machineView.getTextEditorPanel().getTextEditor().setBackGround(textEditor.getBackGroundString());
+                    machineView.getTextEditorPanel().getTextEditor().setTextColor(textEditor.getTextColorString());
+                    machineView.getTextEditorPanel().fontComboBox.setSelectedIndex(editorWindow.getTextEditorPanel().fontComboBox.getSelectedIndex());
+                    machineView.getTextEditorPanel().fontSizeComboBox.setSelectedIndex(editorWindow.getTextEditorPanel().fontSizeComboBox.getSelectedIndex());
+                    machineView.getTextEditorPanel().fontThemeComboBox.setSelectedIndex(editorWindow.getTextEditorPanel().fontThemeComboBox.getSelectedIndex());
+                    editorWindow.dispose();
                     machineView.getTextEditorPanel().setVisible(true);
                     machineView.pack();
+                    
                     
                 }
             }

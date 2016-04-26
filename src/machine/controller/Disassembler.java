@@ -88,7 +88,6 @@ public class Disassembler {
         input = bytecode;
         ArrayList<String> output = new ArrayList<>();
         String code = "";
-        //boolean foundRload = false;
         for (int i = 0; i < bytecode.length; i += 2) {
             if ( (IP * 2) == i) {
                 String outText;
@@ -100,7 +99,6 @@ public class Disassembler {
                 } else {
                     output.add(outText + "\t<<");
                 }
-                //foundRload = false;
             } else {
                 output.add(disassemble(bytecode[i], bytecode[i + 1], i));
             }

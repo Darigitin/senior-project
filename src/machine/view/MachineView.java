@@ -216,6 +216,14 @@ public class MachineView extends javax.swing.JFrame {
         return machine1.getDisassTextArea();
     }
     
+    /**
+     * Returns the InstructionCountTextArea as a JTextArea
+     * @return InstructionCounterTextArea
+     */
+    public JTextArea getInstructionCountTextArea(){
+        return machine1.getInstructCounterTextArea();
+    }
+    
 /*
  * This section is to help control the Control Panel   
  */
