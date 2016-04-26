@@ -101,9 +101,6 @@ public class Clock {
     * Gets the instruction to be executed and calls the decode method
     */
     private void fetch() {
-        //System.out.println("Fetch Me");
-        //original fetch phase
-	//int[] instructions = controller.getInstructionRegister();
         int[] instructions = controller.getInstructionFromIP();
         decode(instructions);
     }
@@ -113,7 +110,6 @@ public class Clock {
     * @param instructions
     */
     private void decode(int[] instructions) {
-        //System.out.println("Decode Me");
         // get the opcode
         String operation = Integer.toHexString(instructions[0]);
         String operand = Integer.toHexString(instructions[1]);
@@ -142,7 +138,7 @@ public class Clock {
             case '2':
                 //CHANGE LOG BEGIN - 1
                 //immediateLoad(secondNibble,secondByte);
-                immediateLoad(secondNibble, secondByte, thirdNibble);
+                immediateLoad(secondNibble, secondByte);
                 //CHANGE LOG END - 1
                 execute();
                 break;
@@ -277,8 +273,6 @@ public class Clock {
     * Regular execute
     */
     private void execute() {
-        //System.out.println("Execute Me: Method 1");
-        //System.out.println("********************* END TEST **********************");
         instructionPointer = controller.getInstructionPointer();
         instructionPointer += 2;
         controller.setInstructionPointer(instructionPointer);
@@ -292,14 +286,11 @@ public class Clock {
     * @param location
     */
     private void execute(int location) {
-        //System.out.println("Execute Me: Method 2");
-        //System.out.println("********************* END TEST **********************");
         instructionPointer = controller.getInstructionPointer();
         instructionPointer = location;
         controller.setInstructionPointer(instructionPointer);
         controller.setInstructionRegisterForJump();
         controller.setIPinstruction();    //update MAR
-        //controller.setInstructionRegister();
         controller.refreshMachineView();
     }
     
@@ -338,10 +329,10 @@ public class Clock {
     * @param memIndex
     */
     //CHANGE LOG BEGIN - 1
-    private void immediateLoad(int register, int memIndex, int rloadFlag) {
+    private void immediateLoad(int register, int memIndex) {
         String memory = Integer.toHexString(memIndex);
         controller.setRegisterValue(register, memory);
-        if (register == 0x0F){ // && rloadFlag != 15){
+        if (register == 0x0F){
             printRegisterF();
         }
     }
@@ -363,8 +354,6 @@ public class Clock {
     * @param pointer
     */
     private void rload(int offset, int register, int pointer) {
-        //String offset = controller.getRegisterValue(register);
-        //int realOffset = Character.digit(offset.charAt(1), 16);
         if (offset > 7) {
             offset -= 16;
         }
@@ -671,14 +660,6 @@ public class Clock {
     private boolean jmplt(int register) { // change "jmple" to "jmplt"
         int value = Integer.parseInt(controller.getRegisterValue(register),16);
         int registerZero = Integer.parseInt(controller.getRegisterValue(0),16);
-        //System.out.println("Comparison Value: " + value + "Register 0: " + registerZero);
-        //System.out.println("Result: " + (value < registerZero));
-//      if (registerZero > 127) {
-//            registerZero -= 256;
-//        }
-//        if (value > 127) {
-//            value -= 256;
-//        }
         return (value < registerZero); //change "<=" to "<"
     }
 

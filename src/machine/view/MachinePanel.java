@@ -27,11 +27,13 @@ import javax.swing.table.TableColumn;
 import machine.model.CellEditor;
 import machine.model.RAMTableCellRenderer;
 import machine.model.ColumnHeaderRenderer;
+import machine.model.PSWTableCellRenderer;
 import machine.model.RAMTableModel;
 import machine.model.RegisterTableCellRenderer;
 import machine.model.RegisterTableModel;
 import machine.model.RowHeaderRenderer;
 import machine.model.SpecialTableModel;
+import machine.model.PSWTableCellRenderer;
 
 /**
  *
@@ -282,6 +284,7 @@ public class MachinePanel extends javax.swing.JPanel {
         RowHeaderRenderer rowRenderer = new RowHeaderRenderer();
         RAMTableCellRenderer ramCellRenderer = new RAMTableCellRenderer(this);
         RegisterTableCellRenderer registerCellRenderer = new RegisterTableCellRenderer();
+        PSWTableCellRenderer pswCellRenderer = new PSWTableCellRenderer();
         
         CellEditor cellEditor = new CellEditor();
         cellEditor.setClickCountToStart(1);
@@ -305,7 +308,7 @@ public class MachinePanel extends javax.swing.JPanel {
                 new RowHeaderRenderer(new Color(128, 0, 0), Color.white,
                 new Font("SansSerif", Font.BOLD, 16)));
         column = pswTable.getColumnModel().getColumn(1);
-        column.setCellRenderer(registerCellRenderer);
+        column.setCellRenderer(pswCellRenderer);
         column.setCellEditor(cellEditor);
         
         registerTable.getTableHeader().setDefaultRenderer(colRenderer);
@@ -349,6 +352,7 @@ public class MachinePanel extends javax.swing.JPanel {
         setLayout(new java.awt.GridBagLayout());
 
         ramTable.setModel(new RAMTableModel(this));
+        ramTable.setFillsViewportHeight(true);
         ramTable.setMaximumSize(new java.awt.Dimension(2147483647, 2147483647));
         ramTable.setRowHeight(24);
         ramTable.addComponentListener(new java.awt.event.ComponentAdapter() {
@@ -367,7 +371,13 @@ public class MachinePanel extends javax.swing.JPanel {
         add(ramScrollPane, gridBagConstraints);
 
         pswTable.setModel(new SpecialTableModel(this));
+        pswTable.setFillsViewportHeight(true);
         pswTable.setRowHeight(19);
+        pswTable.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                pswTableComponentResized(evt);
+            }
+        });
         pswScrollPane.setViewportView(pswTable);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -381,7 +391,13 @@ public class MachinePanel extends javax.swing.JPanel {
         add(pswScrollPane, gridBagConstraints);
 
         registerTable.setModel(new RegisterTableModel(this));
+        registerTable.setFillsViewportHeight(true);
         registerTable.setRowHeight(20);
+        registerTable.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                registerTableComponentResized(evt);
+            }
+        });
         registerScrollPane.setViewportView(registerTable);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -483,9 +499,20 @@ public class MachinePanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void ramTableComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_ramTableComponentResized
+        //System.out.println(evt.getComponent().getClass().getName() + " --- Resized ");
         int ramSPHeight = ramScrollPane.getViewport().getSize().height;
         ramTable.setRowHeight(ramSPHeight/16);
     }//GEN-LAST:event_ramTableComponentResized
+
+    private void pswTableComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_pswTableComponentResized
+        int ramSPHeight = pswScrollPane.getViewport().getSize().height;
+        pswTable.setRowHeight(ramSPHeight/2);
+    }//GEN-LAST:event_pswTableComponentResized
+
+    private void registerTableComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_registerTableComponentResized
+        int ramSPHeight = registerScrollPane.getViewport().getSize().height;
+        registerTable.setRowHeight(ramSPHeight/16);
+    }//GEN-LAST:event_registerTableComponentResized
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

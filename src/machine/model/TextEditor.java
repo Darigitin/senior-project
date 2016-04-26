@@ -1,7 +1,5 @@
-package machine.view;
+package machine.model;
 
-import system.view.CompoundUndoManager;
-import system.view.TextLineNumber;
 import java.awt.Color;
 import java.awt.Font;
 import java.io.Serializable;
@@ -16,6 +14,7 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.Action;
 import javax.swing.text.Document;
+import machine.view.SyntaxHighlighter;
 
 /**
  *

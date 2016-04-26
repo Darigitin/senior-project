@@ -1,3 +1,8 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package machine.model;
 
 import java.awt.Color;
@@ -8,21 +13,14 @@ import javax.swing.JTable;
 import static javax.swing.SwingConstants.CENTER;
 import javax.swing.table.DefaultTableCellRenderer;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  *
  * @author jl948836
  */
-public class RegisterTableCellRenderer extends DefaultTableCellRenderer {
- 
+public class PSWTableCellRenderer extends DefaultTableCellRenderer {
     private final Font font = new Font("SansSerif", Font.PLAIN, 14);
     
-    public RegisterTableCellRenderer() {
+    public PSWTableCellRenderer() {
         super.setHorizontalAlignment(CENTER);
         super.setHorizontalTextPosition(CENTER);
         super.setVerticalAlignment(CENTER);
@@ -41,19 +39,13 @@ public class RegisterTableCellRenderer extends DefaultTableCellRenderer {
         else {
             setBackground(Color.white);
         }
+        
         setForeground(Color.black);
         
-        
-        //Visual Register - Stack Pointer
-        if (row == 14 && column == 1) {
+        //Visual Register - Instruction Pointer
+        if (row == 0 && column == 1) {
             setBackground(getBackground().darker());
-            setForeground(Color.red);
-        }
-        
-        //Visual Register - Base Pointer
-        if (row == 13 && column == 1) {
-            setBackground(getBackground().darker());
-            setForeground(Color.blue);
+            setForeground(Color.magenta.darker());
         }
         
         

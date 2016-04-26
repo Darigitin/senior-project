@@ -5,8 +5,11 @@
  */
 package machine.view;
 
+import java.awt.Dimension;
+import machine.model.TextEditor;
 import java.awt.EventQueue;
 import java.awt.GraphicsEnvironment;
+import java.awt.Toolkit;
 import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JTextArea;
@@ -32,7 +35,10 @@ import javax.swing.text.JTextComponent;
  * 2 mv935583 - 04/11/16: Finalized backend for theme selected on GUI, also 
  *                        uncoupled the font name, size, and theme actions so
  *                        each one behaves independently.
+ * 
  * 3 jl948836 - 04/26/16: Updated Split Join state of hidden editor.
+ *
+ * 4 jl948836 - 04/26/16: Join Editor now resets size to default size.
  */
 @SuppressWarnings("serial")
 public class TextEditorPanel extends javax.swing.JPanel {
@@ -155,12 +161,8 @@ public class TextEditorPanel extends javax.swing.JPanel {
         if (fontNames == null)
         {
             GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
-                        //GraphicsConfiguration.
+            //GraphicsConfiguration.
             fontNames = env.getAvailableFontFamilyNames();
-                        //System.out.println(Arrays.toString(fontNames));
-                        //System.out.println("************************************Screen Resolution TEST*******************************************");
-                        //System.out.println(env.getMaximumWindowBounds());
-                        //System.out.println(env.getDefaultScreenDevice());
         }
         return fontNames;
     }
@@ -185,7 +187,7 @@ public class TextEditorPanel extends javax.swing.JPanel {
         themeLabel = new javax.swing.JLabel();
         fontThemeComboBox = new javax.swing.JComboBox();
         textEditorPanel = new javax.swing.JPanel();
-        textEditor = new machine.view.TextEditor();
+        textEditor = new machine.model.TextEditor();
         errorDisplayScrollPanel = new javax.swing.JScrollPane();
         errorDisplay = new javax.swing.JTextArea();
 
@@ -334,6 +336,8 @@ public class TextEditorPanel extends javax.swing.JPanel {
                     editorWindowTextEditorPanel.fontThemeComboBox.setSelectedIndex(fontThemeComboBox.getSelectedIndex());
                     machineView.pack();
                     editorWindow.pack();
+                    //Dimension stuff = machineView.getPreferredSize();
+                    //editorWindow.setLocation((int) (stuff.getHeight()/.85 + stuff.getHeight()/2), (int) (stuff.getWidth()/.85 + stuff.getWidth()/2));
                     editorWindow.setLocationRelativeTo(machineView);
                     editorWindow.setVisible(true);
                     
@@ -349,6 +353,10 @@ public class TextEditorPanel extends javax.swing.JPanel {
                     machineView.getTextEditorPanel().fontSizeComboBox.setSelectedIndex(editorWindow.getTextEditorPanel().fontSizeComboBox.getSelectedIndex());
                     machineView.getTextEditorPanel().fontThemeComboBox.setSelectedIndex(editorWindow.getTextEditorPanel().fontThemeComboBox.getSelectedIndex());
                     editorWindow.dispose();
+                    //CHANGE LOG BEGIN: 4
+                    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+                    machineView.setPreferredSize(new Dimension((int) ((int) screenSize.width * .85), (int) ((int) screenSize.height * .85)));
+                    //CHANGE LOG END: 4
                     machineView.getTextEditorPanel().setVisible(true);
                     machineView.pack();
                     
@@ -405,7 +413,7 @@ public class TextEditorPanel extends javax.swing.JPanel {
     private javax.swing.JLabel fontSizeLabel;
     private javax.swing.JComboBox fontThemeComboBox;
     public javax.swing.JButton splitJoinButton;
-    public machine.view.TextEditor textEditor;
+    public machine.model.TextEditor textEditor;
     public javax.swing.JPanel textEditorControlsPanel;
     public javax.swing.JPanel textEditorPanel;
     private javax.swing.JLabel themeLabel;

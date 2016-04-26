@@ -48,6 +48,8 @@ import java.awt.Toolkit;
  * 
  * 1 jl948836 - 04/26/16: Added ability for Load Source File to handle split editor
  *                        view.
+ * 
+ * 2 jl948836 - 04/26/16: Clear text Editor before loading in new source code.
  */
 public class MachineView extends javax.swing.JFrame {
 
@@ -408,6 +410,7 @@ public class MachineView extends javax.swing.JFrame {
         
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         super.setBounds(0,0,(int) ((int) screenSize.width * .85), (int) ((int) screenSize.height * .85));
+        //super.setPreferredSize(new Dimension((int) ((int) screenSize.width * .85), (int) ((int) screenSize.height * .85)));
         //System.out.println((int) ((int) screenSize.width * .85) + " " + (int) ((int) screenSize.height * .85));
         
         
@@ -702,9 +705,11 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
                     //CHANGE LOG BEGIN: 1
                     if (textEditorPanel.getSplitJoinButton().getText().equals("Split Editor")) {
                         doc = textEditorPanel.textEditor.getDocument();
+                        textEditorPanel.textEditor.setText(""); //CHANGE LOG: 2
                     }
                     else {
                         doc = textEditorPanel.getTextEditorFrame().getTextEditorPanel().getTextEditor().getDocument();
+                        textEditorPanel.getTextEditorFrame().getTextEditorPanel().getTextEditor().setText(""); //CHANGE LOG: 2
                     }
                     //CHANGE LOG END: 1
                     

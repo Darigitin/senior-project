@@ -1,4 +1,4 @@
-package system.view;
+package machine.model;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
