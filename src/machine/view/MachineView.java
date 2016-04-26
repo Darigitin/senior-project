@@ -40,6 +40,15 @@ import java.awt.Toolkit;
  * date/ver: 03/18/16 1.0.0
  *           04/21/16 1.5.0
  */
+
+/**
+ * 
+ * CHANGE LOG
+ * jl948836 - Jordan Lescallette
+ * 
+ * 1 jl948836 - 04/26/16: Added ability for Load Source File to handle split editor
+ *                        view.
+ */
 public class MachineView extends javax.swing.JFrame {
 
     private final MachineController controller;
@@ -689,7 +698,15 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
             File sourceFile = fc.getSelectedFile();
                 try {
                 try (BufferedReader reader = new BufferedReader(new FileReader(sourceFile))) {
-                    Document doc = textEditorPanel.textEditor.getDocument();
+                    Document doc;
+                    //CHANGE LOG BEGIN: 1
+                    if (textEditorPanel.getSplitJoinButton().getText().equals("Split Editor")) {
+                        doc = textEditorPanel.textEditor.getDocument();
+                    }
+                    else {
+                        doc = textEditorPanel.getTextEditorFrame().getTextEditorPanel().getTextEditor().getDocument();
+                    }
+                    //CHANGE LOG END: 1
                     
                     String line;
                     while ((line = reader.readLine()) != null) {

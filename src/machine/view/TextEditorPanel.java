@@ -32,6 +32,7 @@ import javax.swing.text.JTextComponent;
  * 2 mv935583 - 04/11/16: Finalized backend for theme selected on GUI, also 
  *                        uncoupled the font name, size, and theme actions so
  *                        each one behaves independently.
+ * 3 jl948836 - 04/26/16: Updated Split Join state of hidden editor.
  */
 @SuppressWarnings("serial")
 public class TextEditorPanel extends javax.swing.JPanel {
@@ -314,6 +315,7 @@ public class TextEditorPanel extends javax.swing.JPanel {
             @Override
             public void run() {
                 if (splitJoinButton.getText().equals("Split Editor")) {
+                    splitJoinButton.setText("Join Editor");
                     editorWindow = new TextEditorFrame(machineView);
                     editorWindowTextEditorPanel = editorWindow.getTextEditorPanel();
                     editorWindowTextEditor = editorWindowTextEditorPanel.getTextEditor();
@@ -336,7 +338,7 @@ public class TextEditorPanel extends javax.swing.JPanel {
                     
                 }
                 else { //Join Editor
-                    splitJoinButton.setText("Split Editor");
+                    machineView.getTextEditorPanel().getSplitJoinButton().setText("Split Editor"); //CHANGE LOG: 3
                     machineView.setTitle("WALL - Machine Simulator");
                     machineView.getTextEditorPanel().getEditorPane().setText(codeInEditor);
                     machineView.getTextEditorPanel().getTextEditor().setFontName(textEditor.getFontName());
