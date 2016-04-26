@@ -94,6 +94,7 @@ public class MachineController {
         machineView.getConsoleTextArea().setText("");
         machineView.getDisassTextArea().setText("No disassembler text yet");
         machineView.getInstructionCountTextArea().setText("Count of the number of Instructions executed.");
+        machineView.getErrorTextArea().setText("");
         machineView.getMemoryErrorTextArea().setText("No Errors");
         machineView.resetActivationRecords();
     }

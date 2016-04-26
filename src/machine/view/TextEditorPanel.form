@@ -50,6 +50,11 @@
           </Constraints>
         </Component>
         <Component class="javax.swing.JComboBox" name="fontComboBox">
+          <Properties>
+            <Property name="selectedIndex" type="int" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+              <Connection code="2" type="code"/>
+            </Property>
+          </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="fontComboBoxActionPerformed"/>
           </Events>
@@ -74,6 +79,11 @@
           </Constraints>
         </Component>
         <Component class="javax.swing.JComboBox" name="fontSizeComboBox">
+          <Properties>
+            <Property name="selectedIndex" type="int" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+              <Connection code="5" type="code"/>
+            </Property>
+          </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="fontSizeComboBoxActionPerformed"/>
           </Events>

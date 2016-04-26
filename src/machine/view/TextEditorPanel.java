@@ -199,6 +199,7 @@ public class TextEditorPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
         textEditorControlsPanel.add(fontLabel, gridBagConstraints);
 
+        fontComboBox.setSelectedIndex(2);
         fontComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 fontComboBoxActionPerformed(evt);
@@ -213,6 +214,7 @@ public class TextEditorPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
         textEditorControlsPanel.add(fontSizeLabel, gridBagConstraints);
 
+        fontSizeComboBox.setSelectedIndex(5);
         fontSizeComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 fontSizeComboBoxActionPerformed(evt);
@@ -324,9 +326,8 @@ public class TextEditorPanel extends javax.swing.JPanel {
                     editorWindow.getErrorPane().setVisible(false);
                     machineView.setTitle("WALL - Machine Window");
                     editorWindow.setTitle("WALL - Text Editor Window");
-                    editorWindowTextEditor.setFontName(textEditor.getFontName());
+                    editorWindowTextEditor.setTextPaneFont(textEditor.getFont());
                     editorWindowTextEditorPanel.fontComboBox.setSelectedIndex(fontComboBox.getSelectedIndex());
-                    editorWindowTextEditor.setFontSize(textEditor.getFontSize());
                     editorWindowTextEditorPanel.fontSizeComboBox.setSelectedIndex(fontSizeComboBox.getSelectedIndex());
                     editorWindowTextEditor.setBackGround(textEditor.getBackGroundString());
                     editorWindowTextEditor.setTextColor(textEditor.getTextColorString());
@@ -341,8 +342,7 @@ public class TextEditorPanel extends javax.swing.JPanel {
                     machineView.getTextEditorPanel().getSplitJoinButton().setText("Split Editor"); //CHANGE LOG: 3
                     machineView.setTitle("WALL - Machine Simulator");
                     machineView.getTextEditorPanel().getEditorPane().setText(codeInEditor);
-                    machineView.getTextEditorPanel().getTextEditor().setFontName(textEditor.getFontName());
-                    machineView.getTextEditorPanel().getTextEditor().setFontSize(textEditor.getFontSize());
+                    machineView.getTextEditorPanel().getTextEditor().setTextPaneFont(textEditor.getFont());
                     machineView.getTextEditorPanel().getTextEditor().setBackGround(textEditor.getBackGroundString());
                     machineView.getTextEditorPanel().getTextEditor().setTextColor(textEditor.getTextColorString());
                     machineView.getTextEditorPanel().fontComboBox.setSelectedIndex(editorWindow.getTextEditorPanel().fontComboBox.getSelectedIndex());
