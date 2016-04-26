@@ -41,7 +41,7 @@ public class TextEditor extends JScrollPane implements Serializable {
     private final Color numericTextColor;
     private final Color[] colorArray;
     private static final int FONTSTYLE = Font.PLAIN;
-    private static String fontName = "Tahoma";
+    private static String fontName = "Arial";
     private static int fontSize = 14;   //END CHANGE LOG: 2
     private static String textColorString = "BLACK";
     private static String backGroundColorString = "WHITE";
@@ -202,7 +202,7 @@ public class TextEditor extends JScrollPane implements Serializable {
     private void updateFont(){
         
         Font newFont = new Font(fontName, FONTSTYLE, fontSize);
-        textPane.setFont(newFont);
+        setTextPaneFont(newFont);
         
     }   //END CHANGE LOG: 2
     
