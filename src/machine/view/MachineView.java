@@ -30,8 +30,15 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 
 /**
+ * Program: Machine View
+ * 
+ * Purpose: Create a frame that contains all the components that comprise the View
+ *          of WALL.
+ * 
+ * @author: jl948836
  *
- * @author jl948836
+ * date/ver: 03/18/16 1.0.0
+ *           04/21/16 1.5.0
  */
 public class MachineView extends javax.swing.JFrame {
 
@@ -43,8 +50,9 @@ public class MachineView extends javax.swing.JFrame {
         "White on Black", "Black on Light-Yellow"};
     
     
-        /**
-     * Creates new form MachineView
+    /**
+     * Constructs a standalone MachineView. Here to allow NetBeans GUI Builder to
+     * drag and drop into panels and frames.
      */
     public MachineView() {
         controller = null;
@@ -58,7 +66,8 @@ public class MachineView extends javax.swing.JFrame {
     }
     
     /**
-     * Creates new form MachView
+     * Creates new form MachView with Communication to the Machine Controller.
+     * 
      * @param controller
      */
     public MachineView(final MachineController controller) {
@@ -81,9 +90,9 @@ public class MachineView extends javax.swing.JFrame {
         super.setVisible(true); 
     }
 
-/*
- * This section is code to help control the MachinePanel tab   
- */
+    /*
+     * MachinePanel tab Section   
+     */
     
     /**
      * 
@@ -179,6 +188,7 @@ public class MachineView extends javax.swing.JFrame {
     
     /**
     * Used to create a new activation record and add it to the stack panel.
+    * 
     * @param returnAddress
     * @param dynamicLink
     */
@@ -230,9 +240,21 @@ public class MachineView extends javax.swing.JFrame {
     
     /**
      * 
+     * @return 
+     */
+    public JTextArea getMemoryErrorTextArea() {
+        return machine1.getMemoryErrorTextArea();
+    }
+    
+    /*
+     * Control Panel Section   
+     */
+    
+    /**
+     * Reset the Register table and RAM Table to their initial States.
      */
     public void reset() {
-        if (machine1.getRegisterTable().isEditing()){                         //Change Log Begin #1
+        if (machine1.getRegisterTable().isEditing()){ //Change Log Begin #1
             machine1.getRegisterTable().getCellEditor().cancelCellEditing();
         }
         if (machine1.getRamTable().isEditing()){
@@ -250,6 +272,7 @@ public class MachineView extends javax.swing.JFrame {
     }
     
     /**
+     * Determines the speed selected by the user and set it to that speed.
      * 
      * @return speed
      */
@@ -294,23 +317,26 @@ public class MachineView extends javax.swing.JFrame {
         return speed;
     }
     
-/*
- * This section is to help control textEditor and ErrorPanel portions   
- */    
+    /*
+     * TextEditor and ErrorPanel Section   
+     */    
     
+    /**
+     * Get a reference to the TextEditorPanel
+     * 
+     * @return 
+     */
     public TextEditorPanel getTextEditorPanel() {
         return textEditorPanel;
 
     }
-    public JTextArea getErrorPane() {
-        if (textEditorPanel.isVisible()) {
-            return textEditorPanel.getErrorPane();
-        }
-        else {
-            return textEditorPanel.getTextEditorFrame().getErrorPane();
-        }
-    }
     
+    /**
+     * Get a reference to the Error Text Area, from either the single frame or split
+     * frame view.
+     * 
+     * @return - active error pane
+     */
     public JTextArea getErrorTextArea() {
         if (textEditorPanel.isVisible()) {
             return textEditorPanel.getErrorPane();
@@ -320,6 +346,12 @@ public class MachineView extends javax.swing.JFrame {
         }
     }
     
+    /**
+     * Display the errors in the Error Text Area, from either the single frame or
+     * split frame view.
+     * 
+     * @param errorList 
+     */
     public void setErrorText(ArrayList<String> errorList) {
         if (textEditorPanel.isVisible()) {
             textEditorPanel.setErrorText(errorList);
@@ -329,6 +361,12 @@ public class MachineView extends javax.swing.JFrame {
         }
     }
     
+    /**
+     * Get a reference to the Editor Panel, from either the single frame or split
+     * frame view.
+     * 
+     * @return 
+     */
     public JTextComponent getEditorPane() {
         if (textEditorPanel.isVisible()) {
             return textEditorPanel.getEditorPane();
@@ -338,6 +376,12 @@ public class MachineView extends javax.swing.JFrame {
         }
     }
     
+    /**
+     * Get the text in the Text Editor, from either the single frame or split frame
+     * view.
+     * 
+     * @return 
+     */
     public String getEditorText() {
         if (textEditorPanel.isVisible()) {
             return textEditorPanel.getEditorText();
@@ -347,15 +391,10 @@ public class MachineView extends javax.swing.JFrame {
         }
     }
     
-    protected String[] getFontNames() {
-        if (textEditorPanel.isVisible()) {
-            return textEditorPanel.getFontNames();
-        }
-        else {
-            return textEditorPanel.getTextEditorFrame().getFontNames();
-        }
-    }
-    
+    /**
+     * Sets the default Size of the Application Window, clears the Error Text Area,
+     * and sets the default speed. Called upon execution of the application.
+     */
     private void customInitComponents(){
         
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -364,12 +403,10 @@ public class MachineView extends javax.swing.JFrame {
         
         
         //errorDisplayScrollPane.setVisible(false);
-        getErrorPane().setVisible(false);
+        getErrorTextArea().setVisible(false);
         
         speedComboBox.setSelectedIndex(4);
         
-        documentation1.addLanguageReference();
-        documentation1.addSyntaxReference();
     }
     
     /**
@@ -385,8 +422,8 @@ public class MachineView extends javax.swing.JFrame {
         controlPanel = new javax.swing.JPanel();
         assembleButton = new javax.swing.JButton();
         runButton = new javax.swing.JButton();
-        stopButton = new javax.swing.JButton();
         stepButton = new javax.swing.JButton();
+        stopButton = new javax.swing.JButton();
         resetButton = new javax.swing.JButton();
         disassembleButton = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
@@ -432,16 +469,6 @@ public class MachineView extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
         controlPanel.add(runButton, gridBagConstraints);
 
-        stopButton.setText("Stop");
-        stopButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                stopButtonActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
-        controlPanel.add(stopButton, gridBagConstraints);
-
         stepButton.setText("Step");
         stepButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -451,6 +478,16 @@ public class MachineView extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
         controlPanel.add(stepButton, gridBagConstraints);
+
+        stopButton.setText("Stop");
+        stopButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                stopButtonActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
+        controlPanel.add(stopButton, gridBagConstraints);
 
         resetButton.setText("Reset");
         resetButton.addActionListener(new java.awt.event.ActionListener() {

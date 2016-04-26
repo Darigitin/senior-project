@@ -10,8 +10,13 @@ import javax.swing.JTextArea;
 import javax.swing.text.JTextComponent;
 
 /**
- *
- * @author jl948836
+ * Program: Text Editor Frame
+ * 
+ * Purpose: A standalone frame for a Text Editor.
+ * 
+ * @author: jl948836
+ * 
+ * date/ver: 04/07/16 1.0.0
  */
 public class TextEditorFrame extends javax.swing.JFrame {
 
@@ -34,26 +39,50 @@ public class TextEditorFrame extends javax.swing.JFrame {
         textEditorPanel.getSplitJoinButton().setText("Join Editor");
     }
     
+    /**
+     * 
+     * @return 
+     */
     public JTextArea getErrorPane() {
         return textEditorPanel.getErrorPane();
     }
     
+    /**
+     * 
+     * @param errorList 
+     */
     public void setErrorText(ArrayList<String> errorList) {
         textEditorPanel.setErrorText(errorList);
     }
     
+    /**
+     * 
+     * @return 
+     */
     public JTextComponent getEditorPane() {
         return textEditorPanel.getEditorPane();
     }
     
+    /**
+     * 
+     * @return 
+     */
     public String getEditorText() {
         return textEditorPanel.getEditorText();
     }
     
+    /**
+     * 
+     * @return 
+     */
     protected String[] getFontNames() {
         return textEditorPanel.getFontNames();
     }
     
+    /**
+     * 
+     * @return 
+     */
     public TextEditorPanel getTextEditorPanel() {
         return textEditorPanel;
     }

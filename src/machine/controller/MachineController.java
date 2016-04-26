@@ -48,6 +48,8 @@ public class MachineController {
     private boolean isRunning = false;
     private static final String[] MemoryAddressRegister = new String[2];     //declear MAR
     Assembler assembler = new Assembler(this);
+    private final ArrayList<String> fatalMemErrorList = new ArrayList<>();
+    private final ArrayList<String> nonFatalMemErrorList = new ArrayList<>();
 
     /**
      * 
@@ -75,9 +77,6 @@ public class MachineController {
         if (!isRunning) {
             isRunning = true;
             clock.run();
-            //need this assembler to be able to display the logfile when the run button is clicked. MB
-            //Assembler assembler = new Assembler(this);
-            //assembler.displayLog();
         }
     }
 
@@ -89,11 +88,13 @@ public class MachineController {
         clock.timer.cancel();
         clock.resetInstructionCount();
         machineView.reset();
+        fatalMemErrorList.removeAll(fatalMemErrorList);
         loadMachine(lastAssembledProg);
         refreshMachineView();
         machineView.getConsoleTextArea().setText("");
         machineView.getDisassTextArea().setText("No disassembler text yet");
         machineView.getInstructionCountTextArea().setText("Count of the number of Instructions executed.");
+        machineView.getMemoryErrorTextArea().setText("No Errors");
         machineView.resetActivationRecords();
     }
 
@@ -111,7 +112,16 @@ public class MachineController {
     public void stepClock() {
         isRunning = false;
         clock.timer.cancel();
-        clock.step();
+        if (fatalMemErrorList.isEmpty() && nonFatalMemErrorList.isEmpty()) {
+            clock.step();
+        }
+        else if (!nonFatalMemErrorList.isEmpty()) {
+            setMemoryErrors();
+            clock.step();
+        }
+        else {
+            setMemoryErrors();
+        }
     }
 
     /**
@@ -124,7 +134,7 @@ public class MachineController {
         ArrayList<String> codes = assembler.parse(text);
         lastAssembledProg.clear();
         lastAssembledProg = codes;
-        if (!machineView.getErrorPane().isVisible()) {
+        if (!machineView.getErrorTextArea().isVisible()) {
             loadMachine(codes);
             machineView.resetActivationRecords();
         }
@@ -276,9 +286,16 @@ public class MachineController {
         
     public int[] getInstructionFromIP() {
         String[] ir = MemoryAddressRegister;
-        int[] instructions = {Integer.parseInt(ir[0], 16),
-                            Integer.parseInt(ir[1], 16)};
-        return instructions;
+        if (ir[0] == null || ir[1] == null) {
+            fatalMemErrorList.add("Error: Nothing Assembled into memory.");
+            int[] invalid = {0,0};
+            return invalid;
+        }
+        else {
+            int[] instructions = {Integer.parseInt(ir[0], 16),
+                                Integer.parseInt(ir[1], 16)};
+            return instructions;
+        }
     }
         
     public void updateIPwhenHalt(){
@@ -290,7 +307,17 @@ public class MachineController {
      * @return Instruction Pointer
      */
     public int getInstructionPointer() {
-        return Integer.parseInt(machineView.getInstructionPointer(),16);
+        int ip = Integer.parseInt(machineView.getInstructionPointer(),16);
+        if (ip % 2 != 0 && !nonFatalMemErrorList.contains("Potential Error: Instruction Pointer Misaligned")) {
+            nonFatalMemErrorList.add("Potential Error: Instruction Pointer Misaligned");
+            return ip;
+        }
+        else {
+            //nonFatalMemErrorList.remove("Potential Error: Instruction Pointer Misaligned");
+            //nonFatalMemErrorList.clear();
+            //setMemoryErrors();
+            return ip;
+        }
     }
 
     /**
@@ -326,7 +353,7 @@ public class MachineController {
         String text = disassembler.getDisassemble(instructionPointer, ramBytes);
 
         machineView.resetActivationRecords();
-        machineView.getErrorPane().setVisible(false);
+        machineView.getErrorTextArea().setVisible(false);
         machineView.revalidate();
         machineView.repaint();
 
@@ -353,9 +380,21 @@ public class MachineController {
      * @param value
      */
     public void setEditorErrorVisible(boolean value) {
-        machineView.getErrorPane().setVisible(value);
+        machineView.getErrorTextArea().setVisible(value);
         machineView.revalidate();
         machineView.repaint();
+    }
+    
+    public void setMemoryErrors() {
+        StringBuilder sb = new StringBuilder();
+        
+        for (String error : fatalMemErrorList) {
+            sb.append(error).append("\n");
+        }
+        for (String error : nonFatalMemErrorList) {
+            sb.append(error).append("\n");
+        }
+        machineView.getMemoryErrorTextArea().setText(sb.toString());
     }
 
     /**
@@ -399,8 +438,13 @@ public class MachineController {
      * @param value
      */
     public void setMemoryValue(int index, String value) {
-        machineView.setRAMBytes(value, index);
-        refreshMachineView();
+        if (index >= 255) {
+            fatalMemErrorList.add("Error: Segmentation Fault - Invalid Memory Address");
+        }
+        else {
+            machineView.setRAMBytes(value, index);
+            refreshMachineView();
+        }
     }
 
     /**
@@ -409,7 +453,13 @@ public class MachineController {
      * @return 
      */
     public String getMemoryValue(int index){
-        return machineView.getRAMBytes(index);
+        if (index >= 255) {
+            fatalMemErrorList.add("Error: Segmentation Fault - Invalid Memory Address");
+            return "00";
+        }
+        else {
+            return machineView.getRAMBytes(index);
+        }
     }
 
      /**
@@ -428,5 +478,4 @@ public class MachineController {
     public void deleteActivationRecord() {
         machineView.deleteActivationRecord();
     }
-    
 }

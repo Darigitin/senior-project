@@ -1,11 +1,14 @@
 /**
- * Program:
+ * Program: Machine Panel
  * 
- * Purpose:
+ * Purpose: Creates a custom panel that is essentially the Machine of the WALL
+ *          Assembler. Contains the RAM Table, PSW Table, Register Table, Disassemble
+ *          Console, Display Console, and the Location Counter.
+ *          Uses a GridBag Layout.
  * 
- * @author:
+ * @author: jl94836, Jordan Lescallette
  * 
- * date/ver:
+ * date/ver: 03/19/16 1.0.5
  */
 
 /**
@@ -17,15 +20,15 @@
 package machine.view;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Font;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.table.TableColumn;
 import machine.model.CellEditor;
-import machine.model.CellRenderer;
+import machine.model.RAMTableCellRenderer;
 import machine.model.ColumnHeaderRenderer;
 import machine.model.RAMTableModel;
+import machine.model.RegisterTableCellRenderer;
 import machine.model.RegisterTableModel;
 import machine.model.RowHeaderRenderer;
 import machine.model.SpecialTableModel;
@@ -42,9 +45,10 @@ public class MachinePanel extends javax.swing.JPanel {
     }
 
     /**
+     * Get the bytes located at a specific memory address in the RAM table.
      * 
-     * @param address
-     * @return 
+     * @param address - Between 0-255
+     * @return - Value at the memory address 
      */
     public String getRAMBytes(int address) {
         int row = address / 16;
@@ -53,9 +57,10 @@ public class MachinePanel extends javax.swing.JPanel {
     }
     
     /**
+     * Set the bytes located at a specific memory address into the RAM table.
      * 
-     * @param value
-     * @param address 
+     * @param value - between 0-255
+     * @param address - (hex) between 00-FF
      */
     public void setRAMBytes(String value, int address) {
         int row = address / 16;
@@ -64,13 +69,13 @@ public class MachinePanel extends javax.swing.JPanel {
     }
     
     /**
+     * Get the value of every memory address in the RAM Table (from 0-255)
      * 
-     * @return 
+     * @return - String Array of all values in the RAM Table
      */
     public String[] getAllRAMBytes() {
         String[] ramBytes= new String[256];
 
-        int i = 0;
         for (int address = 0; address < 256; address++) {
                 ramBytes[address] = getRAMBytes(address);
         }
@@ -79,8 +84,9 @@ public class MachinePanel extends javax.swing.JPanel {
     }
 
     /**
+     * Set the value of every memory address in the RAM Table (from 0-255)
      * 
-     * @param ramBytes 
+     * @param ramBytes - byte Array containing values for every address (from 0-255)
      */
     public void setAllRAMBytes(byte[] ramBytes) {
         for (int i = 0; i < 256; i++) {
@@ -89,22 +95,25 @@ public class MachinePanel extends javax.swing.JPanel {
     }
     
     /**
+     * Get value from the Instruction Pointer (IP) in the PSW Table
      * 
-     * @return 
+     * @return
      */
     public String getInstructionPointer() {
         return (String) pswTable.getValueAt(0, 1);
     }
 
     /**
+     * Set the value of the Instruction Pointer (IP) in the PSW Table
      * 
-     * @param value 
+     * @param value - String hex number 00-FF
      */
     public void setInstructionPointer(String value) {
         pswTable.setValueAt(value, 0, 1);
     }
     
     /**
+     * Get the value of the Instruction Register (IR) in the PSW Table
      * 
      * @return 
      */
@@ -113,8 +122,9 @@ public class MachinePanel extends javax.swing.JPanel {
     }
 
     /**
+     * Set the value in the Instruction Register (IR) in the PSW Table
      * 
-     * @param value 
+     * @param value - String hex number 00-FF
      */
     public void setInstructionRegister(String value) {
         pswTable.setValueAt(value, 1, 1);
@@ -139,8 +149,9 @@ public class MachinePanel extends javax.swing.JPanel {
 //    }
 
     /**
+     * Get the value from a Register in the Register Table
      * 
-     * @param register
+     * @param register - (dec) from 0-15
      * @return 
      */
     public String getRegisterBytes(int register) {
@@ -148,15 +159,17 @@ public class MachinePanel extends javax.swing.JPanel {
     }
 
     /**
+     * Set the value in a Register in the Register Table
      * 
-     * @param value
-     * @param register 
+     * @param value - (hex) from 00-FF
+     * @param register - (dec) from 0-15
      */
     public void setRegisterBytes(String value, int register) {
         registerTable.setValueAt(value, register, 1);
     }
     
     /**
+     * Get the values from every Register in the Register Table
      * 
      * @return 
      */
@@ -171,6 +184,7 @@ public class MachinePanel extends javax.swing.JPanel {
     
     /**
     * Used to create a new activation record and add it to the stack panel.
+    * 
     * @param returnAddress
     * @param dynamicLink
     */
@@ -197,7 +211,8 @@ public class MachinePanel extends javax.swing.JPanel {
     }
    
     /**
-     *
+     * Get reference to the RAM Table
+     * 
      * @return 
      */
     public JTable getRamTable() {
@@ -205,6 +220,7 @@ public class MachinePanel extends javax.swing.JPanel {
     }
     
     /**
+     * Get reference to the PSW Table
      * 
      * @return 
      */
@@ -213,6 +229,7 @@ public class MachinePanel extends javax.swing.JPanel {
     }
     
     /**
+     * Get reference to the Register Table
      * 
      * @return 
      */
@@ -221,6 +238,7 @@ public class MachinePanel extends javax.swing.JPanel {
     }
     
     /**
+     * Get reference to the Display Console
      * 
      * @return 
      */
@@ -229,6 +247,7 @@ public class MachinePanel extends javax.swing.JPanel {
     }
     
     /**
+     * Get reference to the Disassemble Console
      * 
      * @return 
      */
@@ -237,6 +256,7 @@ public class MachinePanel extends javax.swing.JPanel {
     }
     
     /**
+     * Get reference to Instruction Counter Console
      * 
      * @return 
      */
@@ -244,19 +264,27 @@ public class MachinePanel extends javax.swing.JPanel {
         return instructionCounterConsole;
     }
     
-    public void visualStack(int row, int column) {
-        Object value = registerTable.getValueAt(row, column);
-        System.out.println("Register Talbe value" + value.toString());
+    /**
+     * Get a reference to the Memory Error Display
+     * 
+     * @return 
+     */
+    public JTextArea getMemoryErrorTextArea() {
+        return memoryErrorDisplay;
     }
     
+    /**
+     * Set up, initialize, format the RAM Table, Register Table and PSW Table.
+     * Initialize the Cell Renderer.
+     */
     private void customInitComponents(){
         ColumnHeaderRenderer colRenderer = new ColumnHeaderRenderer();
         RowHeaderRenderer rowRenderer = new RowHeaderRenderer();
-        CellRenderer cellRenderer = new CellRenderer();
+        RAMTableCellRenderer ramCellRenderer = new RAMTableCellRenderer(this);
+        RegisterTableCellRenderer registerCellRenderer = new RegisterTableCellRenderer();
+        
         CellEditor cellEditor = new CellEditor();
         cellEditor.setClickCountToStart(1);
-        disassembledConsole.setEditable(false);
-        displayConsole.setEditable(false);
         TableColumn column;
         
         ramTable.getTableHeader().setDefaultRenderer(colRenderer);
@@ -264,7 +292,7 @@ public class MachinePanel extends javax.swing.JPanel {
         
         for (int col = 1; col < 17; col++) {
             column = ramTable.getColumnModel().getColumn(col);
-            column.setCellRenderer(cellRenderer);
+            column.setCellRenderer(ramCellRenderer);
             column.setCellEditor(cellEditor);
         }
         ramTable.getTableHeader().setReorderingAllowed(false);
@@ -277,7 +305,7 @@ public class MachinePanel extends javax.swing.JPanel {
                 new RowHeaderRenderer(new Color(128, 0, 0), Color.white,
                 new Font("SansSerif", Font.BOLD, 16)));
         column = pswTable.getColumnModel().getColumn(1);
-        column.setCellRenderer(cellRenderer);
+        column.setCellRenderer(registerCellRenderer);
         column.setCellEditor(cellEditor);
         
         registerTable.getTableHeader().setDefaultRenderer(colRenderer);
@@ -285,7 +313,7 @@ public class MachinePanel extends javax.swing.JPanel {
                 new RowHeaderRenderer(new Color(128, 0, 0), Color.white,
                 new Font("SansSerif", Font.BOLD, 16)));
         column = registerTable.getColumnModel().getColumn(1);
-        column.setCellRenderer(cellRenderer);
+        column.setCellRenderer(registerCellRenderer);
         column.setCellEditor(cellEditor);
     }
     
@@ -311,8 +339,11 @@ public class MachinePanel extends javax.swing.JPanel {
         displayConsole = new javax.swing.JTextArea();
         stackPanelScrollPane = new javax.swing.JScrollPane();
         stackRecordPanel = new machine.view.StackPanel();
+        jPanel1 = new javax.swing.JPanel();
         instructionCounterScrollPane = new javax.swing.JScrollPane();
         instructionCounterConsole = new javax.swing.JTextArea();
+        memoryErrorDisplayScrollPane = new javax.swing.JScrollPane();
+        memoryErrorDisplay = new javax.swing.JTextArea();
 
         setMinimumSize(new java.awt.Dimension(600, 500));
         setLayout(new java.awt.GridBagLayout());
@@ -406,6 +437,8 @@ public class MachinePanel extends javax.swing.JPanel {
         gridBagConstraints.weighty = 1.0;
         add(stackPanelScrollPane, gridBagConstraints);
 
+        jPanel1.setLayout(new java.awt.GridBagLayout());
+
         instructionCounterScrollPane.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true), "Instruction Counter"));
 
         instructionCounterConsole.setEditable(false);
@@ -416,11 +449,37 @@ public class MachinePanel extends javax.swing.JPanel {
         instructionCounterScrollPane.setViewportView(instructionCounterConsole);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 0.025;
+        jPanel1.add(instructionCounterScrollPane, gridBagConstraints);
+
+        memoryErrorDisplayScrollPane.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true), "Memory Errors"));
+
+        memoryErrorDisplay.setEditable(false);
+        memoryErrorDisplay.setBackground(new java.awt.Color(204, 204, 204));
+        memoryErrorDisplay.setColumns(20);
+        memoryErrorDisplay.setLineWrap(true);
+        memoryErrorDisplay.setRows(5);
+        memoryErrorDisplayScrollPane.setViewportView(memoryErrorDisplay);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 0.975;
+        jPanel1.add(memoryErrorDisplayScrollPane, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        add(instructionCounterScrollPane, gridBagConstraints);
+        add(jPanel1, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
     private void ramTableComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_ramTableComponentResized
@@ -436,6 +495,9 @@ public class MachinePanel extends javax.swing.JPanel {
     private javax.swing.JScrollPane displayScrollPane;
     private javax.swing.JTextArea instructionCounterConsole;
     private javax.swing.JScrollPane instructionCounterScrollPane;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JTextArea memoryErrorDisplay;
+    private javax.swing.JScrollPane memoryErrorDisplayScrollPane;
     private javax.swing.JScrollPane pswScrollPane;
     private javax.swing.JTable pswTable;
     private javax.swing.JScrollPane ramScrollPane;

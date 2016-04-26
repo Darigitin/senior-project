@@ -24,9 +24,6 @@ date/ver: 03/26/16 1.0.0
     <body>
         <div>
             <h1>WALL (WTAMU AssembLy Language) Syntax</h1>
-            <p>When you climb me, you will be a CS major.<br>
-               But, be forewarned you will be driven into me, and many will go mad.
-            </p>
             <h2>WALL Syntax Structure</h2>
             <p>
                 [label:] [instruction] [# comment]
@@ -68,6 +65,11 @@ date/ver: 03/26/16 1.0.0
                 <li>Operation Names - overloading these names can confuse the parser</li>
                 <li>Pseudo-Op Names - overloading these names can confuse the parser</li>
             </ol>
+            <h2>Valid Labels</h2>
+            <p>
+                A Valid label in wall consists of underscores(_) and alphanumerics.<br>
+                A label cannot be a reserved word, all numerics, or a hex value.
+            </p>
             <h2>WALL has 16 Registers.</h2>
             <p>
                 Registers are used as a form of "lag free" memory to store data 
@@ -129,10 +131,8 @@ date/ver: 03/26/16 1.0.0
             <p>
                 Operations are Instructions and their arguments. Each instruction
                 has its own specific argument structure. All instructions compile
-                into their Op-Code format and are stored into memory for execution.
-                Note: All Instructions, except for RLOAD, are 2 Bytes long.
-                RLOAD is 4 Bytes long, because it compiles as an immediate load,
-                followed by itself.<br>
+                into their Op-Code format and are stored into memory for execution.<br>
+                Note: All Instructions are 2 Bytes long.
             </p>
             <table>
                 <tbody>
@@ -148,11 +148,12 @@ date/ver: 03/26/16 1.0.0
                                 <li>JMP</li>
                                 <li>JMPEQ</li>
                                 <li>JMPLT</li>
-                                <li>LOAD</li>
+                                <li>Direct LOAD</li>
                             </ol>
                         </td>
                         <td>
                             <ol start="11">
+                                <li>Indirect LOAD</li>
                                 <li>MOVE</li>
                                 <li>OR</li>
                                 <li>POP</li>
@@ -160,7 +161,17 @@ date/ver: 03/26/16 1.0.0
                                 <li>RET</li>
                                 <li>RLOAD</li>
                                 <li>ROR</li>
+                                <li>ROL</li>
                                 <li>RSTORE</li>
+                            </ol>
+                        </td>
+                        <td>
+                            <ol start="21">
+                                <li>SCALL</li>
+                                <li>SL</li>
+                                <li>SRA</li>
+                                <li>SRET</li>
+                                <li>SRL</li>
                                 <li>STORE</li>
                                 <li>XOR</li>
                             </ol>
@@ -183,6 +194,7 @@ date/ver: 03/26/16 1.0.0
                                 <li>DB</li>
                                 <li>EQU</li>
                                 <li>ORG</li>
+                                <li>SIP</li>
                             </ol>
                         </td>
                     </tr>

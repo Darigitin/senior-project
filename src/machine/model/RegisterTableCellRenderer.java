@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package machine.model;
 
 import java.awt.Color;
@@ -13,16 +8,21 @@ import javax.swing.JTable;
 import static javax.swing.SwingConstants.CENTER;
 import javax.swing.table.DefaultTableCellRenderer;
 
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
 /**
  *
- * @author Ryan Ball
+ * @author jl948836
  */
-public class CellRenderer extends DefaultTableCellRenderer {
-    
+public class RegisterTableCellRenderer extends DefaultTableCellRenderer {
+ 
     private final Font font = new Font("SansSerif", Font.PLAIN, 14);
     
-    public CellRenderer() {
-        
+    public RegisterTableCellRenderer() {
         super.setHorizontalAlignment(CENTER);
         super.setHorizontalTextPosition(CENTER);
         super.setVerticalAlignment(CENTER);
@@ -33,19 +33,19 @@ public class CellRenderer extends DefaultTableCellRenderer {
     public Component getTableCellRendererComponent(JTable table, Object value,
             boolean isSelected, boolean hasFocus, int row, int column) {
         
-        super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
+        Component l = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        
         if (hasFocus && isSelected) {
             setBackground(new Color(255, 160, 160));
         }
         else {
             setBackground(Color.white);
         }
+        
         setForeground(Color.black);
         setFont(font);
         setText((String) value);
         setBorder(BorderFactory.createLineBorder(Color.black));
         return this;
     }
-    
 }

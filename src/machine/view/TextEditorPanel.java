@@ -13,8 +13,13 @@ import javax.swing.JTextArea;
 import javax.swing.text.JTextComponent;
 
 /**
- *
- * @author jl948836
+ * Program: Text Editor Panel
+ * 
+ * Purpose: Creates a panel that acts as a Text Editor
+ * 
+ * @author: jl948836
+ * 
+ * date/ver: 03/25/16 1.0.0
  */
 
 /** 
@@ -70,42 +75,78 @@ public class TextEditorPanel extends javax.swing.JPanel {
         initComponents();
     }
 
+    /**
+     * Get a reference to the Error Display
+     * 
+     * @return 
+     */
     public JTextArea getErrorPane(){
         return errorDisplay;
     }
     
     /**
      * Displays the error List after the user presses the Assemble button
+     * 
      * @param errorList
      */
     public void setErrorText(ArrayList<String> errorList) {
-            String errorText = "";
-            for (String error : errorList){
-                    errorText += error + "\n";
-            }
-            errorDisplay.setText(errorText);
+        String errorText = "";
+        for (String error : errorList){
+                errorText += error + "\n";
+        }
+        errorDisplay.setText(errorText);
     }
     
+    /**
+     * Get reference to Text Editor Text Area
+     * 
+     * @return 
+     */
     public JTextComponent getEditorPane() {
         return textEditor.getTextPane();
     }
     
+    /**
+     * Get the text in the Text Editor Text Area
+     * 
+     * @return 
+     */
     public String getEditorText() {
         return textEditor.getText();
     }
     
+    /**
+     * Get reference to the Editor window.
+     * 
+     * @return 
+     */
     public TextEditorFrame getTextEditorFrame() {
         return editorWindow;
     }
     
+    /**
+     * Get reference to the Text Editor
+     * 
+     * @return 
+     */
     public TextEditor getTextEditor() {
         return textEditor;
     }
     
+    /**
+     * Get reference to the Split/Join Button
+     * 
+     * @return 
+     */
     public JButton getSplitJoinButton() {
         return splitJoinButton;
     }
     
+    /**
+     * Get a list of the available fonts from the Graphics Environment
+     * 
+     * @return 
+     */
     protected String[] getFontNames()
     // Will get the all the avalilable texts from the system.
     // Programmer: Mariela Barrera
