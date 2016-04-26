@@ -1,5 +1,14 @@
 # WTAMU Computer Science Programming Utility #
 
+V1.6
+Added visual stack coloring
+Added functionally for font style/size/theme to transfer from text editor windows
+Added instruction counter and error reporting areas
+Made the IP editable to enable dynamic SIP
+Minor Bug fixes
+Code Optimization and refactoring
+Documation, language reference, and syntax updates.
+
 V1.4
 Rebuilt GUI to allow for element resizing matching GUI window
 Added assembly listing, file is located inside of same location as where the .jar is ran
