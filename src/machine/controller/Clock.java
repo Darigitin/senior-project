@@ -35,8 +35,10 @@
  */
 
 /* Change Log
-    #Guojun Liu  03/08/16 
-    1. Modified the fetch phase
+ * Guojun Liu  03/08/16 
+ * 1. Modified the fetch phase
+ * 2. Modified the HALT condition in decode phase
+ * 3. Modified two execute phase
 */
 
 package machine.controller;

@@ -1,6 +1,8 @@
-*************************** WALL-Listing ***********************
-Created date: 04/26/2016 02:20:39 PM
 
+
+
+*************************** WALL-Listing ***********************
+Created date: 04/27/2016 06:23:47 PM
 
 Location    Object Code       Line   Source Statement
                                  1   # ******************************************************************
@@ -103,15 +105,35 @@ Location    Object Code       Line   Source Statement
 
 
 ***************** WALL Cross-Reference Listing *******************
-Created date: 04/26/2016 02:20:39 PM
+Created date: 04/27/2016 06:23:47 PM
 
 
          Cross-Reference Listing Description
 Labels: The label name that appears in the source program.
 Mem_Loc: Memory location of a label in the memory. If the value
-         starts with 'R', it represents a register.
+         starts with 'R', it represents a register. If the value
+         starts with a 'label', it means labels mapped to labels.
 Def_Line: Defined line number of a label in the source code.
 Ref_line: Referenced line number(s) of a label in the source code.
 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Labels           Mem_Loc     Def_Line     Ref_line
+compReg             R0          21        41  47  72     
+o_n_e               01          22        73             
+_zero               00          23        72             
+number               N          24                       
+ref               temp          25        45  76         
+N                   80          29        74  75         
+Result              81          30        81             
+setUp               00          36        79             
+recSum              04          38        52             
+secNum              16          47                       
+done                36          66        47             
+main                40          72                       
+temp                90          89        44             
+r               Result          92        82             
+retReg              RA          93        81             
+R10                 RA          94        57  66  66     
+basePtr            RBP          95                       
+skipFrwd        secNum          96        41             
+nOne                FF          97        48             
