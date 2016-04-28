@@ -56,23 +56,26 @@ public class Clock {
     private int instructionCount;   //CHANGELOG: 7
 	
     /**
-    * Creates a Clock object every time an instruction is executed
-    * @param controller
-    */
+     * Creates a Clock object every time an instruction is executed.
+     * 
+     * @param controller - a machine controller of which to set to this clock.
+     */
     public Clock(MachineController controller) {
         this.controller = controller;
     }
 
     /**
+     * Sets the clock speed based on the passed in variable.
      * 
-     * @param speed 
+     * @param speed - the speed at which the clock will be set.
      */
     public void setSpeed(int speed) {
         this.speed = speed;
     }
 
     /**
-     * 
+     * Begins running the machine causing it to step continuously based on the 
+     * set speed of the machine.
      */
     public void run() {
         timer = new Timer();
@@ -86,9 +89,9 @@ public class Clock {
     }
 
     /**
-    * Calls the fetch method and cancels the timer
-    * once the Instruction Register is greater than 0xFF
-    */
+     * Calls the fetch method and cancels the timer
+     * once the Instruction Register is greater than 0xFF.
+     */
     public synchronized void step() {
         if (controller.getInstructionPointer() > 0xFF) {
             timer.cancel();
@@ -98,8 +101,8 @@ public class Clock {
     }
 
     /**
-    * Gets the instruction to be executed and calls the decode method
-    */
+     * Gets the instruction to be executed and calls the decode method.
+     */
     private void fetch() {
         //System.out.println("Fetch Me");
         //original fetch phase
@@ -109,9 +112,10 @@ public class Clock {
     }
 
     /**
-    * Performs the instructions that were fetched.
-    * @param instructions
-    */
+     * //TODO
+     * 
+     * @param instructions
+     */
     private void decode(int[] instructions) {
         //System.out.println("Decode Me");
         // get the opcode
@@ -142,7 +146,7 @@ public class Clock {
             case '2':
                 //CHANGE LOG BEGIN - 1
                 //immediateLoad(secondNibble,secondByte);
-                immediateLoad(secondNibble, secondByte, thirdNibble);
+                immediateLoad(secondNibble, secondByte);
                 //CHANGE LOG END - 1
                 execute();
                 break;
@@ -235,7 +239,7 @@ public class Clock {
                 if (jump(secondNibble)) {
                         execute(secondByte); //jmp
                 } else {
-                        execute(); //jmpeq
+                        execute();
                 }
                 break;
             // halt operation
@@ -274,8 +278,9 @@ public class Clock {
     }
 
     /**
-    * Regular execute
-    */
+     * Regular execute
+     * //TODO
+     */
     private void execute() {
         //System.out.println("Execute Me: Method 1");
         //System.out.println("********************* END TEST **********************");
@@ -288,9 +293,10 @@ public class Clock {
     }
 
     /**
-    * Overloaded execute for jump instructions
-    * @param location
-    */
+     * Overloaded execute for jump instructions.
+     * //TODO
+     * @param location
+     */
     private void execute(int location) {
         //System.out.println("Execute Me: Method 2");
         //System.out.println("********************* END TEST **********************");
@@ -304,8 +310,9 @@ public class Clock {
     }
     
     /**
-     * Returns the number of instructions ran by the clock.     //CHANGELOG BEGIN: 7
-     * @return instructionCount
+     * Returns the number of instructions ran by the clock.
+     * 
+     * @return The current instruction count that the clock has executed.
      */
     public int getInstructionCount(){
         return this.instructionCount;
@@ -320,10 +327,13 @@ public class Clock {
     }   //CHANGELOG END: 7
 
     /**
-    * Opcode 1 - LOAD
-    * @param register
-    * @param memIndex
-    */
+     * Opcode 1 - LOAD
+     * 
+     * Loads indicated register with value from indicated memory index.
+     * 
+     * @param register - register to load.
+     * @param memIndex - memory index of value to load to register.
+     */
     private void directLoad(int register,int memIndex) {
         String data = controller.getMemoryValue(memIndex);
         controller.setRegisterValue(register, data);
@@ -333,12 +343,17 @@ public class Clock {
     }
 
     /**
-    * Opcode 2 - LOAD
-    * @param register
-    * @param memIndex
-    */
+     * Opcode 2 - LOAD
+     * 
+     * Loads indicated register with value from indicated memory index. The
+     * memory index can be a literal or an address.
+     * 
+     * @param register - register to load.
+     * @param memIndex - memory index of value to load to register. Can be 
+     * literal or an address.
+     */
     //CHANGE LOG BEGIN - 1
-    private void immediateLoad(int register, int memIndex, int rloadFlag) {
+    private void immediateLoad(int register, int memIndex) {
         String memory = Integer.toHexString(memIndex);
         controller.setRegisterValue(register, memory);
         if (register == 0x0F){ // && rloadFlag != 15){
@@ -346,25 +361,33 @@ public class Clock {
         }
     }
     //CHANGE LOG END - 1
-
+    
     /**
-    * Opcode 3 - STORE
-    * @param register
-    * @param memIndex
-    */
+     * Opcode 3 - STORE
+     * 
+     * Stores the value in the indicated register into the indicated memory index.
+     * 
+     * @param register - register that contains the value to store into memory.
+     * @param memIndex - memory index to store value contained in register.
+     */
     private void directStore(int register, int memIndex) {
         String value = controller.getRegisterValue(register);
         controller.setMemoryValue(memIndex, value);
     }
 
     /**
-    * Opcode 4 - RLOAD
-    * @param register
-    * @param pointer
-    */
+     * Opcode 4 - RLOAD
+     * 
+     * Loads the indicated register with the value from memory pointed at by the 
+     * pointer plus the offset
+     * 
+     * @param register - register to load.
+     * @param pointer - register that holds the memory index of value to load to
+     * register.
+     * @param offset - value added to pointer to offset memory index of value to 
+     * load to register.
+     */
     private void rload(int offset, int register, int pointer) {
-        //String offset = controller.getRegisterValue(register);
-        //int realOffset = Character.digit(offset.charAt(1), 16);
         if (offset > 7) {
             offset -= 16;
         }
@@ -378,11 +401,15 @@ public class Clock {
     }
 
     /**
-    * Opcode 5 - ADD
-    * @param resultRegister
-    * @param oneRegister
-    * @param twoRegister
-    */
+     * Opcode 5 - ADD
+     * 
+     * Takes the values in oneRegister and twoRegister, adds them and masks with
+     * 0xFF to ensure one byte size and stores result in resultRegister.
+     * 
+     * @param resultRegister - holds the addition result.
+     * @param oneRegister - contains value to be added.
+     * @param twoRegister - contains value to be added.
+     */
     private void add(int resultRegister, int oneRegister, int twoRegister) {
         int x = Integer.parseInt(controller.getRegisterValue(oneRegister),16);
         int y = Integer.parseInt(controller.getRegisterValue(twoRegister),16);
@@ -395,8 +422,11 @@ public class Clock {
     }
 
     /**
-    * Opcode 60 - CALL
-    */
+     * Opcode 60 - CALL
+     * 
+     * Sets the instruction pointer to address specified, decrements the stack pointer and 
+     * pushed the return address onto the stack.
+     */
     private void call() {
         int ip = controller.getInstructionPointer();
         int sp = Integer.parseInt(controller.getRegisterValue(0xE),16)-1;
@@ -408,8 +438,13 @@ public class Clock {
     }
 
     /**
-    * Opcode 61 - RETURN
-    */
+     * Opcode 61 - RETURN
+     * 
+     * Sets the instruction pointer with address on top of the stack, increments the 
+     * stack pointer by value of spAdd.
+     * 
+     * @param spAdd - value of which to increment stack pointer.
+     */
     private void ret(int spAdd) {
         int sp = Integer.parseInt(controller.getRegisterValue(0xE),16);
         int value = Integer.parseInt(controller.getMemoryValue(sp),16);
@@ -420,8 +455,12 @@ public class Clock {
         controller.deleteActivationRecord();
     }
     /**
-    * Opcode 62 - SCALL
-    */
+     * Opcode 62 - SCALL
+     * 
+     * Runs call, pushes the base pointer onto the stack and moves the base pointer
+     * into the stack pointer.
+     * 
+     */
     //CHANGE LOG BEGIN: 4
     private void scall() {
         call();
@@ -431,8 +470,13 @@ public class Clock {
     //CHANGE LOG END: 4
 
     /**
-    * Opcode 63 - SRETURN
-    */
+     * Opcode 63 - SRETURN
+     * 
+     * Pops the top of the stack into the base pointer, runs ret with spAdd argument,
+     * moves stack pointer into base pointer.
+     * 
+     * @param spAdd - value of which to increment stack pointer.
+     */
     //CHANGE LOG BEGIN: 4
     private void sret(int spAdd) {
         pop(0x0D); //Reset Frame of Reference
@@ -442,9 +486,12 @@ public class Clock {
     //CHANGE LOG END: 4
 
     /**
-    * Opcode 64 - PUSH
-    * @param register
-    */
+     * Opcode 64 - PUSH
+     * 
+     * Decrements the stack pointer then stores value contained in register argument onto the stack.
+     * 
+     * @param register - contains value to be pushed onto the stack.
+     */
     private void push(int register) {
         String value = controller.getRegisterValue(register);
         int sp = Integer.parseInt(controller.getRegisterValue(0xE),16) - 1;
@@ -454,9 +501,13 @@ public class Clock {
     }
 
     /**
-    * Opcode 65 - POP
-    * @param register
-    */
+     * Opcode 65 - POP
+     * 
+     * Loads from the value that the stack pointer is pointing at into specified 
+     * target register and increments the stack pointer.
+     * 
+     * @param register - target to load value from stack.
+     */
     private void pop(int register) {
         int sp = Integer.parseInt(controller.getRegisterValue(0xE),16);
         String value = controller.getMemoryValue(sp);
@@ -469,11 +520,15 @@ public class Clock {
         }
     }
     /**
-    * Opcode 7 - OR
-    * @param resultRegister
-    * @param oneRegister
-    * @param twoRegister
-    */
+     * Opcode 7 - OR
+     * 
+     * Takes the values in oneRegister and twoRegister, performs OR bit 
+     * operation them and stores result in resultRegister.
+     * 
+     * @param resultRegister - holds the OR result.
+     * @param oneRegister - contains value to be OR.
+     * @param twoRegister - contains value to be OR.
+     */
     private void or(int resultRegister, int oneRegister, int twoRegister) {
         int x = Integer.parseInt(controller.getRegisterValue(oneRegister),16);
         int y = Integer.parseInt(controller.getRegisterValue(twoRegister),16);
@@ -486,11 +541,15 @@ public class Clock {
     }
 
     /**
-    * Opcode 8 - AND
-    * @param resultRegister
-    * @param oneRegister
-    * @param twoRegister
-    */
+     * Opcode 8 - AND
+     * 
+     * Takes the values in oneRegister and twoRegister, performs AND bit 
+     * operation them and stores result in resultRegister.
+     * 
+     * @param resultRegister - holds the AND result.
+     * @param oneRegister - contains value to be AND.
+     * @param twoRegister - contains value to be AND.
+     */
     private void and(int resultRegister, int oneRegister, int twoRegister) {
         int x = Integer.parseInt(controller.getRegisterValue(oneRegister),16);
         int y = Integer.parseInt(controller.getRegisterValue(twoRegister),16);
@@ -503,11 +562,15 @@ public class Clock {
     }
 
     /**
-    * Opcode 9 - XOR
-    * @param resultRegister
-    * @param oneRegister
-    * @param twoRegister
-    */
+     * Opcode 9 - XOR
+     * 
+     * Takes the values in oneRegister and twoRegister, performs XOR bit 
+     * operation them and stores result in resultRegister.
+     * 
+     * @param resultRegister - holds the XOR result.
+     * @param oneRegister - contains value to be XOR.
+     * @param twoRegister - contains value to be XOR.
+     */
     private void xor(int resultRegister, int oneRegister, int twoRegister) {
         int x = Integer.parseInt(controller.getRegisterValue(oneRegister),16);
         int y = Integer.parseInt(controller.getRegisterValue(twoRegister),16);
@@ -520,10 +583,14 @@ public class Clock {
     }
 
     /**
-    * Opcode A - ROR
-    * @param register
-    * @param times
-    */
+     * Opcode A - ROR
+     * 
+     * Gets the value from register argument and right shifts it times number of
+     * times and takes the MSB and pads to LSB.
+     * 
+     * @param register - target register to be rotated.
+     * @param times - number of times to rotate target register. 
+     */
     private void ror(int register, int times) {
         int bitPattern = Integer.parseInt(controller.getRegisterValue(register), 16);
         int carry;
@@ -539,6 +606,15 @@ public class Clock {
         }
     }
     
+    /**
+     * Opcode A - ROL
+     * 
+     * Gets the value from register argument and left shifts it times number of
+     * times and takes the MSB and pads to LSB.
+     * 
+     * @param register - target register to be rotated.
+     * @param times - number of times to rotate target register. 
+     */
     private void rol(int register, int times){  //BEGIN CHANGE LOG: 5
         int bitPattern = Integer.parseInt(controller.getRegisterValue(register), 16);
         int carry;
@@ -554,6 +630,15 @@ public class Clock {
         }
     }
     
+    /**
+     * Opcode A - SRA
+     * 
+     * Gets the value from register argument and does a right arithmetic shift times
+     * times.
+     * 
+     * @param register - target register to be shifted.
+     * @param times - number of times to shift the target register.
+     */
     private void sra(int register, int times){
         int bitPattern = Integer.parseInt(controller.getRegisterValue(register), 16);
         for (int i = 0; i < times; i++){
@@ -567,6 +652,15 @@ public class Clock {
         }
     }
     
+    /**
+     * Opcode A - SRL
+     * 
+     * Gets the value from register argument and does a right logical shift times
+     * times.
+     * 
+     * @param register - target register to be shifted.
+     * @param times - number of times to shift the target register.
+     */
     private void srl(int register, int times){
         int bitPattern = Integer.parseInt(controller.getRegisterValue(register), 16);
         for (int i = 0; i < times; i++){
@@ -579,6 +673,15 @@ public class Clock {
         }
     }
     
+    /**
+     * Opcode A - SRA
+     * 
+     * Gets the value from register argument and does a right arithmetic shift times
+     * times.
+     * 
+     * @param register - target register to be shifted.
+     * @param times - number of times to shift the target register.
+     */
     private void sl(int register, int times){
         int bitPattern = Integer.parseInt(controller.getRegisterValue(register), 16);
         for (int i = 0; i < times; i++){
@@ -592,26 +695,35 @@ public class Clock {
     }   //END CHANGE LOG: 5
 
     /**
-    * Opcode B - JMPEQ and JMP
-    * @param register
-    * @return
-    */
+     * Opcode B - JMPEQ and JMP
+     * 
+     * 
+     * @param register
+     * @return
+     */
     private boolean jump(int register) {
         return (controller.getRegisterValue(register).equals(controller.getRegisterValue(0)));
     }
 
     /**
-    * Opcode C - HALT
-    */
+     * Opcode C - HALT
+     * 
+     * Halts execution and stops the timer.
+     * 
+     */
     private void halt() {
         timer.cancel();
     }
 
     /**
-    * Opcode D0 - ILOAD
-    * @param register
-    * @param pointer
-    */
+     * Opcode D0 - ILOAD
+     * 
+     * Loads the value pointed out by pointer to the target register.
+     * 
+     * @param register - target register to be loaded.
+     * @param pointer - memory index whose contents will be loaded into the target 
+     * register 
+     */
     private void iload(int register, int pointer) {
         String address = controller.getRegisterValue(pointer);
         String value = controller.getMemoryValue(Integer.parseInt(address,16));
@@ -622,10 +734,13 @@ public class Clock {
     }
     
     /**
-    * Opcode D1 - ISTORE
-    * @param register
-    * @param pointer
-    */
+     * Opcode D1 - ISTORE
+     * 
+     * Stores the value contained in the target register into the location pointed to
+     * by the pointer register.
+     * @param register - holds the value to be stored into memory.
+     * @param pointer - holds the location in memory to store into.
+     */
     //CHANGE LOG: 5
     private void istore(int pointer, int register) {
            String value = controller.getRegisterValue(register);
@@ -634,10 +749,13 @@ public class Clock {
     }
 
     /**
-    * Opcode D2 - MOVE
-    * @param fromRegister
-    * @param toRegister
-    */
+     * Opcode D2 - MOVE
+     * 
+     * A register to register moves, takes the value stored in the fromRegister 
+     * and moves it into the toRegister.
+     * @param fromRegister - holds the value to be loaded.
+     * @param toRegister - register to be loaded into.
+     */
     //CHANGE LOG: 5
     private void move(int toRegister, int fromRegister) {
         String data = controller.getRegisterValue(fromRegister);
@@ -648,11 +766,15 @@ public class Clock {
     }
     
     /**
-    * Opcode E - RSTORE
-    * @param offset
-    * @param register
-    * @param pointer
-    */
+     * Opcode E - RSTORE
+     * 
+     * Stores the value in the register argument into the location specified by the 
+     * pointer plus the value of the offset.
+     * 
+     * @param offset - value to be added to the pointer.
+     * @param register - holds the value to be stored in memory.
+     * @param pointer - location in memory to store into.
+     */
     private void rstore(int offset, int pointer, int register) { //CHANGE LOG: 6
         if(offset > 7) {
             offset -= 16;
@@ -664,27 +786,27 @@ public class Clock {
     }
     
     /**
-    * Opcode F - JMPLT
-    * @param register
-    * @return
-    */
+     * Opcode F - JMPLT
+     * 
+     * 
+     * @param register
+     * @return
+     */
     private boolean jmplt(int register) { // change "jmple" to "jmplt"
         int value = Integer.parseInt(controller.getRegisterValue(register),16);
+    //    int valueSign = value & 0x80;
+    //    int valueMask = (valueSign << 24) >> 24;
+    //    value = value | valueMask;
         int registerZero = Integer.parseInt(controller.getRegisterValue(0),16);
-        //System.out.println("Comparison Value: " + value + "Register 0: " + registerZero);
-        //System.out.println("Result: " + (value < registerZero));
-//      if (registerZero > 127) {
-//            registerZero -= 256;
-//        }
-//        if (value > 127) {
-//            value -= 256;
-//        }
+    //    int registerZeroSign = registerZero & 0x80;
+    //    int registerMask = (registerZeroSign << 24) >> 24;
+    //    registerZero = registerZero | registerMask;
         return (value < registerZero); //change "<=" to "<"
     }
 
     /**
-    * Prints out register F.  
-    */
+     * Prints out register F.  
+     */
     private void printRegisterF() {
         char c = ' ';
         int temp = Integer.parseInt(controller.getRegisterValue(15), 16);
@@ -695,8 +817,8 @@ public class Clock {
     }
 
     /**
-    * Updates the disassemble console text after each execute
-    */
+     * Updates the disassemble console text after each execute
+     */
     private void updateDisassembleDisplay() {
         boolean update = true;
         // set disassembler console text
@@ -767,32 +889,9 @@ public class Clock {
         }
 
         if (update) {
-            // send codes off to disassembler
+            // send codes off to disassembler 
             String consoleText;
-//            if (codes[0].equals("D2")) { // handle rload specially
-//                String loadByte1 = "";
-//                String loadByte2 = "";
-//                if ( (IP > 5) && (IP < 249) ) { 
-//                    loadByte1 = controller.getMemoryValue(IP - 8);
-//                    loadByte2 = controller.getMemoryValue(IP - 7);
-//                    relativeIP++;
-//                } 
-//                else if (IP > 249) {
-//                    loadByte1 = controller.getMemoryValue(240);
-//                    loadByte2 = controller.getMemoryValue(241);
-//                    relativeIP++;
-//                }
-//                
-//                String[] fixedCodes = new String[16];
-//                System.arraycopy(codes, 0, fixedCodes, 2, 14);
-//                /*for (int i = 0; i < 14; i++) {
-//                        fixedCodes[i+2] = codes[i];
-//                }*/
-//                fixedCodes[0] = loadByte1;
-//                fixedCodes[1] = loadByte2;
-//                consoleText = disassembler.getConsoleDisassemble(fixedCodes, relativeIP);
-//            } else {
-                consoleText = disassembler.getConsoleDisassemble(codes, relativeIP);
+            consoleText = disassembler.getConsoleDisassemble(codes, relativeIP);
             //}
             controller.setDisassText(consoleText);
         }	
