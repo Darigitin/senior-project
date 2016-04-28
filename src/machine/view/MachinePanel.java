@@ -33,7 +33,6 @@ import machine.controller.RegisterTableCellRenderer;
 import machine.model.RegisterTableModel;
 import machine.controller.RowHeaderRenderer;
 import machine.model.SpecialTableModel;
-import machine.controller.PSWTableCellRenderer;
 
 /**
  *
@@ -131,24 +130,6 @@ public class MachinePanel extends javax.swing.JPanel {
     public void setInstructionRegister(String value) {
         pswTable.setValueAt(value, 1, 1);
     }
-    
-//    public void showInstructionPointerError() {
-//        final String message;
-//        if (controller.isRunning()) {
-//            controller.stopClock();
-//            message = "Instruction pointer out of range. Simulation has stopped.";
-//        }
-//        else {
-//            message = "Instruction pointer out of range.";
-//        }
-//        SwingUtilities.invokeLater(new Runnable() {
-//            @Override
-//            public void run() {
-//                JOptionPane.showMessageDialog(machine.view.MachView.this, message, null, JOptionPane.ERROR_MESSAGE);
-//            }
-//        });
-//  
-//    }
 
     /**
      * Get the value from a Register in the Register Table
@@ -271,8 +252,8 @@ public class MachinePanel extends javax.swing.JPanel {
      * 
      * @return 
      */
-    public JTextArea getMemoryErrorTextArea() {
-        return memoryErrorDisplay;
+    public JTextArea getRunTimeErrorTextArea() {
+        return runTimeErrorDisplay;
     }
     
     /**
@@ -345,8 +326,8 @@ public class MachinePanel extends javax.swing.JPanel {
         jPanel1 = new javax.swing.JPanel();
         instructionCounterScrollPane = new javax.swing.JScrollPane();
         instructionCounterConsole = new javax.swing.JTextArea();
-        memoryErrorDisplayScrollPane = new javax.swing.JScrollPane();
-        memoryErrorDisplay = new javax.swing.JTextArea();
+        runTimeErrorDisplayScrollPane = new javax.swing.JScrollPane();
+        runTimeErrorDisplay = new javax.swing.JTextArea();
 
         setMinimumSize(new java.awt.Dimension(600, 500));
         setLayout(new java.awt.GridBagLayout());
@@ -473,14 +454,14 @@ public class MachinePanel extends javax.swing.JPanel {
         gridBagConstraints.weighty = 0.025;
         jPanel1.add(instructionCounterScrollPane, gridBagConstraints);
 
-        memoryErrorDisplayScrollPane.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true), "Memory Errors"));
+        runTimeErrorDisplayScrollPane.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true), "Run-Time Errors"));
 
-        memoryErrorDisplay.setEditable(false);
-        memoryErrorDisplay.setBackground(new java.awt.Color(204, 204, 204));
-        memoryErrorDisplay.setColumns(20);
-        memoryErrorDisplay.setLineWrap(true);
-        memoryErrorDisplay.setRows(5);
-        memoryErrorDisplayScrollPane.setViewportView(memoryErrorDisplay);
+        runTimeErrorDisplay.setEditable(false);
+        runTimeErrorDisplay.setBackground(new java.awt.Color(204, 204, 204));
+        runTimeErrorDisplay.setColumns(20);
+        runTimeErrorDisplay.setLineWrap(true);
+        runTimeErrorDisplay.setRows(5);
+        runTimeErrorDisplayScrollPane.setViewportView(runTimeErrorDisplay);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -488,7 +469,7 @@ public class MachinePanel extends javax.swing.JPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 0.975;
-        jPanel1.add(memoryErrorDisplayScrollPane, gridBagConstraints);
+        jPanel1.add(runTimeErrorDisplayScrollPane, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
@@ -523,14 +504,14 @@ public class MachinePanel extends javax.swing.JPanel {
     private javax.swing.JTextArea instructionCounterConsole;
     private javax.swing.JScrollPane instructionCounterScrollPane;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JTextArea memoryErrorDisplay;
-    private javax.swing.JScrollPane memoryErrorDisplayScrollPane;
     private javax.swing.JScrollPane pswScrollPane;
     private javax.swing.JTable pswTable;
     private javax.swing.JScrollPane ramScrollPane;
     private javax.swing.JTable ramTable;
     private javax.swing.JScrollPane registerScrollPane;
     private javax.swing.JTable registerTable;
+    private javax.swing.JTextArea runTimeErrorDisplay;
+    private javax.swing.JScrollPane runTimeErrorDisplayScrollPane;
     private javax.swing.JScrollPane stackPanelScrollPane;
     private machine.view.StackPanel stackRecordPanel;
     // End of variables declaration//GEN-END:variables

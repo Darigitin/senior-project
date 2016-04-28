@@ -254,7 +254,7 @@ public class MachineView extends javax.swing.JFrame {
      * @return 
      */
     public JTextArea getMemoryErrorTextArea() {
-        return machine1.getMemoryErrorTextArea();
+        return machine1.getRunTimeErrorTextArea();
     }
     
     /*
@@ -350,7 +350,7 @@ public class MachineView extends javax.swing.JFrame {
      */
     public JTextArea getErrorTextArea() {
         if (textEditorPanel.isVisible()) {
-            return textEditorPanel.getErrorPane();
+            return textEditorPanel.getSyntaxErrorTextArea();
         }
         else {
             return textEditorPanel.getTextEditorFrame().getErrorPane();

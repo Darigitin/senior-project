@@ -87,8 +87,8 @@ public class TextEditorPanel extends javax.swing.JPanel {
      * 
      * @return 
      */
-    public JTextArea getErrorPane(){
-        return errorDisplay;
+    public JTextArea getSyntaxErrorTextArea(){
+        return syntaxErrorDisplay;
     }
     
     /**
@@ -101,7 +101,7 @@ public class TextEditorPanel extends javax.swing.JPanel {
         for (String error : errorList){
                 errorText += error + "\n";
         }
-        errorDisplay.setText(errorText);
+        syntaxErrorDisplay.setText(errorText);
     }
     
     /**
@@ -189,7 +189,7 @@ public class TextEditorPanel extends javax.swing.JPanel {
         textEditorPanel = new javax.swing.JPanel();
         textEditor = new machine.model.TextEditor();
         errorDisplayScrollPanel = new javax.swing.JScrollPane();
-        errorDisplay = new javax.swing.JTextArea();
+        syntaxErrorDisplay = new javax.swing.JTextArea();
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -285,13 +285,13 @@ public class TextEditorPanel extends javax.swing.JPanel {
         gridBagConstraints.weighty = 0.7;
         add(textEditorPanel, gridBagConstraints);
 
-        errorDisplayScrollPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true), "Errors"));
+        errorDisplayScrollPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true), "Syntax Errors"));
 
-        errorDisplay.setEditable(false);
-        errorDisplay.setColumns(20);
-        errorDisplay.setForeground(new java.awt.Color(250, 0, 0));
-        errorDisplay.setRows(5);
-        errorDisplayScrollPanel.setViewportView(errorDisplay);
+        syntaxErrorDisplay.setEditable(false);
+        syntaxErrorDisplay.setColumns(20);
+        syntaxErrorDisplay.setForeground(new java.awt.Color(250, 0, 0));
+        syntaxErrorDisplay.setRows(5);
+        errorDisplayScrollPanel.setViewportView(syntaxErrorDisplay);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -405,7 +405,6 @@ public class TextEditorPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_fontThemeComboBoxActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    public javax.swing.JTextArea errorDisplay;
     public javax.swing.JScrollPane errorDisplayScrollPanel;
     public javax.swing.JComboBox fontComboBox;
     private javax.swing.JLabel fontLabel;
@@ -413,6 +412,7 @@ public class TextEditorPanel extends javax.swing.JPanel {
     private javax.swing.JLabel fontSizeLabel;
     private javax.swing.JComboBox fontThemeComboBox;
     public javax.swing.JButton splitJoinButton;
+    public javax.swing.JTextArea syntaxErrorDisplay;
     public machine.model.TextEditor textEditor;
     public javax.swing.JPanel textEditorControlsPanel;
     public javax.swing.JPanel textEditorPanel;
