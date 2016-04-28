@@ -25,15 +25,15 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.table.TableColumn;
 import machine.model.CellEditor;
-import machine.model.RAMTableCellRenderer;
-import machine.model.ColumnHeaderRenderer;
-import machine.model.PSWTableCellRenderer;
+import machine.controller.RAMTableCellRenderer;
+import machine.controller.ColumnHeaderRenderer;
+import machine.controller.PSWTableCellRenderer;
 import machine.model.RAMTableModel;
-import machine.model.RegisterTableCellRenderer;
+import machine.controller.RegisterTableCellRenderer;
 import machine.model.RegisterTableModel;
-import machine.model.RowHeaderRenderer;
+import machine.controller.RowHeaderRenderer;
 import machine.model.SpecialTableModel;
-import machine.model.PSWTableCellRenderer;
+import machine.controller.PSWTableCellRenderer;
 
 /**
  *

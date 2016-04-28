@@ -3,39 +3,32 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package machine.model;
+package machine.controller;
 
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import javax.swing.JTable;
-import static javax.swing.SwingConstants.CENTER;
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
 
 /**
  *
- * @author Ryan Ball
+ * @author Ryan and Nicole
  */
-public class RowHeaderRenderer extends DefaultTableCellRenderer {
+public class ColumnHeaderRenderer extends DefaultTableCellRenderer {
     
-    private Color foregroundColor;
-    private Color backgroundColor; 
-    private final Font font;
+    private final Color foregroundColor = Color.WHITE;
+    private final Color backgroundColor = new Color(128, 0, 0); //Maroon
+    private final Font font = new Font("SansSerif", Font.BOLD, 14);
     
-    public RowHeaderRenderer() {
-        this(Color.WHITE, new Color(128, 0, 0), new Font("SansSerif", Font.BOLD, 14));
-    }
-    
-    public RowHeaderRenderer(Color foregroundColor, Color backgroundColor, Font font) {
+    public ColumnHeaderRenderer() {
+        
         super.setHorizontalAlignment(CENTER);
         super.setHorizontalTextPosition(CENTER);
-        super.setVerticalAlignment(CENTER);
+        super.setVerticalAlignment(BOTTOM);
         super.setOpaque(true);
-        
-        this.foregroundColor = foregroundColor;
-        this.backgroundColor = backgroundColor;
-        this.font = font;
     }
     
     @Override
@@ -44,11 +37,16 @@ public class RowHeaderRenderer extends DefaultTableCellRenderer {
       
         super.getTableCellRendererComponent(table, value,
               isSelected, hasFocus, row, column);
+        
+        JTableHeader tableHeader = table.getTableHeader();
       
-        setForeground(foregroundColor);
-        setBackground(backgroundColor);
-        setFont(font);
-        setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+        if (tableHeader != null) {
+          setForeground(foregroundColor);
+          setBackground(backgroundColor);
+          setFont(font);
+          setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+        }
+        
         return this;
     }
 }

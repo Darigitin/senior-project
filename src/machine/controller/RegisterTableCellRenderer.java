@@ -1,4 +1,4 @@
-package machine.model;
+package machine.controller;
 
 import java.awt.Color;
 import java.awt.Component;
