@@ -23,8 +23,16 @@
 
 /** Change Log
 *    #Guojun Liu  03/08/16 
-*    1. Create a new string array to hold the instruction in IP
-*    2. Create three new methods new CPU cycle
+*    1. Create a new string array as memory address register (MAR) to 
+*       hold the instruction in IP
+*    2. Create three new methods for CPU cycle
+*    3. Modified the loadMachine so that IR could display the correct values
+*    4. Create setInstructionRegister method for IP
+*    5. Create setInstructionRegisterForJump method to hold the condition when
+*       IP jump to a branch call.
+*    6. Modified the setIPinstruction method.
+*    7. Modified the getInstructionFromIP method.
+*    8. Create updateIPwhenHalt method to update IR when the program stopped.s
 *   
 **/
 
@@ -32,8 +40,6 @@ package machine.controller;
 
 import machine.model.Assembler;
 import java.util.ArrayList;
-//import machine.view.MachineView;
-//import testCode.MachineView;
 import machine.view.MachineView;
 /**
  *
@@ -262,9 +268,6 @@ public class MachineController {
      */
     public void setInstructionRegister() {
         int ip = Integer.parseInt(machineView.getInstructionPointer(), 16);
-        //original code
-            /*String[] newir = {machineView.getRAMBytes(ip).toUpperCase(), 
-                            machineView.getRAMBytes(ip+1).toUpperCase()};*/
             String[] newir = {machineView.getRAMBytes(ip-2).toUpperCase(), 
                             machineView.getRAMBytes(ip-1).toUpperCase()};
         machineView.setInstructionRegister(newir[0] + " " + newir[1]);
@@ -331,14 +334,6 @@ public class MachineController {
         if(newValue.length() == 1)
             newValue = "0" + newValue;
         machineView.setInstructionPointer(newValue);
-        //update machine view (highlight cell that IP is pointing to
-        //This is the highlight cell function call - it is broken
-//      try {
-//          machineView.setHighlightedCell(value);
-////        refreshMachineView(); // this doesn't help the issue
-//	} catch (Exception e) {
-//          Log.error("Caught an exception, not doing anything about it: " + e.getMessage());
-//	}
     }
 
     /**
@@ -386,6 +381,9 @@ public class MachineController {
         machineView.repaint();
     }
     
+    /**
+     * Displays the memory errors in the Memory Error Display
+     */
     public void setMemoryErrors() {
         StringBuilder sb = new StringBuilder();
         

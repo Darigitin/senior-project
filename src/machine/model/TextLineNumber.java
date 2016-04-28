@@ -1,4 +1,4 @@
-package system.view;
+package machine.model;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
@@ -420,18 +420,14 @@ public class TextLineNumber extends JPanel
 			@Override
 			public void run()
 			{
-				try
-				{
-					int endPos = component.getDocument().getLength();
-                                        //TODO: Occassionally Errors Out.
-                                        Rectangle rect = component.modelToView(endPos);
-
-					if (rect != null && rect.y != lastHeight)
-					{
-						setPreferredWidth();
-						repaint();
-						lastHeight = rect.y;
-					}
+				try {
+                                    int endPos = component.getDocument().getLength();
+                                    Rectangle rect = component.modelToView(endPos);
+                                    if (rect != null && rect.y != lastHeight) {
+                                        setPreferredWidth();
+                                        repaint();
+                                        lastHeight = rect.y;
+                                    }
 				}
 				catch (BadLocationException ex) { /* nothing to do */ }
 			}

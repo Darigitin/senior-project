@@ -125,13 +125,20 @@
  * 
  * 39 gl939543 - 04/19/16: Point the error message to the error line in assembler listing if
  *                         error(s) detected. 
+ * 40 gl939543 - 04/27/16: Update the cross reference list to hold labels mapped to labels 
+ *                         under EQU.
+ * 41 gl939543 - 04/27/16: Update checkReferenceLabel method to hold all EQU cases.
+ * 
+ * 42 gl939543 - 04/27/16: Create a new method for page format when the user need to 
+ *                         print out the assembler listing.
  * /
 
 /*
 * Change Log
 * 
 * -Guojun Liu
-* -Modified the istore and rstore
+* -Modified the jmplt method.
+* -Modified the store, istore and rstore methods.
 * -Create a method to create assembler listing
 */
 
@@ -323,11 +330,7 @@ public class Assembler {
                 else if (tokens[0].toUpperCase().equals(PSEUDOOPS[3])) { 	// handle DB pseudo op
                     labelMap.put(labels[i], currentLocation); 
                     referenceLine.put(labels[i], "");
-                    //TODO: Get rid of superfluous statemens
-                    //System.out.println("In passOne, before dbOneLocation, currentLocation = " + currentLocation);
-                    
                     currentLocation += dbOneLocation(tokens, i);
-                    //System.out.println("In passOne, after dbOneLocation, currentLocation = " + currentLocation);
                 }   
                 //CHANGE LOG: 23
                 /*else if ((labels[i] != null) && (tokens[0].toUpperCase().equals("RLOAD"))){ //RLOAD after a label
@@ -601,12 +604,15 @@ public class Assembler {
         if (tokens.length == 2){ //EQU and Argument
             if (isHex(tokens[1])) { //Hex for Argument
                 labelMap.put(labels[i], hexToInt(tokens[1]));
+                referenceLine.put(labels[i], "");
             }
             else if (isInt(tokens[1])){ //Int for Argument
                 labelMap.put(labels[i], Integer.parseInt(tokens[1]));
+                referenceLine.put(labels[i], "");
             }
             else { //Label for Argument
                 equivalencies.put(labels[i], tokens[1]);
+                referenceLine.put(labels[i], "");
             }
         }
         else if (tokens.length <= 1){
@@ -1585,12 +1591,23 @@ public class Assembler {
      * @param line 
      */
     private void updateReferenceWithTwoArgs (String[] newArgs, String line){
+        String tempArg0 = newArgs[0];
+        String tempArgs1 = newArgs[1];  //save the orignal arguments
+        if (newArgs[0].contains("=")){
+           newArgs[0] = newArgs[0].substring(newArgs[0].lastIndexOf("=")+1); 
+        }
+        if (newArgs[1].contains("=")){
+           newArgs[1] = newArgs[1].substring(newArgs[1].lastIndexOf("=")+1); 
+        }// end check EQU 
+        
         if (referenceLine.containsKey(newArgs[0])){
             referenceLine.put(newArgs[0], referenceLine.get(newArgs[0])+ line + "  ");
         }
         if (referenceLine.containsKey(newArgs[1])){
             referenceLine.put(newArgs[1], referenceLine.get(newArgs[1])+line + "  ");
         }
+        newArgs[0] = tempArg0;
+        newArgs[1] = tempArgs1;   //back to orignal arguments 
     }
 
     /*
@@ -1600,18 +1617,26 @@ public class Assembler {
     */
       
     private void generateAssemblerList(){
+        int lineCounter;   // Only use when the user need to print out this listing
         String restDBcode = "";             //Declare a string DB contents in the memory
         Date date = new Date();
         SimpleDateFormat simpDate = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a");
         java.io.File file = new java.io.File("WALL-Listing.lst");
         try (java.io.PrintWriter output = new java.io.PrintWriter(file)) {
+            output.println();
+            output.println();
+            output.println();
             output.println("*************************** WALL-Listing ***********************");
             output.println("Created date: " + simpDate.format(date));
-            output.println("\n");
+            output.println();
             output.println("Location    " + "Object Code       " + "Line   " + "Source Statement");
+            lineCounter = 7;
             for (int i = 0; i<codeList.size(); i++){
                 if(errorLines.get(i) != null){     // If code line contains error, dispaly the error
                     output.println("=========================>" + errorLines.get(i));
+                    output.println();
+                    //lineCounter += 2;   //uncomment this if need page format
+                    //lineCounter = checkLineNumber(output, lineCounter);
                 }
                 if ( Location[i] != null){
                     if (Object_code[i] != null){
@@ -1632,17 +1657,23 @@ public class Assembler {
                     output.printf("            " + "                  " + "%4d" + "   ", codeLines);
                 }
                 output.println(codeList.get(i));
+                //lineCounter++;
+                //lineCounter = checkLineNumber(output, lineCounter);
                 //This while loop invoks only when DB is very long
                 while(restDBcode.length() > 0){
                     if (restDBcode.length() > 15){
                         String tempDBcode = restDBcode.substring(0, 15);
                         output.printf("%-12s%-18s%4s%4s", " ", tempDBcode, " ", " ");
                         output.println();
+                        //lineCounter++;
+                        //lineCounter = checkLineNumber(output, lineCounter);
                         restDBcode  = restDBcode.replace(tempDBcode, "");     //Remove first row of DB content
                     }else{
                         //String tempDBcode = restDBcode;
                         output.printf("%-12s%-18s%4s%4s", " ", restDBcode, " ", " ");
                         output.println();
+                        //lineCounter++;
+                        //lineCounter = checkLineNumber(output, lineCounter);
                         restDBcode  = "";                                   //Clear restDBcode
                     }
                 }//end while
@@ -1659,24 +1690,64 @@ public class Assembler {
             output.println("         Cross-Reference Listing Description");
             output.println("Labels: The label name that appears in the source program.");
             output.println("Mem_Loc: Memory location of a label in the memory. If the value");
-            output.println("         starts with 'R', it represents a register.");
+            output.println("         starts with 'R', it represents a register. If the value");
+            output.println("         starts with a 'label', it means labels mapped to labels.");
             output.println("Def_Line: Defined line number of a label in the source code.");
             output.println("Ref_line: Referenced line number(s) of a label in the source code.");
             output.println();
             output.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
             output.println("Labels         " + "  Mem_Loc" + "     Def_Line" + "     Ref_line");
-//            for (int i = 0; i < codeList.size(); i++){
-//                if (labels[i] != null){
-//                    String memoryAddress = intToHex(Integer.toString(labelMap.get(labels[i]))); 
-//                    output.printf("%-15s%7s%12d%8s%-15s", labels[i], memoryAddress, i+1, " ", referenceLine.get(labels[i]));
-//                    output.println();
-//                }
-//            }//end cross reference listing
+            //lineCounter += 15;
+            //lineCounter = checkLineNumber(output, lineCounter);
+            for (int i = 0; i < codeList.size(); i++){
+                String memoryAddress;
+                if (labels[i] != null){
+                    if (labelMap.get(labels[i]) == null){   // check EQU for labels to labels
+                        memoryAddress = equivalencies.get(labels[i]);
+                    }else{
+                        memoryAddress = intToHex(Integer.toString(labelMap.get(labels[i])));
+                    }
+                    output.printf("%-15s%7s%12d%8s%-15s", labels[i], memoryAddress, i+1, " ", referenceLine.get(labels[i]));
+                    output.println();
+                    //lineCounter++;
+                    //lineCounter = checkLineNumber(output, lineCounter);
+                }
+            }//end cross reference listing
             
             output.close();    //Close the file
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Assembler.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+    }//end generateAssemblerList
+    
+    
+    /**
+     * Author: Guojun Liu
+     * 04/26/2016
+     * @param output
+     * @param lineNum
+     * @return the line count number;
+     * 
+     * This method is designed for page format of assembler listing. If 
+     * the user need to print out this listing, invoke this method will 
+     * format each page in a standard print format. Otherwise, it is not 
+     * necessary to invoke this method.
+     */
+    
+    private int checkLineNumber(java.io.PrintWriter output, int lineNum){
+        if(lineNum == 63){
+                    output.println();
+                    output.println();
+                    output.println();  //bottom page
+                    lineNum = 66;      //Not necessary
+                    output.println();
+                    output.println();
+                    output.println();  //top page
+                    lineNum = 3;
+        }
+        return lineNum;
     }
+    
     
 }

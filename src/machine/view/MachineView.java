@@ -40,6 +40,17 @@ import java.awt.Toolkit;
  * date/ver: 03/18/16 1.0.0
  *           04/21/16 1.5.0
  */
+
+/**
+ * 
+ * CHANGE LOG
+ * jl948836 - Jordan Lescallette
+ * 
+ * 1 jl948836 - 04/26/16: Added ability for Load Source File to handle split editor
+ *                        view.
+ * 
+ * 2 jl948836 - 04/26/16: Clear text Editor before loading in new source code.
+ */
 public class MachineView extends javax.swing.JFrame {
 
     private final MachineController controller;
@@ -243,7 +254,7 @@ public class MachineView extends javax.swing.JFrame {
      * @return 
      */
     public JTextArea getMemoryErrorTextArea() {
-        return machine1.getMemoryErrorTextArea();
+        return machine1.getRunTimeErrorTextArea();
     }
     
     /*
@@ -339,7 +350,7 @@ public class MachineView extends javax.swing.JFrame {
      */
     public JTextArea getErrorTextArea() {
         if (textEditorPanel.isVisible()) {
-            return textEditorPanel.getErrorPane();
+            return textEditorPanel.getSyntaxErrorTextArea();
         }
         else {
             return textEditorPanel.getTextEditorFrame().getErrorPane();
@@ -399,6 +410,7 @@ public class MachineView extends javax.swing.JFrame {
         
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         super.setBounds(0,0,(int) ((int) screenSize.width * .85), (int) ((int) screenSize.height * .85));
+        //super.setPreferredSize(new Dimension((int) ((int) screenSize.width * .85), (int) ((int) screenSize.height * .85)));
         //System.out.println((int) ((int) screenSize.width * .85) + " " + (int) ((int) screenSize.height * .85));
         
         
@@ -689,7 +701,17 @@ speedComboBox.addActionListener(new java.awt.event.ActionListener() {
             File sourceFile = fc.getSelectedFile();
                 try {
                 try (BufferedReader reader = new BufferedReader(new FileReader(sourceFile))) {
-                    Document doc = textEditorPanel.textEditor.getDocument();
+                    Document doc;
+                    //CHANGE LOG BEGIN: 1
+                    if (textEditorPanel.getSplitJoinButton().getText().equals("Split Editor")) {
+                        doc = textEditorPanel.textEditor.getDocument();
+                        textEditorPanel.textEditor.setText(""); //CHANGE LOG: 2
+                    }
+                    else {
+                        doc = textEditorPanel.getTextEditorFrame().getTextEditorPanel().getTextEditor().getDocument();
+                        textEditorPanel.getTextEditorFrame().getTextEditorPanel().getTextEditor().setText(""); //CHANGE LOG: 2
+                    }
+                    //CHANGE LOG END: 1
                     
                     String line;
                     while ((line = reader.readLine()) != null) {

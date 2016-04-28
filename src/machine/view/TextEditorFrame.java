@@ -44,7 +44,7 @@ public class TextEditorFrame extends javax.swing.JFrame {
      * @return 
      */
     public JTextArea getErrorPane() {
-        return textEditorPanel.getErrorPane();
+        return textEditorPanel.getSyntaxErrorTextArea();
     }
     
     /**

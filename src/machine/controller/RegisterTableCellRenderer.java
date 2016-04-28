@@ -1,4 +1,4 @@
-package machine.model;
+package machine.controller;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -41,8 +41,22 @@ public class RegisterTableCellRenderer extends DefaultTableCellRenderer {
         else {
             setBackground(Color.white);
         }
-        
         setForeground(Color.black);
+        
+        
+        //Visual Register - Stack Pointer
+        if (row == 14 && column == 1) {
+            setBackground(getBackground().darker());
+            setForeground(Color.red);
+        }
+        
+        //Visual Register - Base Pointer
+        if (row == 13 && column == 1) {
+            setBackground(getBackground().darker());
+            setForeground(Color.blue);
+        }
+        
+        
         setFont(font);
         setText((String) value);
         setBorder(BorderFactory.createLineBorder(Color.black));

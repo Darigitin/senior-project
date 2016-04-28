@@ -5,6 +5,7 @@
  */
 package machine.view;
 
+import machine.model.TextEditor;
 import java.awt.Color;
 import java.util.logging.Level;
 import java.util.logging.Logger;

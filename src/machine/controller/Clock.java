@@ -35,8 +35,10 @@
  */
 
 /* Change Log
-    #Guojun Liu  03/08/16 
-    1. Modified the fetch phase
+ * Guojun Liu  03/08/16 
+ * 1. Modified the fetch phase
+ * 2. Modified the HALT condition in decode phase
+ * 3. Modified two execute phase
 */
 
 package machine.controller;
@@ -104,9 +106,6 @@ public class Clock {
      * Gets the instruction to be executed and calls the decode method.
      */
     private void fetch() {
-        //System.out.println("Fetch Me");
-        //original fetch phase
-	//int[] instructions = controller.getInstructionRegister();
         int[] instructions = controller.getInstructionFromIP();
         decode(instructions);
     }
@@ -117,7 +116,6 @@ public class Clock {
      * @param instructions
      */
     private void decode(int[] instructions) {
-        //System.out.println("Decode Me");
         // get the opcode
         String operation = Integer.toHexString(instructions[0]);
         String operand = Integer.toHexString(instructions[1]);
@@ -282,8 +280,6 @@ public class Clock {
      * //TODO
      */
     private void execute() {
-        //System.out.println("Execute Me: Method 1");
-        //System.out.println("********************* END TEST **********************");
         instructionPointer = controller.getInstructionPointer();
         instructionPointer += 2;
         controller.setInstructionPointer(instructionPointer);
@@ -298,14 +294,11 @@ public class Clock {
      * @param location
      */
     private void execute(int location) {
-        //System.out.println("Execute Me: Method 2");
-        //System.out.println("********************* END TEST **********************");
         instructionPointer = controller.getInstructionPointer();
         instructionPointer = location;
         controller.setInstructionPointer(instructionPointer);
         controller.setInstructionRegisterForJump();
         controller.setIPinstruction();    //update MAR
-        //controller.setInstructionRegister();
         controller.refreshMachineView();
     }
     
@@ -356,7 +349,7 @@ public class Clock {
     private void immediateLoad(int register, int memIndex) {
         String memory = Integer.toHexString(memIndex);
         controller.setRegisterValue(register, memory);
-        if (register == 0x0F){ // && rloadFlag != 15){
+        if (register == 0x0F){
             printRegisterF();
         }
     }
