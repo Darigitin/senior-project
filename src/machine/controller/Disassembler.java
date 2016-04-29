@@ -45,28 +45,26 @@ public class Disassembler {
     }
 
     /**
-     * Constructor used to create disassembler output for editor
-     * @param controller is needed to get SIP from the model
+     * Sets which MachineController that this Disassembler is tied to.
+     * @param controller - sets the global controller to the invoking controller.
      */
     public Disassembler(MachineController controller) {
         this.controller = controller;
     }
 
     /**
-     * Executed when Disassemble button is clicked
-     * @param instructionPointer - 
-     * @param bytecode - Array of strings representing current memory and IP state
-     * @return high level code for displaying in editor view
+     * Takes the provided instructionPointer and byteCode and generates a high level
+     * interpretation of the byteCode. 
+     * @param instructionPointer - location of the currently executing instruction.
+     * @param byteCode - Array of strings representing current memory and IP state.
+     * @return high level code for displaying in editor view.
      */
-    public String getDisassemble(String instructionPointer, String[] bytecode) {
-        input = bytecode;
+    public String getDisassemble(String instructionPointer, String[] byteCode) {
+        input = byteCode;
         ArrayList<String> output = new ArrayList<>();
         String code = "sip 0x" + instructionPointer + "\n";
-        for (int i = 0; i < bytecode.length; i += 2) {
-            //if (bytecode[i].equals("D2")) {
-            //    output.remove(output.size()-1);
-            //}
-            output.add(disassemble(bytecode[i], bytecode[i + 1], i));
+        for (int i = 0; i < byteCode.length; i += 2) {
+            output.add(disassemble(byteCode[i], byteCode[i + 1], i));
         }
         for(String line : output){
             code = code.concat(line + "\n");

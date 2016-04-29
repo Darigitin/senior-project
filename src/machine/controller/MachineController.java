@@ -337,10 +337,12 @@ public class MachineController {
     }
 
     /**
-     * 
-     * @param instructionPointer
-     * @param ramBytes
-     * @return 
+     * First resets the machine state. Then taking the provided instructionPointer String
+     * and String array ramBytes to invoke the Disassembler for generating the text for the
+     * Disassemble button action.
+     * @param instructionPointer - the location of the currently executing instruction.
+     * @param ramBytes - contents of memory starting at the instructionPointer.
+     * @return text containing the current sip and all contents of the ram starting at the sip.
      */
     public String performDisassemble(String instructionPointer, String[] ramBytes) {
         resetMachine();

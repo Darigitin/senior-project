@@ -31,6 +31,19 @@ public class ColumnHeaderRenderer extends DefaultTableCellRenderer {
         super.setOpaque(true);
     }
     
+   /**
+    * Returns the custom table cell renderer with overridden foreground background font and border.
+    * During a printing operation, this method will be called with isSelected and hasFocus values of false to prevent selection and focus from appearing in the printed output. To do other customization based on whether or not the table is being printed, check the return value from JComponent.isPaintingForPrint().
+    *
+    * @param table - the JTable \
+    * @param value - the value to assign to the cell at [row, column] 
+    * @param isSelected - true if cell is selected 
+    * @param hasFocus - true if cell has focus 
+    * @param row - the row of the cell to render 
+    * @param column - the column of the cell to render 
+    * @return the default table cell renderer 
+    * @see JComponent.isPaintingForPrint()
+    **/
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value,
             boolean isSelected, boolean hasFocus, int row, int column) {
