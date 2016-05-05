@@ -43,6 +43,9 @@
 
 package machine.controller;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -56,7 +59,40 @@ public class Clock {
     private final Disassembler disassembler = new Disassembler();
     private int speed;
     private int instructionCount;   //CHANGELOG: 7
-	
+    
+    private static final Map<String, String> VALIDOPERATIONMAP; //CHANGE LOG BEING: 36
+    static {
+        VALIDOPERATIONMAP = new HashMap<>();
+        VALIDOPERATIONMAP.put("00", "00"); //Matters
+        VALIDOPERATIONMAP.put("1", "[0-9a-fA-F]{3}");
+        VALIDOPERATIONMAP.put("2", "[0-9a-fA-F]{3}");
+        VALIDOPERATIONMAP.put("3", "[0-9a-fA-F]{3}");
+        VALIDOPERATIONMAP.put("4", "[0-9a-fA-F]{3}");
+        VALIDOPERATIONMAP.put("5", "[0-9a-fA-F]{3}");
+        VALIDOPERATIONMAP.put("60", "[0-9a-fA-F]{2}");
+        VALIDOPERATIONMAP.put("61", "[0-9a-fA-F]{2}");
+        VALIDOPERATIONMAP.put("62", "[0-9a-fA-F]{2}");
+        VALIDOPERATIONMAP.put("63", "01"); //Matters
+        VALIDOPERATIONMAP.put("64", "[0-9a-fA-F]{1}0"); //Matters
+        VALIDOPERATIONMAP.put("65", "[0-9a-fA-F]{1}0"); //Matters
+        VALIDOPERATIONMAP.put("7", "[0-9a-fA-F]{3}");
+        VALIDOPERATIONMAP.put("8", "[0-9a-fA-F]{3}");
+        VALIDOPERATIONMAP.put("9", "[0-9a-fA-F]{3}");
+        VALIDOPERATIONMAP.put("A0", "[0-9a-fA-F]{1}[0-8]{1}"); //Matters
+        VALIDOPERATIONMAP.put("A1", "[0-9a-fA-F]{1}[0-8]{1}"); //Matters
+        VALIDOPERATIONMAP.put("A2", "[0-9a-fA-F]{1}[0-8]{1}"); //Matters
+        VALIDOPERATIONMAP.put("A3", "[0-9a-fA-F]{1}[0-8]{1}"); //Matters
+        VALIDOPERATIONMAP.put("A4", "[0-9a-fA-F]{1}[0-8]{1}"); //Matters
+        VALIDOPERATIONMAP.put("B", "[0-9a-fA-F]{3}");
+        VALIDOPERATIONMAP.put("B0", "[0-9a-fA-F]{2}");
+        VALIDOPERATIONMAP.put("C0", "00"); //Matters
+        VALIDOPERATIONMAP.put("D0", "[0-9a-fA-F]{2}");
+        VALIDOPERATIONMAP.put("D1", "[0-9a-fA-F]{2}");
+        VALIDOPERATIONMAP.put("D2", "[0-9a-fA-F]{2}");
+        VALIDOPERATIONMAP.put("E", "[0-9a-fA-F]{3}");
+        VALIDOPERATIONMAP.put("F", "[0-9a-fA-F]{3}");
+    }
+    
     /**
      * Creates a Clock object every time an instruction is executed.
      * 
@@ -106,180 +142,194 @@ public class Clock {
      * Gets the instruction to be executed and calls the decode method.
      */
     private void fetch() {
-        int[] instructions = controller.getInstructionFromIP();
+        String[] instructions = controller.getInstructionFromIP();
+        System.out.println(Arrays.toString(instructions));
         decode(instructions);
     }
 
     /**
-     * //TODO
+     * Decodes the Operation and its Operands, checking for valid instructions
+     * and then calls the Execute method.
      * 
-     * @param instructions
+     * @param instructions - [Operation, Operand]
      */
-    private void decode(int[] instructions) {
-        // get the opcode
-        String operation = Integer.toHexString(instructions[0]);
-        String operand = Integer.toHexString(instructions[1]);
-        // if operation a single digit concatenate 0 to beginning 
-        if(operation.length() == 1)
-            operation = "0" + operation;
-        if(operand.length() == 1)
-            operand = "0" + operand;
-        // first nibble of opcode
-        char firstOpcode = Character.toUpperCase(operation.charAt(0));
-        // second nibble of opcode
-        char secondOpcode = Character.toUpperCase(operation.charAt(1));
-        // second Byte of opcode
-        char firstOperand = Character.toUpperCase(operand.charAt(0));
-        char secondOperand = Character.toUpperCase(operand.charAt(1));
-        int secondNibble = Character.digit(secondOpcode,16);
-        int thirdNibble = Character.digit(firstOperand,16);
-        int fourthNibble = Character.digit(secondOperand,16);
-        int secondByte = Integer.parseInt(operand, 16);
-        //System.out.println("Opcode Decoded: " + firstOpcode + secondOpcode);
-        switch(firstOpcode){
-            case '1':
+    private void decode(String[] instructions) {
+        String operation = instructions[0];
+        String operand = instructions[1];
+        String opNibble = operation.substring(0, 1);
+        boolean validOperation = false;
+        //Single Nibble Operations
+        if (VALIDOPERATIONMAP.containsKey(opNibble)) {
+            //System.out.println((operation.substring(1,2) + operand).matches(VALIDOPERATIONMAP.get(opNibble)) + " " + operand + " " + VALIDOPERATIONMAP.get(opNibble));
+            if ((operation.substring(1, 2) + operand).matches(VALIDOPERATIONMAP.get(opNibble))) {
+                validOperation = true;
+            }//end if
+        }//end if
+        //Byte Operations
+        else if (VALIDOPERATIONMAP.containsKey(operation)) {           
+            //System.out.println(operand.matches(VALIDOPERATIONMAP.get(operation)) + " " + operand + " " + VALIDOPERATIONMAP.get(operation));
+            if (operand.matches(VALIDOPERATIONMAP.get(operation))) {
+                validOperation = true;
+            }//end if
+        }//end else if
+        else {
+            int ip = controller.getInstructionPointer();
+            //if not at address 0 or 1
+            if (ip > 1) {
+                ip -= 2; //current executing instruction
+            }
+            System.out.println(ip);
+            controller.getFatalRunTimeErrorList().add("Invalid Instruction Decoded at "
+                    + "memory address " + Integer.parseInt(Integer.toString(ip), 16));
+            //Do not execute
+        }//end else
+        
+        if (validOperation) {
+            //Arguments to pass
+            int secondNibble = Integer.parseInt(operation.substring(1, 2), 16);
+            int thirdNibble = Integer.parseInt(operand.substring(0, 1), 16);
+            int fourthNibble = Integer.parseInt(operand.substring(1, 2), 16);
+            int secondByte = Integer.parseInt(operand, 16);
+            execute(secondByte, opNibble, secondNibble, thirdNibble, fourthNibble);
+        }
+    }
+    
+    /**
+     * 
+     * @param firstNibble - always part of the Operation
+     * @param secondNibble - sometimes part of the operand, sometimes part of the Operation
+     * @param thirdNibble - operand
+     * @param fourthNibble - operand
+     */
+    private void execute(int secondByte, String firstNibble, int secondNibble, int thirdNibble, int fourthNibble) {
+        boolean specialIP = false;
+        int location = 0;
+        switch(firstNibble) {
+            case "1":
                 directLoad(secondNibble,secondByte);
-                execute();
                 break;
-            case '2':
+            case "2":
                 //CHANGE LOG BEGIN - 1
-                //immediateLoad(secondNibble,secondByte);
                 immediateLoad(secondNibble, secondByte);
                 //CHANGE LOG END - 1
-                execute();
                 break;
-            case '3': 
+            case "3": 
                 directStore(secondNibble, secondByte);
-                execute();
                 break;
-            case '4': //CHANGE LOG: 6
-                //move(thirdNibble,fourthNibble);
+            case "4": //CHANGE LOG: 6
                 rload(secondNibble, thirdNibble, fourthNibble);
-                execute();
                 break;
-            case '5': 
+            case "5": 
                 add(secondNibble,thirdNibble,fourthNibble);
-                execute();
                 break;
-            case '6': 
-                switch (secondOpcode) {
-                case '0':
-                    // regular call
-                    call();
-                    execute(secondByte);
-                    break;
-                case '1':
-                    // regular return
-                    ret(secondByte);
-                    execute(controller.getInstructionPointer());
-                    break;
-                case '2':
-                    scall();
-                    execute(secondByte);
-                    break;
-                case '3':
-                    sret(secondByte);
-                    execute(controller.getInstructionPointer());
-                    break;
-                case '4':
-                    // push
-                    push(thirdNibble);
-                    execute();
-                    break;
-                case '5':
-                    // pop
-                    pop(thirdNibble);
-                    execute();
-                    break;
-                default:
-                    break;
+            case "6": 
+                switch(secondNibble) {
+                    case 0:
+                        // regular call
+                        call();
+                        specialIP = true;
+                        break;
+                    case 1:
+                        // regular return
+                        ret(secondByte);
+                        specialIP = true;
+                        location = controller.getInstructionPointer();
+                        break;
+                    case 2:
+                        scall();
+                        location = secondByte;
+                        specialIP = true;
+                        break;
+                    case 3:
+                        sret(secondByte);
+                        location = controller.getInstructionPointer();
+                        specialIP = true;
+                        break;
+                    case 4:
+                        // push
+                        push(thirdNibble);
+                        break;
+                    case 5:
+                        // pop
+                        pop(thirdNibble);
+                        break;
+                    default:
+                        break;
                 }
                 break;
-            case '7': 
+            case "7": 
                 or(secondNibble,thirdNibble,fourthNibble);
-                execute();
                 break;
-            case '8': 
+            case "8": 
                 and(secondNibble,thirdNibble,fourthNibble);
-                execute();
                 break;
-            case '9': 
+            case "9": 
                 xor(secondNibble,thirdNibble,fourthNibble);
-                execute();
                 break;
-            case 'A':
-                switch (secondOpcode) { //BEGIN CHANGE LOG: 5
-                    case '0':
+            case "A":
+                switch (secondNibble) { //BEGIN CHANGE LOG: 5
+                    case 0:
                         ror(thirdNibble, fourthNibble);
-                        execute();
                         break;
-                    case '1':
+                    case 1:
                         rol(thirdNibble, fourthNibble);
-                        execute();
                         break;
-                    case '2':
+                    case 2:
                         sra(thirdNibble, fourthNibble);
-                        execute();
                         break;
-                    case '3':
+                    case 3:
                         srl(thirdNibble, fourthNibble);
-                        execute();
                         break;
-                    case '4':
+                    case 4:
                         sl(thirdNibble, fourthNibble);
-                        execute();
                         break;
                     default:
                         break;
                 }
                 break;  //END CHANGE LOG: 5
-            case 'B':
+            case "B":
                 if (jump(secondNibble)) {
-                        execute(secondByte); //jmp
+                    location = secondByte;
+                    specialIP = true;
                 } else {
-                        execute();
                 }
                 break;
             // halt operation
-            case 'C': halt();
+            case "C": halt();
                 controller.updateIPwhenHalt();
                 break;
-            case 'D': 
-                if (secondOpcode == '0') { //ILOAD
+            case "D": 
+                if (secondNibble == 0) { //ILOAD
                     iload(thirdNibble, fourthNibble);
                 } 
-                else if (secondOpcode == '1') { //ISTORE
+                else if (secondNibble == 1) { //ISTORE
                     istore(thirdNibble, fourthNibble);
                 } 
-                else if (secondOpcode == '2') { //MOVE
+                else if (secondNibble == 2) { //MOVE
                     move(thirdNibble,fourthNibble); //CHANGE LOG: 5
-                    //rload(thirdNibble, fourthNibble);
                 }
-                execute();
                 break;
-            case 'E':
+            case "E":
                 rstore(secondNibble, thirdNibble, fourthNibble);
-                execute();
                 break;
-            case 'F':
+            case "F":
                 if(jmplt(secondNibble)){ // change "jmple" to "jmplt"
-                    execute(secondByte);
-                } else {
-                    execute();
+                    location = secondByte;
+                    specialIP = true;
                 }
                 break;
             default: 
-                execute();
                 break;
         }
+        if (specialIP){
+            updateInstructionPointer(location);
+        }
+        else
+            updateInstructionPointer();
         updateDisassembleDisplay();
     }
-
-    /**
-     * Regular execute
-     * //TODO
-     */
-    private void execute() {
+    
+    private void updateInstructionPointer() {
         instructionPointer = controller.getInstructionPointer();
         instructionPointer += 2;
         controller.setInstructionPointer(instructionPointer);
@@ -287,14 +337,8 @@ public class Clock {
         controller.setInstructionRegister();
         controller.refreshMachineView();
     }
-
-    /**
-     * Overloaded execute for jump instructions.
-     * //TODO
-     * @param location
-     */
-    private void execute(int location) {
-        instructionPointer = controller.getInstructionPointer();
+    
+    private void updateInstructionPointer(int location){
         instructionPointer = location;
         controller.setInstructionPointer(instructionPointer);
         controller.setInstructionRegisterForJump();
@@ -347,6 +391,7 @@ public class Clock {
      */
     //CHANGE LOG BEGIN - 1
     private void immediateLoad(int register, int memIndex) {
+        System.out.println(memIndex);
         String memory = Integer.toHexString(memIndex);
         controller.setRegisterValue(register, memory);
         if (register == 0x0F){
@@ -820,7 +865,7 @@ public class Clock {
         int IP = controller.getInstructionPointer();
         int relativeIP = 6;
         String[] codes = {"","","","","","","","","","","","","",""};
-        if ( (IP > 5 && IP < 249) && ( (IP % 2) == 0)) { // this should test first
+        if ( (IP > 5 && IP < 249) && ( (IP % 2) == 0)) { // this should test firstNibble
             codes[0] = controller.getMemoryValue(IP - 6);
             codes[1] = controller.getMemoryValue(IP - 5);
             codes[2] = controller.getMemoryValue(IP - 4);
