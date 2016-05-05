@@ -64,7 +64,7 @@ public class Disassembler {
         ArrayList<String> output = new ArrayList<>();
         String code = "sip 0x" + instructionPointer + "\n";
         for (int i = 0; i < byteCode.length; i += 2) {
-            output.add(disassemble(byteCode[i], byteCode[i + 1], i));
+            output.add(disassemble(byteCode[i], byteCode[i + 1]));
         }
         for(String line : output){
             code = code.concat(line + "\n");
@@ -89,7 +89,7 @@ public class Disassembler {
         for (int i = 0; i < bytecode.length; i += 2) {
             if ( (IP * 2) == i) {
                 String outText;
-                outText = disassemble(bytecode[i], bytecode[i + 1], i);
+                outText = disassemble(bytecode[i], bytecode[i + 1]);
                 if (outText.length() > 11) {
                     output.add(outText + " <<");
                 } else if (outText.length() < 8){
@@ -98,7 +98,7 @@ public class Disassembler {
                     output.add(outText + "\t<<");
                 }
             } else {
-                output.add(disassemble(bytecode[i], bytecode[i + 1], i));
+                output.add(disassemble(bytecode[i], bytecode[i + 1]));
             }
         }
         for(String line : output){
@@ -108,13 +108,13 @@ public class Disassembler {
     }
 
     /**
-     * 
-     * @param firstByte
-     * @param secondByte
-     * @param location
-     * @return 
+     * Takes the firstByte and secondByte of byteCode passed in and generates a 
+     * high level code string of the byteCode and returns it.
+     * @param firstByte - first byte of the byte code instruction
+     * @param secondByte - second byte of the byte code instruction
+     * @return string containing the high level code of the passed in byte code.
      */
-    private String disassemble(String firstByte, String secondByte, int location) {
+    private String disassemble(String firstByte, String secondByte) {
         String firstNibble = firstByte.substring(0, 1);
         String secondNibble = firstByte.substring(1, 2);
         String thirdNibble = secondByte.substring(0, 1);
@@ -133,15 +133,6 @@ public class Disassembler {
             case "4":
                 //CHANGE LOG BEGIN: 3
                 return "rload " + "R" + thirdNibble + ",0x" + secondNibble + "[R" + fourthNibble + "]";
-//                String fb = input[location - 2];
-//                    String sb = input[location - 1];
-//                    if (fb.substring(0, 1).equals("2") && fb.substring(1, 2).equals(thirdNibble)) {
-//                        // delete last operation then do this
-//                        return "rload " + "R" + thirdNibble + ",0x0" + sb.substring(1, 2) + "[R" + fourthNibble + "]";  //Change #1
-//                    } else {
-//                        return "ERROR";
-//                    }
-                //CHANGE LOG END: 3
             case "5":
                 return "add " + "R" + secondNibble + ",R" + thirdNibble + ",R" + fourthNibble;
             case "6":
@@ -200,14 +191,14 @@ public class Disassembler {
                     //original code
                     //return "istore " + "R" + thirdNibble + ",[R" + fourthNibble	+ "]";
                 case "2": //CHANGE LOG: 3
-                    return "move " + "R" + fourthNibble + ",R" + thirdNibble;
+                    return "move " + "R" + thirdNibble + ",R" + fourthNibble;
                 default:
                     return "invalid";
             }
             case "E":
                 //modified code
                 return "rstore " + "0x" + secondNibble + "[R"
-			+ thirdNibble + "]"+ " ,R" + secondNibble; //CHANGE LOG: 3
+			+ thirdNibble + "]"+ " ,R" + fourthNibble; //CHANGE LOG: 3
                 //original code
 		/*return "rstore " + "R" + thirdNibble + ",0x" + secondNibble + "[R"
                     + fourthNibble + "]";*/

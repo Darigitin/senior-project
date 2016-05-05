@@ -58,7 +58,8 @@ public class MachineController {
     private final ArrayList<String> nonFatalMemErrorList = new ArrayList<>();
 
     /**
-     * 
+     * Constructor method, initializes the machineView, and sets the initial state
+     * of the lastAssembleProg array list to a null state.
      */
     public MachineController() {
         machineView = new MachineView(this);
@@ -69,15 +70,16 @@ public class MachineController {
     }
 
     /**
+     * Informs the caller if the machine is currently running or not.
      * 
-     * @return 
+     * @return true if the isRunning is true, false otherwise.
      */
     public boolean isRunning() {
         return isRunning;
     }
 
     /**
-     * Called by the Run button handler
+     * If the machine is not running, starts the clock and sets isRunning to true.
      */
     public void runClock() {
         if (!isRunning) {
@@ -87,7 +89,10 @@ public class MachineController {
     }
 
     /**
-     * Called by Reset button handler
+     * Resets the machine back to its default state, setting isRunning to false,
+     * cancels the clock timer, resets the clock instruction count, reseting the machineView,
+     * removes all entries in the fatalMemErrorList, loads lastAssembledProg, refreshes the machinView,
+     * sets all textAreas back to their default state, and finally resets the ActivationRecords.
      */
     public void resetMachine() {
         isRunning = false;
@@ -106,7 +111,7 @@ public class MachineController {
     }
 
     /**
-     * Called by Stop button handler
+     * Stops the clock by setting isRunning to false and canceling the clock timer.
      */
     public void stopClock() {
         isRunning = false;
@@ -114,11 +119,10 @@ public class MachineController {
     }
 
     /**
-     * Called by Step button handler
+     * Stops the clock and then steps the clock forward one step.
      */
     public void stepClock() {
-        isRunning = false;
-        clock.timer.cancel();
+        stopClock();
         if (fatalMemErrorList.isEmpty() && nonFatalMemErrorList.isEmpty()) {
             clock.step();
         }
@@ -132,13 +136,14 @@ public class MachineController {
     }
 
     /**
-     * 
+     * Resets the machine and assembles the high level code currently located in
+     * the text editor.
      */
     public void performAssemble() {
         resetMachine();
-        Assembler assembler = new Assembler(this);
+        Assembler assembler1 = new Assembler(this);
         String text = machineView.getEditorText();
-        ArrayList<String> codes = assembler.parse(text);
+        ArrayList<String> codes = assembler1.parse(text);
         lastAssembledProg.clear();
         lastAssembledProg = codes;
         if (!machineView.getErrorTextArea().isVisible()) {
@@ -148,8 +153,8 @@ public class MachineController {
     }
     
     /**
-     * 
-     * @param consoleText 
+     * Sets the machineView Disassemble text area to the provided string consoleText.
+     * @param consoleText - String of disassembled byteCode to be loaded into the Disassembler Text Area.
      */
     public void setDisassText(String consoleText) {
         machineView.getDisassTextArea().setText(consoleText);
@@ -165,8 +170,8 @@ public class MachineController {
     }
     
     /**
-     * Sets the InstructionCounterTextArea with the current instructionCount
-     * @param instructionCount 
+     * Sets the InstructionCounterTextArea with the current instructionCount.
+     * @param instructionCount - current number of instructions executed by the clock.
      */
     public void setInstructionCounterText(int instructionCount){
         machineView.getInstructionCountTextArea().setText(
@@ -176,8 +181,8 @@ public class MachineController {
     /**
      * When code is assembled loadMachine
      * populates all registers and memory table
-     * with appropriate values
-     * @param Array of bitCode
+     * with appropriate values.
+     * @param Array of byteCode.
      */
     private void loadMachine(ArrayList<String> codes) {
 	int memoryIndex = 0;
@@ -203,7 +208,10 @@ public class MachineController {
     }
     
     /**
-     * setClockSpeed is used to change the clock speed.
+     * Sets the clock clockSpeed to the passed in integer speed or to 500 if speed is 
+     * not a valid speed. Also if the the clock is running it cancels the current clock
+     * and reruns it based off the new speed.
+     * 
      * @param speed - integer value between 1 and 10 - 1 is slowest, 10 is fastest
      */
     public void setClockSpeed(int speed) {
@@ -253,9 +261,9 @@ public class MachineController {
     }
 
     /**
+     * Returns the contents of the Instruction Register as an integer array.
      * 
-     * @return The contents in the instruction register
-     * parsed as hexadecimal integer
+     * @return the contents in the instruction register parsed as hexadecimal integer
      */
     public int[] getInstructionRegister() {
         String[] ir = machineView.getInstructionRegister().split(" ");
@@ -264,7 +272,8 @@ public class MachineController {
     }
     
     /**
-     * 
+     * Sets the Instruction Register to the byte code located by the machineViews 
+     * instruction pointer value.
      */
     public void setInstructionRegister() {
         int ip = Integer.parseInt(machineView.getInstructionPointer(), 16);
@@ -273,13 +282,17 @@ public class MachineController {
         machineView.setInstructionRegister(newir[0] + " " + newir[1]);
     }
     
-    //update the current conent to IF before jump
+    /**
+     * Special setInstructionRegister for the jump instructions.
+     */
     public void setInstructionRegisterForJump() {
         machineView.setInstructionRegister(MemoryAddressRegister[0] + " " 
                 + MemoryAddressRegister[1]);
     }
         
-    //set the current instruction register after the fetch phase
+    /**
+     * Sets the instruction pointer to what the machineView instruction pointer.
+     */
     public void setIPinstruction() {           
         int ip = Integer.parseInt(machineView.getInstructionPointer(), 16);
         String[] newir = {machineView.getRAMBytes(ip).toUpperCase(), 
@@ -287,27 +300,37 @@ public class MachineController {
         MemoryAddressRegister[0] = newir[0];
         MemoryAddressRegister[1] = newir[1];
     }
-        
-    public int[] getInstructionFromIP() {
+    
+    /**
+     * Returns an integer array that holds the instruction that the instruction pointer 
+     * is pointing to.
+     * 
+     * @return integer array containing the instruction pointed to by the instruction
+     * pointer.
+     */
+    public String[] getInstructionFromIP() {
         String[] ir = MemoryAddressRegister;
         if (ir[0] == null || ir[1] == null) {
             fatalMemErrorList.add("Error: Nothing Assembled into memory.");
-            int[] invalid = {0,0};
+            String[] invalid = {"00", "00"};
             return invalid;
         }
         else {
-            int[] instructions = {Integer.parseInt(ir[0], 16),
-                                Integer.parseInt(ir[1], 16)};
+            String[] instructions = {ir[0], ir[1]};
             return instructions;
         }
     }
-        
+    
+    /**
+     * Updates the Instruction Point when the halt instruction has been reached.
+     */
     public void updateIPwhenHalt(){
         machineView.setInstructionRegister("C0 00");
     }
 
     /**
-     * Called by Clock to get Instruction Pointer
+     * Returns the Instruction Pointer that the machineView currently has.
+     * 
      * @return Instruction Pointer
      */
     public int getInstructionPointer() {
@@ -325,21 +348,23 @@ public class MachineController {
     }
 
     /**
-     * Called by Clock to set Instruction Pointer
-     * with new value
-     * @param value -
+     * Set Instruction Pointer to the integer value passed after converting it to
+     * a hex value.
+     * @param ip - value to set the instruction pointer to.
+     * 
      */
-    public void setInstructionPointer(int value) {
-        String newValue = Integer.toHexString(value).toUpperCase();
-        if(newValue.length() == 1)
-            newValue = "0" + newValue;
-        machineView.setInstructionPointer(newValue);
+    public void setInstructionPointer(int ip) {
+        String newIp = Integer.toHexString(ip).toUpperCase();
+        if(newIp.length() == 1)
+            newIp = "0" + newIp;
+        machineView.setInstructionPointer(newIp);
     }
 
     /**
      * First resets the machine state. Then taking the provided instructionPointer String
      * and String array ramBytes to invoke the Disassembler for generating the text for the
      * Disassemble button action.
+     * 
      * @param instructionPointer - the location of the currently executing instruction.
      * @param ramBytes - contents of memory starting at the instructionPointer.
      * @return text containing the current sip and all contents of the ram starting at the sip.
@@ -359,9 +384,9 @@ public class MachineController {
     }
 
     /**
-    * Displays the errorList in the Editor depending on the boolean
-    * value specified
-    * @param errorList
+    * Sets the machineView error text area to the passed in errorList.
+    * 
+    * @param errorList - list containing currently encountered errors.
     */
     public void setEditorErrors(ArrayList<String> errorList) {
         StringBuilder sb = new StringBuilder();
@@ -461,6 +486,15 @@ public class MachineController {
         else {
             return machineView.getRAMBytes(index);
         }
+    }
+    
+    /**
+     * Returns the fatalMemErrorList to the call.
+     * 
+     * @return String ArrayList containing all fatal errors encountered.
+     */
+    public ArrayList<String> getFatalRunTimeErrorList(){
+        return fatalMemErrorList;
     }
 
      /**
