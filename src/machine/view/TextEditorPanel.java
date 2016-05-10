@@ -52,6 +52,7 @@ public class TextEditorPanel extends javax.swing.JPanel {
     private TextEditorFrame editorWindow;
     private TextEditor editorWindowTextEditor;
     private TextEditorPanel editorWindowTextEditorPanel;
+    private int fontStarterIndex;
     
     /**
      * Creates new form TextEditorPanel
@@ -164,6 +165,12 @@ public class TextEditorPanel extends javax.swing.JPanel {
             //GraphicsConfiguration.
             fontNames = env.getAvailableFontFamilyNames();
         }
+        
+        for (int i = 0; i < fontNames.length; i++) {
+            if (fontNames[i].equals("Arial")){
+                fontStarterIndex = i;
+            }        
+        }
         return fontNames;
     }
     
@@ -184,7 +191,7 @@ public class TextEditorPanel extends javax.swing.JPanel {
         fontSizeLabel = new javax.swing.JLabel();
         fontSizeComboBox = new javax.swing.JComboBox(SIZES);
         splitJoinButton = new javax.swing.JButton();
-        themeLabel = new javax.swing.JLabel();
+        schemeLabel = new javax.swing.JLabel();
         fontThemeComboBox = new javax.swing.JComboBox();
         textEditorPanel = new javax.swing.JPanel();
         textEditor = new machine.model.TextEditor();
@@ -201,7 +208,7 @@ public class TextEditorPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
         textEditorControlsPanel.add(fontLabel, gridBagConstraints);
 
-        fontComboBox.setSelectedIndex(2);
+        fontComboBox.setSelectedIndex(fontStarterIndex);
         fontComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 fontComboBoxActionPerformed(evt);
@@ -240,11 +247,12 @@ public class TextEditorPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 4);
         textEditorControlsPanel.add(splitJoinButton, gridBagConstraints);
 
-        themeLabel.setText("Theme: ");
+        schemeLabel.setText("Scheme: ");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        textEditorControlsPanel.add(themeLabel, gridBagConstraints);
+        textEditorControlsPanel.add(schemeLabel, gridBagConstraints);
+        schemeLabel.getAccessibleContext().setAccessibleName("");
 
         fontThemeComboBox.setModel(new javax.swing.DefaultComboBoxModel(THEMES));
         fontThemeComboBox.addActionListener(new java.awt.event.ActionListener() {
@@ -334,6 +342,7 @@ public class TextEditorPanel extends javax.swing.JPanel {
                     editorWindowTextEditor.setBackGround(textEditor.getBackGroundString());
                     editorWindowTextEditor.setTextColor(textEditor.getTextColorString());
                     editorWindowTextEditorPanel.fontThemeComboBox.setSelectedIndex(fontThemeComboBox.getSelectedIndex());
+                    editorWindowTextEditor.setTextPaneFont(textEditor.getFont());
                     machineView.pack();
                     editorWindow.pack();
                     //Dimension stuff = machineView.getPreferredSize();
@@ -346,12 +355,13 @@ public class TextEditorPanel extends javax.swing.JPanel {
                     machineView.getTextEditorPanel().getSplitJoinButton().setText("Split Editor"); //CHANGE LOG: 3
                     machineView.setTitle("WALL - Machine Simulator");
                     machineView.getTextEditorPanel().getEditorPane().setText(codeInEditor);
-                    machineView.getTextEditorPanel().getTextEditor().setTextPaneFont(textEditor.getFont());
-                    machineView.getTextEditorPanel().getTextEditor().setBackGround(textEditor.getBackGroundString());
-                    machineView.getTextEditorPanel().getTextEditor().setTextColor(textEditor.getTextColorString());
+                    machineView.getTextEditorPanel().getTextEditor().setTextPaneFont(editorWindow.getTextEditorPanel().getTextEditor().getFont());
+                    machineView.getTextEditorPanel().getTextEditor().setBackGround(editorWindow.getTextEditorPanel().getTextEditor().getBackGroundString());
+                    machineView.getTextEditorPanel().getTextEditor().setTextColor(editorWindow.getTextEditorPanel().getTextEditor().getTextColorString());
                     machineView.getTextEditorPanel().fontComboBox.setSelectedIndex(editorWindow.getTextEditorPanel().fontComboBox.getSelectedIndex());
                     machineView.getTextEditorPanel().fontSizeComboBox.setSelectedIndex(editorWindow.getTextEditorPanel().fontSizeComboBox.getSelectedIndex());
                     machineView.getTextEditorPanel().fontThemeComboBox.setSelectedIndex(editorWindow.getTextEditorPanel().fontThemeComboBox.getSelectedIndex());
+                    machineView.getTextEditorPanel().getTextEditor().setTextPaneFont(editorWindow.getFont());
                     editorWindow.dispose();
                     //CHANGE LOG BEGIN: 4
                     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -399,9 +409,9 @@ public class TextEditorPanel extends javax.swing.JPanel {
                 backGroundColor = "WHITE";
                 break;
         }
-                
-        textEditor.setTextColor(textColor);
-        textEditor.setBackGround(backGroundColor);  //END CHANGE LOG: 2
+               
+        this.textEditor.setTextColor(textColor);
+        this.textEditor.setBackGround(backGroundColor);  //END CHANGE LOG: 2
     }//GEN-LAST:event_fontThemeComboBoxActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -411,11 +421,11 @@ public class TextEditorPanel extends javax.swing.JPanel {
     public javax.swing.JComboBox fontSizeComboBox;
     private javax.swing.JLabel fontSizeLabel;
     private javax.swing.JComboBox fontThemeComboBox;
+    private javax.swing.JLabel schemeLabel;
     public javax.swing.JButton splitJoinButton;
     public javax.swing.JTextArea syntaxErrorDisplay;
     public machine.model.TextEditor textEditor;
     public javax.swing.JPanel textEditorControlsPanel;
     public javax.swing.JPanel textEditorPanel;
-    private javax.swing.JLabel themeLabel;
     // End of variables declaration//GEN-END:variables
 }

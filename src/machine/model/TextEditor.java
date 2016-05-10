@@ -125,7 +125,7 @@ public class TextEditor extends JScrollPane implements Serializable {
             Color backGround = Color.getHSBColor(hsbvals[0], hsbvals[1], hsbvals[2]);
             textPane.setBackground(backGround);
             hsbvals = Color.RGBtoHSB(71, 225, 12, hsbvals);
-            colorArray[3] = Color.getHSBColor(hsbvals[0], hsbvals[1], hsbvals[2]);
+            colorArray[3] = Color.getHSBColor(hsbvals[0], hsbvals[1], hsbvals[2]).darker();
                 
         }
         setTextPaneFont(textPane.getFont());   
@@ -143,12 +143,12 @@ public class TextEditor extends JScrollPane implements Serializable {
             case "GREEN":
                 hsbvals = Color.RGBtoHSB(71, 225, 12, hsbvals);
                 colorArray[0] = Color.getHSBColor(hsbvals[0], hsbvals[1], hsbvals[2]);
-                colorArray[1] = Color.BLUE;
+                colorArray[1] = Color.BLUE.brighter().brighter();
                 colorArray[2] = Color.RED;
                 colorArray[3] = Color.getHSBColor((float) 0.11,(float) .80,(float) 0.90);
                 break;
             case "BLUE":
-                colorArray[0] = Color.BLUE;
+                colorArray[0] = Color.BLUE.brighter().brighter();
                 hsbvals = Color.RGBtoHSB(87, 54, 131, hsbvals);
                 colorArray[1] = Color.getHSBColor(hsbvals[0], hsbvals[1], hsbvals[2]);
                 colorArray[2] = Color.RED;
@@ -156,24 +156,25 @@ public class TextEditor extends JScrollPane implements Serializable {
                 break;
             case "WHITE":
                 colorArray[0] = Color.WHITE;
-                colorArray[1] = Color.BLUE;
+                colorArray[1] = Color.BLUE.brighter().brighter();
                 colorArray[2] = Color.RED;
                 colorArray[3] = Color.getHSBColor((float) 0.11,(float) .80,(float) 0.90);
                 break;
             case "RED":
                 colorArray[0] = Color.RED;
-                colorArray[1] = Color.BLUE;
+                colorArray[1] = Color.BLUE.brighter().brighter();
                 hsbvals = Color.RGBtoHSB(87, 54, 131, hsbvals);
                 colorArray[2] = Color.getHSBColor(hsbvals[0], hsbvals[1], hsbvals[2]);
                 colorArray[3] = Color.getHSBColor((float) 0.11,(float) .80,(float) 0.90);
                 break;
             default: //BLACK
                 colorArray[0] = Color.BLACK;
-                colorArray[1] = Color.BLUE;
+                colorArray[1] = Color.BLUE.brighter().brighter();
                 colorArray[2] = Color.RED;
-                colorArray[3] = Color.getHSBColor((float) 0.11,(float) .80,(float) 0.90);
+                colorArray[3] = Color.getHSBColor((float) 0.11,(float) .80,(float) 0.90).darker().darker();
                 break;
         }
+        updateFont();
     }   //END CHANGE LOG: 2
     
     public String getTextColorString(){
